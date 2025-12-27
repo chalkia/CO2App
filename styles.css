@@ -767,3 +767,9 @@ select option{
   .container{max-width: 780px;}
   .pageTitle{font-size: 32px;}
 }
+
+
+/* Dashboard centering safeguards */
+.panel{ margin-left:auto; margin-right:auto; }
+#dashTitle{ text-align:center; }
+.chartCard h3{ text-align:center; }

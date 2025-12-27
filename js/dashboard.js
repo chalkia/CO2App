@@ -190,12 +190,39 @@
   }
 
   // --- Load values from calculator ---
-  const euTarget = toNum(localStorage.getItem("EU_TARGET"), 2.3);
-  const userTotal = toNum(localStorage.getItem("USER_TOTAL"), 0);
+    // Read results saved by footprint calculator (supports both new and legacy keys)
+  function getFirstNumber(keys, fallback){
+    for (const k of keys){
+      const v = localStorage.getItem(k);
+      const n = toNum(v, NaN);
+      if (Number.isFinite(n)) return n;
+    }
+    return fallback;
+  }
+  function getFirstJSON(keys, fallback){
+    for (const k of keys){
+      const v = getJSON(k, null);
+      if (v !== null && v !== undefined) return v;
+    }
+    return fallback;
+  }
 
-  const homeValues = getJSON("CO2_HOME_VALUES", [0, 0]);           // [heating, other electricity/uses]
-  const transportValues = getJSON("CO2_TRANSPORT_VALUES", [0, 0]); // [car, public]
-  const lifeValues = getJSON("CO2_LIFE_VALUES", [0, 0, 0]);        // [food, goods, flights]
+  const euTarget = getFirstNumber(["euTargetTons","EU_TARGET"], 2.3);
+  const userTotal = getFirstNumber(["userTotalTons","USER_TOTAL"], 0);
+
+  // NOTE: footprint.js saves arrays as:
+  // homeValues: [heating, otherUses]
+  // transportValues: [car, public]
+  // lifestyleValues: [goods, food, flights]
+  // dashboard uses: home=[heating, other], transport=[car, public], life=[food, goods, flights]
+  const homeValues = getFirstJSON(["homeValues","CO2_HOME_VALUES"], [0, 0]);
+  const transportValues = getFirstJSON(["transportValues","CO2_TRANSPORT_VALUES"], [0, 0]);
+  const lifestyleRaw = getFirstJSON(["lifestyleValues","CO2_LIFE_VALUES"], [0, 0, 0]);
+
+  // Reorder if needed (legacy)
+  const lifeValues = Array.isArray(lifestyleRaw) && lifestyleRaw.length >= 3
+    ? [toNum(lifestyleRaw[1],0), toNum(lifestyleRaw[0],0), toNum(lifestyleRaw[2],0)] // [food, goods, flights]
+    : [0,0,0];
 
   // Titles / KPI
   setText("dashTitle", TEXT.title);
