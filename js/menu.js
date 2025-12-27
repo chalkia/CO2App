@@ -71,6 +71,12 @@ function buildNav(){
       const img = document.createElement("img");
       img.src = iconBase + "homeN.png";
       img.alt = "";
+      img.width = 26;
+      img.height = 26;
+      img.style.width = "26px";
+      img.style.height = "26px";
+      img.style.display = "block";
+      img.style.objectFit = "contain";
       ic.appendChild(img);
     } else if (it.icon === "co2"){
       ic.textContent = "CO₂";
@@ -84,6 +90,12 @@ function buildNav(){
       const img = document.createElement("img");
       img.src = iconBase + "bookN.png";
       img.alt = "";
+      img.width = 26;
+      img.height = 26;
+      img.style.width = "26px";
+      img.style.height = "26px";
+      img.style.display = "block";
+      img.style.objectFit = "contain";
       ic.appendChild(img);
     } else {
       ic.textContent = "•";

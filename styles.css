@@ -684,3 +684,86 @@ h1, h2, h3, .homePrimaryTitle, .homePrimarySub, .homeChip, .statsBar{
   font-weight: 700;
   color: var(--danger);
 }
+
+
+/* === iOS color fixes for buttons/selects (prevent default blue text) === */
+button, .choiceBtn, .optLetter{
+  color: var(--text);
+  -webkit-text-fill-color: var(--text);
+}
+select, input[type="number"], input[type="range"]{
+  color: var(--text);
+  -webkit-text-fill-color: var(--text);
+}
+select option{
+  color: var(--text);
+}
+
+/* Keep correct/wrong overrides stronger */
+.optionText.answerCorrect .optAns{
+  -webkit-text-fill-color: var(--accent);
+}
+.optionText.answerWrong .optAns{
+  -webkit-text-fill-color: var(--danger);
+}
+
+/* Info/About slightly wider on desktop */
+@media (min-width: 900px){
+  .infoWide .card{ max-width: 760px; }
+  .infoWide .topbar{ max-width: 760px; }
+}
+
+
+/* Dashboard (donut charts) */
+.pageTitle{
+  margin: 0 0 14px;
+  font-size: 28px;
+  line-height: 1.15;
+}
+.sectionTitle{
+  margin: 0 0 8px;
+  font-size: 22px;
+  text-align: center;
+}
+.chartCard{padding-top: 18px;}
+.chartWrap{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding: 6px 0 2px;
+}
+
+/* KPI boxes (compatible with older .kpi styles) */
+.kpiBox{
+  background:#f5f5f5;
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 14px 18px;
+  min-width: 170px;
+  text-align:center;
+}
+.kpiBox.kpiEu{border-bottom: 4px solid var(--accent)}
+.kpiBox.kpiUser{border-bottom: 4px solid var(--accent2)}
+.kpiUnit{color:#666; font-size: 1.05rem; font-weight:700; margin-left: 6px;}
+
+/* Donut labels */
+.donutLabel{
+  font-size: 14px;
+  font-weight: 800;
+  fill: #2b2b2b;
+}
+.donutValue{
+  font-size: 14px;
+  font-weight: 900;
+  fill: #2b2b2b;
+}
+.donutLeader{
+  stroke: rgba(0,0,0,.25);
+  stroke-width: 2;
+  fill: none;
+}
+
+@media (min-width: 980px){
+  .container{max-width: 780px;}
+  .pageTitle{font-size: 32px;}
+}

@@ -1,45 +1,41 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="el">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Info</title>
-
-  <link rel="manifest" href="../manifest.webmanifest">
-  <meta name="theme-color" content="#74a974">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <link rel="apple-touch-icon" href="../assets/icons/icon-192.png">
-
-  <link rel="stylesheet" href="../styles.css" />
-</head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Info</title>
+<link href="../manifest.webmanifest" rel="manifest"/>
+<meta content="#74a974" name="theme-color"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<link href="../assets/icons/icon-192.png" rel="apple-touch-icon"/>
+<link href="../styles.css" rel="stylesheet">
+</link></head>
 <body>
-  <div class="container">
-    <div class="panel" id="mainPanel">
-      <div class="topbar">
-        <button class="iconBtn" id="menuBtn" aria-label="Menu"><span class="hamburger"><span></span></span></button>
-        <div class="topbarSpacer"></div>
-      </div>
-
-      <div class="card">
-        <h2 id="title" style="margin:0 0 10px 0;"></h2>
-        <div id="content" style="line-height:1.35;"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="drawerBackdrop" id="drawerBackdrop" aria-hidden="true"></div>
-  <nav class="drawer" id="drawer" aria-hidden="true">
-    <div class="drawerHeader">
-      <div class="drawerTitle">CO2app</div>
-      <button class="iconBtn" id="drawerClose" aria-label="Close menu">×</button>
-    </div>
-    <div class="drawerSection" id="drawerNav"></div>
-    <div class="drawerSection" id="drawerLang"></div>
-  </nav>
-
-  <script src="../js/common.js"></script>
-  <script src="../js/menu.js"></script>
-  <script>
+<div class="container">
+<div class="panel infoWide" id="mainPanel">
+<div class="topbar">
+<button aria-label="Menu" class="iconBtn" id="menuBtn"><span class="hamburger"><span></span></span></button>
+<div class="topbarSpacer"></div>
+</div>
+<div class="card">
+<h2 id="title" style="margin:0 0 10px 0;"></h2>
+<div id="content" style="line-height:1.35;"></div>
+</div>
+</div>
+</div>
+<div aria-hidden="true" class="drawerBackdrop" id="drawerBackdrop"></div>
+<nav aria-hidden="true" class="drawer" id="drawer">
+<div class="drawerHeader">
+<div class="drawerTitle">CO2app</div>
+<button aria-label="Close menu" class="iconBtn" id="drawerClose">×</button>
+</div>
+<div class="drawerSection" id="drawerNav"></div>
+<div class="drawerSection" id="drawerLang"></div>
+</nav>
+<script src="../js/common.js"></script>
+<script src="../js/menu.js"></script>
+<script>
     const lang = getLang();
     document.getElementById("title").textContent = (lang === "el") ? "Πληροφορίες" : "Info";
 
