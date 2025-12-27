@@ -14,3 +14,10 @@ How to deploy:
 Notes:
 - Quiz questions are in: assets/questions/quiz2.json
 - Footprint model (bases + factors) is in: assets/footprintModel.json
+
+
+Update 2:
+- Added hamburger drawer menu (Home, Quiz, Footprint, Info, About + language switch).
+- Info page loads localized HTML from assets/info.
+- About page added.
+- Cache version bumped to v2.

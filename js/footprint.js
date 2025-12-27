@@ -149,8 +149,6 @@ function saveForDashboard(res){
 document.addEventListener("DOMContentLoaded", async ()=>{
   initLangButtons();
 
-  document.getElementById("homeBtn").addEventListener("click", ()=>go("../index.html"));
-
   const resp = await fetch("../assets/footprintModel.json", {cache:"no-store"});
   model = await resp.json();
 

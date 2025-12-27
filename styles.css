@@ -297,3 +297,122 @@ select, input[type="number"], input[type="range"]{
 }
 .legendItem{display:flex; align-items:center; gap:8px; font-size:.98rem}
 .swatch{width:14px; height:14px; border-radius:4px;}
+
+
+/* Panel wrapper so controls sit inside a clear panel on the green background */
+.panel{
+  width:100%;
+  max-width: 540px;
+  background: rgba(255,255,255,.18);
+  border-radius: 26px;
+  padding: 10px 10px 14px;
+  box-shadow: 0 10px 28px rgba(0,0,0,.10);
+}
+
+/* Hamburger icon (pure CSS) */
+.hamburger{
+  display:block;
+  width: 18px;
+  height: 12px;
+  position: relative;
+}
+.hamburger::before,
+.hamburger::after,
+.hamburger span{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  height:2px;
+  background: rgba(36,66,55,.85);
+  border-radius:2px;
+}
+.hamburger::before{top:0}
+.hamburger span{top:5px}
+.hamburger::after{bottom:0}
+
+/* Drawer */
+.drawerBackdrop{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.30);
+  display:none;
+  z-index: 50;
+}
+
+.drawer{
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: min(320px, 88vw);
+  background: #ffffff;
+  box-shadow: 14px 0 40px rgba(0,0,0,.22);
+  transform: translateX(-105%);
+  transition: transform .22s ease;
+  z-index: 60;
+  padding: 12px;
+  display:flex;
+  flex-direction:column;
+  gap: 12px;
+}
+
+.drawer.open{
+  transform: translateX(0);
+}
+
+.drawerHeader{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+}
+
+.drawerTitle{
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: var(--text);
+}
+
+.drawerSection{
+  display:flex;
+  flex-direction:column;
+  gap: 8px;
+}
+
+.drawerItem{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  cursor:pointer;
+  background: rgba(0,0,0,.03);
+  user-select:none;
+}
+.drawerItem:hover{
+  background: rgba(47,74,49,.10);
+}
+
+.drawerItem.active{
+  background: rgba(47,74,49,.14);
+  outline: 2px solid rgba(47,74,49,.18);
+}
+
+.drawerIcon{
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  background: rgba(47,74,49,.10);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight: 900;
+  color: var(--accent);
+  overflow:hidden;
+}
+.drawerIcon img{width: 18px; height: 18px; display:block}
+.drawerText{
+  font-weight: 800;
+  color: var(--text);
+}

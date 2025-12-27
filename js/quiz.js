@@ -143,8 +143,6 @@ async function loadQuiz(){
 document.addEventListener("DOMContentLoaded", async ()=>{
   initLangButtons();
 
-  document.getElementById("homeBtn").addEventListener("click", ()=>go("../index.html"));
-
   document.querySelectorAll(".choiceBtn").forEach(btn=>{
     btn.addEventListener("click", ()=>{
       if (idx >= questions.length) {

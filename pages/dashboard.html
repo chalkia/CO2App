@@ -14,9 +14,10 @@
 </head>
 <body>
   <div class="container">
+    <div class="panel" id="mainPanel">
     <div class="topbar">
-      <button class="iconBtn" id="backBtn" aria-label="Back">←</button>
-      <button class="iconBtn" id="homeBtn" aria-label="Home">⌂</button>
+      <button class="iconBtn" id="menuBtn" aria-label="Menu"><span class="hamburger"><span></span></span></button>
+      <div style="width:44px;height:44px;"></div>
     </div>
 
     <div class="card">
@@ -45,13 +46,10 @@
       </div>
     </div>
 
-    <div class="bottomRow">
-      <button class="pillBtn" data-lang="en">EN</button>
-      <button class="pillBtn" data-lang="el">ΕΛ</button>
-    </div>
-  </div>
+    
 
   <script src="../js/common.js"></script>
+  <script src="../js/menu.js"></script>
   <script src="../js/dashboard.js"></script>
 </body>
 </html>

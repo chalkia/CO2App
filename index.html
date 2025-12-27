@@ -14,8 +14,11 @@
 </head>
 <body>
   <div class="container">
+    <div class="panel" id="mainPanel">
     <div class="topbar">
+      <button class="iconBtn" id="menuBtn" aria-label="Menu"><span class="hamburger"><span></span></span></button>
       <div style="width:44px;height:44px;"></div>
+    </div>
       <div style="width:44px;height:44px;"></div>
     </div>
 
@@ -28,14 +31,10 @@
       <button class="bigBtn" id="btnFoot"></button>
     </div>
 
-    <div class="bottomRow">
-      <button class="pillBtn" id="btnInfo"></button>
-      <button class="pillBtn" data-lang="en">EN</button>
-      <button class="pillBtn" data-lang="el">ΕΛ</button>
-    </div>
-  </div>
+    
 
   <script src="./js/common.js"></script>
+  <script src="./js/menu.js"></script>
   <script>
     initLangButtons();
 
@@ -44,22 +43,17 @@
       el: {
         quiz: "ΤΙ ΓΝΩΡΙΖΕΙΣ ΓΙΑ ΤΟ CO2;",
         footprint: "ΥΠΟΛΟΓΙΣΕ ΤΟ ΑΠΟΤΥΠΩΜΑ CO2",
-        info: "info"
-      },
+              },
       en: {
         quiz: "CO2 QUIZ",
         footprint: "CARBON FOOTPRINT",
-        info: "info"
-      }
+              }
     }[lang];
 
     document.getElementById("btnQuiz").textContent = T.quiz;
     document.getElementById("btnFoot").textContent = T.footprint;
-    document.getElementById("btnInfo").textContent = T.info;
-
     document.getElementById("btnQuiz").addEventListener("click", ()=>go("./pages/quiz.html"));
     document.getElementById("btnFoot").addEventListener("click", ()=>go("./pages/footprint.html"));
-    document.getElementById("btnInfo").addEventListener("click", ()=>go("./pages/info.html"));
 
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => navigator.serviceWorker.register("./service-worker.js"));

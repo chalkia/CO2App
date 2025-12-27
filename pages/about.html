@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Info</title>
+  <title>About</title>
 
   <link rel="manifest" href="../manifest.webmanifest">
   <meta name="theme-color" content="#74a974">
@@ -24,7 +24,7 @@
 
       <div class="card">
         <h2 id="title" style="margin:0 0 10px 0;"></h2>
-        <div id="content" style="line-height:1.35;"></div>
+        <div id="body" style="white-space:pre-wrap; line-height:1.35;"></div>
       </div>
     </div>
   </div>
@@ -46,25 +46,19 @@
   <script src="../js/menu.js"></script>
   <script>
     const lang = getLang();
-    const title = (lang === "el") ? "Πληροφορίες" : "Info";
-    document.getElementById("title").textContent = title;
+    const T = {
+      el: {
+        title: "About",
+        body: "Η εφαρμογή CO2app δημιουργήθηκε το 2025 με χρηματοδότηση του Δήμου Αγίου Νικολάου για τον Περιβαλλοντικό Σταθμό Φινοκαλιά, που λειτουργεί το Χημικό Τμήμα της Σχολής Θετικών Επιστημών του Πανεπιστημίου Κρήτης. Ο σχεδιασμός, η επιλογή του περιεχομένου και ο προγραμματισμός της εφαρμογής έγινε από τον Κωστή Χαλκιαδάκη, υπεύθυνο του Ε.Κ.Φ.Ε. Ρεθύμνου."
+      },
+      en: {
+        title: "About",
+        body: "The CO2app was created in 2025 with funding from the Municipality of Agios Nikolaos, for the Finokalia Atmospheric Station operated by the Department of Chemistry, School of Sciences, University of Crete. The design, content selection, and development of the app were carried out by Kostis Chalkiadakis, head of the Rethymno School Laboratory Center (E.K.F.E.)."
+      }
+    }[lang];
 
-    const url = (lang === "el") ? "../assets/info/Info_gr.html" : "../assets/info/InfoEn.html";
-
-    async function loadInfo(){
-      const resp = await fetch(url, {cache:"no-store"});
-      const txt = await resp.text();
-
-      // Try to extract body content if full HTML provided
-      const bodyMatch = txt.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-      const html = bodyMatch ? bodyMatch[1] : txt;
-
-      // Insert as HTML
-      const c = document.getElementById("content");
-      c.innerHTML = html;
-    }
-
-    loadInfo();
+    document.getElementById("title").textContent = T.title;
+    document.getElementById("body").textContent = T.body;
   </script>
 </body>
 </html>
