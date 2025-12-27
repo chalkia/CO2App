@@ -154,6 +154,8 @@ function buildLangToggle(){
 }
 
 document.addEventListener("DOMContentLoaded", ()=>{
+  try{ if (typeof initHomeButton === "function") initHomeButton(); }catch(e){}
+
   buildNav();
   buildLangToggle();
 
