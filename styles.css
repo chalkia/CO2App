@@ -415,7 +415,7 @@ select, input[type="number"], input[type="range"]{
   overflow:hidden;
 }
 
-.drawerIcon img{width: 18px; height: 18px; display:block}
+.drawerIcon img{width:26px; height:26px; object-fit:contain; display:block;}
 .drawerText{ font-weight: 800; color: var(--text); }
 
 /* Quiz: avoid "choking" text inside buttons (especially restart / long lines) */
