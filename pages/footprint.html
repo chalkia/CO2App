@@ -42,11 +42,13 @@
           <select id="heatingType"></select>
         </div>
         <div class="field">
-          <label id="lblHomeUse"></label>
-          <div class="rangeRow">
-            <input type="range" id="homeUse" min="0.5" max="1.5" step="0.05" value="1">
-            <div class="rangeValue" id="homeUseVal">1.00×</div>
-          </div>
+  <label id="lblHomeUse" for="homeUse"></label>
+  <div class="rangeRow">
+    <input type="range" id="homeUse" min="0.5" max="1.5" step="0.05" value="1.0">
+    <div class="rangeValue" id="homeUseVal" style="display:none;">1.00×</div>
+  </div>
+  <div class="small" id="homeUseLabel"></div>
+</div>
         </div>
       </div>
     </div>
@@ -54,57 +56,60 @@
     <div class="card">
       <h3 id="trTitle" style="margin:0 0 10px 0;"></h3>
       <div class="formGrid">
-        <div class="field">
-          <label id="lblWeeklyKm" for="weeklyKm"></label>
-          <input type="number" id="weeklyKm" min="0" max="2000" step="1" value="120">
-        </div>
-
-        <div class="field">
-          <label id="lblCarType" for="carType"></label>
-          <select id="carType"></select>
-        </div>
-
-        <div class="field">
-          <label id="lblPublicType" for="publicType"></label>
-          <select id="publicType"></select>
-        </div>
-
-        <div class="field">
-          <label id="lblPublicPct"></label>
-          <div class="rangeRow">
-            <input type="range" id="publicPct" min="0" max="100" step="1" value="0">
-            <div class="rangeValue" id="publicPctVal">0%</div>
-          </div>
-        </div>
-
-        <div class="field" style="flex-direction:row; align-items:center; justify-content:space-between; gap:12px;">
-          <label id="lblAlone" for="travelsAlone" style="margin:0;"></label>
-          <input type="checkbox" id="travelsAlone" checked style="width:22px; height:22px;">
+  <div class="field">
+    <label id="lblWeeklyKm" for="weeklyKm"></label>
+    <div class="row2">
+      <input type="number" id="weeklyKm" min="0" max="2000" step="1" value="50">
+      <div class="field" style="flex:1;">
+        <label id="lblPublicPct" for="publicPct"></label>
+        <div class="rangeRow">
+          <input type="range" id="publicPct" min="0" max="100" step="5" value="0">
+          <div class="rangeValue" id="publicPctVal">0%</div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div class="field">
+    <label id="lblCarType" for="carType"></label>
+    <div class="row2">
+      <select id="carType"></select>
+      <label class="checkLine"><input type="checkbox" id="alone"> <span id="lblAlone"></span></label>
+    </div>
+  </div>
+
+  <div class="field">
+    <label id="lblPublicType" for="publicType"></label>
+    <select id="publicType"></select>
+  </div>
+</div></div>
     </div>
 
     <div class="card">
       <h3 id="lifeTitle" style="margin:0 0 10px 0;"></h3>
       <div class="formGrid">
-        <div class="field">
-          <label id="lblGoods" for="goodsLevel"></label>
-          <select id="goodsLevel"></select>
-        </div>
-        <div class="field">
-          <label id="lblFoodLevel" for="foodLevel"></label>
-          <select id="foodLevel"></select>
-        </div>
-        <div class="field">
-          <label id="lblDiet" for="diet"></label>
-          <select id="diet"></select>
-        </div>
-        <div class="field">
-          <label id="lblFlights" for="flightTrips"></label>
-          <input type="number" id="flightTrips" min="0" max="30" step="1" value="0">
-          <div class="small" id="flightHint"></div>
-        </div>
-      </div>
+  <div class="field">
+    <label id="lblDiet" for="diet"></label>
+    <select id="diet"></select>
+  </div>
+
+  <div class="field">
+    <label id="lblFoodLevel" for="foodLevel"></label>
+    <select id="foodLevel"></select>
+  </div>
+
+  <div class="field">
+    <label id="lblGoods" for="goodsLevel"></label>
+    <select id="goodsLevel"></select>
+    <div class="small" id="goodsHint"></div>
+  </div>
+
+  <div class="field">
+    <label id="lblFlights" for="flightTrips"></label>
+    <input type="number" id="flightTrips" min="0" max="30" step="1" value="0">
+    <div class="small" id="flightHint"></div>
+  </div>
+</div></div>
     </div>
 
     <div class="card">

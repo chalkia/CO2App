@@ -30,21 +30,22 @@ function T(){
       subtitle: "Τα αποτελέσματα είναι προσεγγιστικά (σχετικό μοντέλο με πολλαπλασιαστικούς συντελεστές).",
       home: "Κατοίκηση",
       transport: "Μεταφορές",
-      lifestyle: "Διατροφή & Προϊόντα",
+      lifestyle: "Διατροφή και Lifestyle",
       homeType: "Τύπος κατοικίας",
       homeCond: "Κατάσταση / μόνωση",
       heating: "Τύπος θέρμανσης",
-      homeUse: "Ηλεκτρική κατανάλωση (σε σχέση με τον μέσο όρο)",
+      homeUse: "Πώς κρίνετε τη χρήση ηλεκτρικής ενέργειας που κάνετε στο σπίτι;",
       weeklyKm: "Απόσταση με μετακινήσεις (km/εβδομάδα)",
       carType: "Κύρια επιλογή μετακίνησης",
       publicType: "Δημόσια μέσα",
       publicPct: "Ποσοστό χρήσης δημόσιων μέσων",
       alone: "Ταξιδεύω μόνος/η",
       goods: "Κατανάλωση προϊόντων",
-      foodLevel: "Ποσότητα / σπατάλη τροφίμων",
+      goodsHint: "Αφορά καταναλωτικά προϊόντα (π.χ. ρούχα, ηλεκτρονικά, lifestyle).",
+      foodLevel: "Σπατάλη τροφίμων",
       diet: "Τύπος διατροφής",
-      flights: "Αεροπορικά ταξίδια (500 km το καθένα)",
-      flightHint: "Κάθε ταξίδι υπολογίζεται ως 0.1 t CO₂ (100 kg).",
+      flights: "Αεροπορικά ταξίδια",
+      flightHint: "Ταξίδια μέσης απόστασης (εντός Ευρώπης).",
       total: "Σύνολο",
       calc: "Υπολόγισε",
       dash: "Dashboard"
@@ -54,21 +55,22 @@ function T(){
       subtitle: "Approximate results (relative model using multiplicative factors).",
       home: "Home",
       transport: "Transport",
-      lifestyle: "Diet & Goods",
+      lifestyle: "Diet & Lifestyle",
       homeType: "Home type",
       homeCond: "Condition / insulation",
       heating: "Heating type",
-      homeUse: "Electricity use (vs average)",
+      homeUse: "How would you rate your household electricity use?",
       weeklyKm: "Distance travelled (km/week)",
       carType: "Main travel mode",
       publicType: "Public transport",
       publicPct: "Share of public transport",
       alone: "I travel alone",
       goods: "Goods consumption",
-      foodLevel: "Food amount / waste",
+      goodsHint: "Consumer goods (e.g., clothes, electronics, lifestyle items).",
+      foodLevel: "Food waste",
       diet: "Diet type",
-      flights: "Flights (each 500 km)",
-      flightHint: "Each trip counts as 0.1 t CO₂ (100 kg).",
+      flights: "Flights",
+      flightHint: "Medium-distance trips (within Europe).",
       total: "Total",
       calc: "Calculate",
       dash: "Dashboard"
@@ -207,6 +209,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   document.getElementById("lblAlone").textContent = t.alone;
 
   document.getElementById("lblGoods").textContent = t.goods;
+  const gh = document.getElementById("goodsHint"); if (gh) gh.textContent = t.goodsHint;
   document.getElementById("lblFoodLevel").textContent = t.foodLevel;
   document.getElementById("lblDiet").textContent = t.diet;
   document.getElementById("lblFlights").textContent = t.flights;
@@ -231,11 +234,30 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   // Range display
   const homeUse = document.getElementById("homeUse");
   const publicPct = document.getElementById("publicPct");
-  function updateRanges(){
-    document.getElementById("homeUseVal").textContent = `${fmt(homeUse.value,2)}×`;
-    document.getElementById("publicPctVal").textContent = `${publicPct.value}%`;
-  }
-  homeUse.addEventListener("input", updateRanges);
+  function homeUseQual(v){
+  const lang = getLang();
+  const x = Number(v);
+  // thresholds: 0.5–1.5
+  const el = ["Πολύ συνετή", "Συνετή", "Κανονική", "Υπερβολική", "Κατάχρηση"];
+  const en = ["Very frugal", "Frugal", "Normal", "High", "Excessive"];
+  const levels = (lang === "en") ? en : el;
+  let idx = 2;
+  if (x <= 0.70) idx = 0;
+  else if (x <= 0.90) idx = 1;
+  else if (x <= 1.10) idx = 2;
+  else if (x <= 1.30) idx = 3;
+  else idx = 4;
+  return levels[idx];
+}
+
+function updateRanges(){
+  const hv = document.getElementById("homeUseVal");
+  if (hv) hv.textContent = `${fmt(homeUse.value,2)}×`;
+  const hl = document.getElementById("homeUseLabel");
+  if (hl) hl.textContent = homeUseQual(homeUse.value);
+  document.getElementById("publicPctVal").textContent = `${publicPct.value}%`;
+}
+homeUse.addEventListener("input", updateRanges);("input", updateRanges);
   publicPct.addEventListener("input", updateRanges);
   updateRanges();
 

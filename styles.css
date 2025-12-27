@@ -431,3 +431,14 @@ select, input[type="number"], input[type="range"]{
 #opt1, #opt2, #opt3{
   white-space: normal;
 }
+
+
+/* Two items on the same line (stacks on small screens) */
+.row2{display:flex; gap:12px; align-items:flex-end;}
+.row2 > *{flex:1;}
+.checkLine{display:flex; align-items:center; gap:10px; font-weight:700; padding:10px 12px; border:1px solid rgba(0,0,0,.15); border-radius:14px; background:#fff;}
+.checkLine input{width:auto;}
+@media (max-width: 600px){
+  .row2{flex-direction:column; align-items:stretch;}
+  .checkLine{padding:10px 12px;}
+}
