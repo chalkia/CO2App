@@ -93,6 +93,20 @@ function buildNav(){
     tx.className = "drawerText";
     tx.textContent = it.label;
 
+    // Show last quiz score next to Quiz
+    if (it.icon === "quiz"){
+      try{
+        const qs = localStorage.getItem("quizScore");
+        const n = Number(qs);
+        if (qs !== null && !Number.isNaN(n)){
+          const badge = document.createElement("span");
+          badge.className = "quizBadge";
+          badge.textContent = `${n}/100`;
+          tx.appendChild(badge);
+        }
+      }catch(e){}
+    }
+
     div.appendChild(ic);
     div.appendChild(tx);
 

@@ -442,3 +442,7 @@ select, input[type="number"], input[type="range"]{
   .row2{flex-direction:column; align-items:stretch;}
   .checkLine{padding:10px 12px;}
 }
+
+
+/* Menu: quiz score badge */
+.quizBadge{ margin-left: 10px; color: var(--accent2); font-weight: 900; }

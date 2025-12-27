@@ -1,6 +1,7 @@
 let questions = [];
 let idx = 0;
 let score = 0;
+const QUIZ_SCORE_KEY = "quizScore";
 const POINTS_PER_QUESTION = 10; // 10 questions -> 100 max
 
 function langKey(){
@@ -85,6 +86,14 @@ function render(){
     document.getElementById("opt2").textContent = "";
     document.getElementById("opt3").textContent = "";
     document.getElementById("hint").textContent = t.resultMsg(score);
+
+    // persist last quiz score so it can appear in the menu
+    try{
+      localStorage.setItem(QUIZ_SCORE_KEY, String(score));
+    }catch(e){}
+    // refresh menu (if open on this page)
+    try{ if (typeof buildMenu === "function") buildMenu(); }catch(e){}
+
 
     // show a single restart button
     setChoiceLabelsForRestart();
