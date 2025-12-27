@@ -573,7 +573,9 @@ body.homeNoDrawer #drawerBackdrop{
   padding: 10px 12px;
   font-weight: 700;
   cursor: default;
+  box-shadow: 0 10px 22px rgba(0,0,0,.14);
 }
+.homeChip:active{transform:translateY(1px); box-shadow:0 7px 16px rgba(0,0,0,.16);} 
 .homeChipIconImg{
   width: 20px;
   height: 20px;
@@ -595,6 +597,90 @@ body.homeNoDrawer #drawerBackdrop{
 }
 
 
-:root{--uiFont:"Comfortaa", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;}
-body{font-family:var(--uiFont);}
-button, .btn, .heroBtn, .drawerItem, .drawerText, select, input{font-family:var(--uiFont);}
+
+/* === Typography: Comfortaa only for menus + headings + key UI (not for quiz Q/A bodies) === */
+:root{
+  --uiFont:"Comfortaa", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --bodyFont: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+body{ font-family: var(--bodyFont); }
+
+/* Menu */
+.drawerTitle, .drawerText{ font-family: var(--uiFont); }
+
+/* Headings across the app */
+h1, h2, h3, .homePrimaryTitle, .homePrimarySub, .homeChip, .statsBar{
+  font-family: var(--uiFont);
+}
+
+/* Footprint: titles (h2/h3) are already Comfortaa; body remains default. */
+
+/* Desktop width: slightly wider column */
+@media (min-width: 900px){
+  .card{ max-width: 640px; }
+  .topbar{ max-width: 640px; }
+}
+
+/* Footprint horizontal section chips (desktop) */
+.footNavRow{
+  width:100%;
+  max-width: 520px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+@media (min-width: 900px){
+  .footNavRow{ max-width: 640px; justify-content:space-between; }
+}
+.footNavBtn{
+  flex:1;
+  min-width: 140px;
+  border:none;
+  border-radius: 16px;
+  padding: 12px 12px;
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 6px 18px rgba(0,0,0,.08);
+  font-family: var(--uiFont);
+  font-weight: 700;
+  cursor:pointer;
+}
+.footNavBtn:active{ transform: translateY(1px); }
+
+/* === Quiz typography refinements === */
+.questionText{
+  font-family: var(--bodyFont) !important;
+  font-weight: 700; /* Bold question */
+}
+.optionText{
+  font-family: var(--bodyFont) !important;
+  font-weight: 500; /* normal-ish for answers */
+  line-height: 1.35;
+}
+.optLetter{
+  font-family: var(--uiFont);
+  font-weight: 700;
+  margin-right: 10px;
+  display:inline-block;
+  min-width: 26px;
+}
+.optAns{
+  font-family: var(--bodyFont);
+  font-weight: 500;
+}
+
+/* A/B/Γ buttons stay Comfortaa */
+.choiceBtn{
+  font-family: var(--uiFont) !important;
+  font-weight: 700;
+}
+
+/* Correct / wrong styling (temporary colors) */
+.optionText.answerCorrect .optAns{
+  font-weight: 700;
+  color: var(--accent);
+}
+.optionText.answerWrong .optAns{
+  font-weight: 700;
+  color: var(--danger);
+}

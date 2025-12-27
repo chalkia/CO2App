@@ -9,8 +9,8 @@
 <meta content="#74a974" name="theme-color"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <link href="../assets/icons/icon-192.png" rel="apple-touch-icon"/>
-<link href="../styles.css" rel="stylesheet">
-</link></head>
+<link href="../styles.css" rel="stylesheet"/>
+</head>
 <body>
 <div class="container">
 <div class="panel" id="mainPanel">
@@ -19,11 +19,11 @@
 <div class="topbarSpacer"></div>
 </div>
 </div>
-<div class="card">
+<div class="card" id="cardIntro">
 <h2 id="title" style="margin:0 0 8px 0;"></h2>
 <div class="small" id="subtitle"></div>
-</div>
-<div class="card">
+</div><div class="card"><div class="footNavRow"><button class="footNavBtn" id="navHome" type="button"></button><button class="footNavBtn" id="navTransport" type="button"></button><button class="footNavBtn" id="navLifestyle" type="button"></button></div></div>
+<div class="card" id="cardHome">
 <h3 id="homeTitle" style="margin:0 0 10px 0;"></h3>
 <div class="formGrid">
 <div class="field">
@@ -41,11 +41,11 @@
 <div class="field"><label for="homeUse" id="lblHomeUse"></label><div class="rangeRow"><input id="homeUse" max="1.5" min="0.5" step="0.05" type="range" value="1.0"/><div class="rangeValue" id="homeUseVal" style="display:none;">1.00×</div></div><div class="small" id="homeUseLabel"></div></div>
 </div>
 </div>
-<div class="card">
+<div class="card" id="cardTransport">
 <h3 id="trTitle" style="margin:0 0 10px 0;"></h3>
 <div class="formGrid"><div class="field"><label for="weeklyKm" id="lblWeeklyKm"></label><div class="row2"><input id="weeklyKm" max="2000" min="0" step="1" type="number" value="50"/><div class="field" style="flex:1;"><label for="publicPct" id="lblPublicPct"></label><div class="rangeRow"><input id="publicPct" max="100" min="0" step="5" type="range" value="0"/><div class="rangeValue" id="publicPctVal">0%</div></div></div></div></div><div class="field"><label for="carType" id="lblCarType"></label><div class="row2"><select id="carType"></select><label class="checkLine"><input id="alone" type="checkbox"/><span id="lblAlone"></span></label></div></div><div class="field"><label for="publicType" id="lblPublicType"></label><select id="publicType"></select></div></div>
 </div>
-<div class="card">
+<div class="card" id="cardLifestyle">
 <h3 id="lifeTitle" style="margin:0 0 10px 0;"></h3>
 <div class="formGrid"><div class="field"><label for="diet" id="lblDiet"></label><select id="diet"></select></div><div class="field"><label for="foodLevel" id="lblFoodLevel"></label><select id="foodLevel"></select></div><div class="field"><label for="goodsLevel" id="lblGoods"></label><select id="goodsLevel"></select><div class="small" id="goodsHint"></div></div><div class="field"><label for="flightTrips" id="lblFlights"></label><input id="flightTrips" max="30" min="0" step="1" type="number" value="0"/><div class="small" id="flightHint"></div></div></div>
 </div>
@@ -62,7 +62,6 @@
 </div>
 </div>
 </div>
-
 <script src="../js/common.js"></script>
 <script src="../js/menu.js"></script>
 <script src="../js/footprint.js"></script>

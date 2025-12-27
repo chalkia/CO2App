@@ -3,6 +3,54 @@ let idx = 0;
 let score = 0;
 const QUIZ_SCORE_KEY = "quizScore";
 const POINTS_PER_QUESTION = 10; // 10 questions -> 100 max
+// Feedback toggles (feel free to disable later)
+const ENABLE_VIBRATION = true;
+const ENABLE_SOUND = true;
+
+let _audioCtx = null;
+function beep(ok){
+  if (!ENABLE_SOUND) return;
+  try{
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    if (!_audioCtx) _audioCtx = new AudioCtx();
+    // ensure running (iOS requires a user gesture; this is called from click)
+    if (_audioCtx.state === "suspended") _audioCtx.resume();
+    const o = _audioCtx.createOscillator();
+    const g = _audioCtx.createGain();
+    o.type = "sine";
+    o.frequency.value = ok ? 880 : 220;
+    g.gain.value = 0.03; // subtle
+    o.connect(g); g.connect(_audioCtx.destination);
+    const now = _audioCtx.currentTime;
+    o.start(now);
+    o.stop(now + (ok ? 0.06 : 0.10));
+  }catch(e){}
+}
+
+function vibrateWrong(){
+  if (!ENABLE_VIBRATION) return;
+  try{
+    if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
+  }catch(e){}
+}
+
+function clearAnswerMarks(){
+  ["opt1","opt2","opt3"].forEach(id=>{
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove("answerCorrect","answerWrong");
+  });
+}
+
+function markAnswers(choice, right){
+  clearAnswerMarks();
+  const chosen = document.getElementById("opt"+choice);
+  const correct = document.getElementById("opt"+right);
+  if (correct) correct.classList.add("answerCorrect");
+  if (chosen && choice !== right) chosen.classList.add("answerWrong");
+}
+
 
 function langKey(){
   // quiz json uses 'gr' / 'en'
@@ -82,6 +130,7 @@ function render(){
   if (idx >= questions.length){
     // finished view
     document.getElementById("question").textContent = t.finishedTitle;
+    clearAnswerMarks();
     document.getElementById("opt1").textContent = t.finalScore(score);
     document.getElementById("opt2").textContent = "";
     document.getElementById("opt3").textContent = "";
@@ -106,11 +155,12 @@ function render(){
 
   const q = questions[idx];
   setStats();
+  clearAnswerMarks();
 
   document.getElementById("question").textContent = q.question[k] || "";
-  document.getElementById("opt1").textContent = `A.  ${q.a1[k] || ""}`;
-  document.getElementById("opt2").textContent = `B.  ${q.a2[k] || ""}`;
-  document.getElementById("opt3").textContent = `${k === "gr" ? "Γ" : "C"}.  ${q.a3[k] || ""}`;
+  document.getElementById("opt1").innerHTML = `<span class="optLetter">A</span><span class="optAns">${q.a1[k] || ""}</span>`;
+  document.getElementById("opt2").innerHTML = `<span class="optLetter">B</span><span class="optAns">${q.a2[k] || ""}</span>`;
+  document.getElementById("opt3").innerHTML = `<span class="optLetter">${k === "gr" ? "Γ" : "C"}</span><span class="optAns">${q.a3[k] || ""}</span>`;
   document.getElementById("hint").textContent = t.hint;
 
   setChoiceLabelsForQuestion();
@@ -162,8 +212,11 @@ document.addEventListener("DOMContentLoaded", async ()=>{
       const q = questions[idx];
       const ok = (choice === Number(q.right));
       if (ok) score = Math.min(100, score + POINTS_PER_QUESTION);
+      markAnswers(choice, Number(q.right));
+      beep(ok);
+      if (!ok) vibrateWrong();
       showModal(ok, q);
-    });
+});
   });
 
   document.getElementById("modalOk").addEventListener("click", ()=>{

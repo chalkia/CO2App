@@ -196,6 +196,23 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   document.getElementById("homeTitle").textContent = t.home;
   document.getElementById("trTitle").textContent = t.transport;
   document.getElementById("lifeTitle").textContent = t.lifestyle;
+  // Section navigation chips
+  const navHome = document.getElementById("navHome");
+  const navTransport = document.getElementById("navTransport");
+  const navLifestyle = document.getElementById("navLifestyle");
+  if (navHome) navHome.textContent = t.home;
+  if (navTransport) navTransport.textContent = t.transport;
+  if (navLifestyle) navLifestyle.textContent = t.lifestyle;
+
+  function goTo(id){
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({behavior:"smooth", block:"start"});
+  }
+  if (navHome) navHome.addEventListener("click", ()=>goTo("cardHome"));
+  if (navTransport) navTransport.addEventListener("click", ()=>goTo("cardTransport"));
+  if (navLifestyle) navLifestyle.addEventListener("click", ()=>goTo("cardLifestyle"));
+
 
   document.getElementById("lblHomeType").textContent = t.homeType;
   document.getElementById("lblHomeCond").textContent = t.homeCond;
