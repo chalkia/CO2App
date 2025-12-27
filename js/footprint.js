@@ -1,5 +1,27 @@
 let model = null;
 
+function val(x){
+  if (x === null || x === undefined) return 0;
+  if (typeof x === 'number') return x;
+  if (typeof x === 'object' && 'value' in x) return Number(x.value);
+  return Number(x) || 0;
+}
+
+function getUILabel(dim){
+  const lang = getLang();
+  if (model && model.ui && model.ui[dim]) return model.ui[dim].labels[lang];
+  // fallback legacy
+  return (model && model.legacy && model.legacy.labels && model.legacy.labels[lang]) ? model.legacy.labels[lang][dim] : null;
+}
+
+function getUIOrder(dim){
+  if (model && model.ui && model.ui[dim]) return model.ui[dim].order;
+  // fallback legacy: indices 0..n-1
+  const lang = getLang();
+  const legacy = (model && model.legacy && model.legacy.labels && model.legacy.labels[lang]) ? model.legacy.labels[lang][dim] : [];
+  return Array.isArray(legacy) ? legacy.map((_,i)=>String(i)) : [];
+}
+
 function T(){
   const lang = getLang();
   return {
@@ -54,12 +76,21 @@ function T(){
   }[lang];
 }
 
-function populateSelect(sel, items){
+function populateSelect(sel, dim){
   sel.innerHTML = "";
-  items.forEach((txt, i)=>{
+  const order = getUIOrder(dim);
+  const labels = getUILabel(dim);
+
+  order.forEach((id, i)=>{
     const opt = document.createElement("option");
-    opt.value = String(i);
-    opt.textContent = txt;
+    opt.value = String(id);
+    if (labels && typeof labels === 'object' && !Array.isArray(labels)){
+      opt.textContent = labels[id] ?? String(id);
+    } else if (Array.isArray(labels)){
+      opt.textContent = labels[i] ?? String(id);
+    } else {
+      opt.textContent = String(id);
+    }
     sel.appendChild(opt);
   });
 }
@@ -70,21 +101,22 @@ function getNumber(id){
 }
 
 function compute(){
-  const f = model.factors;
-  const b = model.base;
-  const c = model.constants;
+  const f = (model.factors || {});
+  const b = (model.base || {});
+  const c = (model.constants || {});
+  const t = (model.targets || {});
 
   // Home
-  const homeTypeIdx = Number(document.getElementById("homeType").value);
-  const homeCondIdx = Number(document.getElementById("homeCond").value);
-  const heatingIdx = Number(document.getElementById("heatingType").value);
+  const homeTypeId = String(document.getElementById("homeType").value);
+  const homeCondId = String(document.getElementById("homeCond").value);
+  const heatingId = String(document.getElementById("heatingType").value);
   const homeUseFactor = getNumber("homeUse");
 
   const heatingKg =
-    b.heatingKgPerYear *
-    f.homeType[homeTypeIdx] *
-    f.homeCondition[homeCondIdx] *
-    f.heatingType[heatingIdx];
+    val(b.heatingKgPerYear) *
+    val(f.homeType?.[homeTypeId]) *
+    val(f.homeCondition?.[homeCondId]) *
+    val(f.heatingType?.[heatingId]);
 
   const useKg = b.homeUseKgPerYear * homeUseFactor;
 
@@ -94,7 +126,7 @@ function compute(){
   // Transport
   const weeklyKm = getNumber("weeklyKm");
   const carIdx = Number(document.getElementById("carType").value);
-  const publicIdx = Number(document.getElementById("publicType").value);
+  const publicId = String(document.getElementById("publicType").value);
   const pPublic = getNumber("publicPct") / 100;
   const travelsAlone = document.getElementById("travelsAlone").checked;
   const carAloneFactor = travelsAlone ? 1 : c.carPoolFactor;
@@ -114,7 +146,7 @@ function compute(){
   const transportTons = carTons + publicTons;
 
   // Lifestyle: goods + food + flights
-  const goodsIdx = Number(document.getElementById("goodsLevel").value);
+  const goodsId = String(document.getElementById("goodsLevel").value);
   const foodLevelIdx = Number(document.getElementById("foodLevel").value);
   const dietIdx = Number(document.getElementById("diet").value);
   const trips = getNumber("flightTrips");
@@ -122,7 +154,7 @@ function compute(){
   const goodsTons = (b.goodsKgPerYear * f.goodsLevel[goodsIdx]) / 1000;
   const foodTons = (b.foodKgPerYear * f.foodLevel[foodLevelIdx] * f.diet[dietIdx]) / 1000;
 
-  const kgPerTrip = c.flightKgPerKmPerPassenger * c.flightTripDistanceKm; // 100 kg
+  const kgPerTrip = val(c.flightKgPerKmPerPassenger) * val(c.flightTripDistanceKm);
   const flightsTons = (trips * kgPerTrip) / 1000; // 0.1 t each
 
   const lifestyleValues = [goodsTons, foodTons, flightsTons];
@@ -143,7 +175,7 @@ function saveForDashboard(res){
   localStorage.setItem("transportValues", JSON.stringify(res.transportValues));
   localStorage.setItem("lifestyleValues", JSON.stringify(res.lifestyleValues));
   localStorage.setItem("userTotalTons", String(res.totalTons));
-  localStorage.setItem("euTargetTons", String(model.base.euTargetTonsPerYear));
+  localStorage.setItem("euTargetTons", String(val(model.targets?.euTargetTonsPerYear)));
 }
 
 document.addEventListener("DOMContentLoaded", async ()=>{
@@ -186,16 +218,16 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   document.getElementById("btnDash").textContent = t.dash;
 
   // Populate selects
-  populateSelect(document.getElementById("homeType"), labels.homeType);
-  populateSelect(document.getElementById("homeCond"), labels.homeCondition);
-  populateSelect(document.getElementById("heatingType"), labels.heatingType);
+  populateSelect(document.getElementById("homeType"), "homeType");
+  populateSelect(document.getElementById("homeCond"), "homeCondition");
+  populateSelect(document.getElementById("heatingType"), "heatingType");
 
-  populateSelect(document.getElementById("carType"), labels.carType);
-  populateSelect(document.getElementById("publicType"), labels.publicTransport);
+  populateSelect(document.getElementById("carType"), "carType");
+  populateSelect(document.getElementById("publicType"), "publicTransport");
 
-  populateSelect(document.getElementById("goodsLevel"), labels.goodsLevel);
-  populateSelect(document.getElementById("foodLevel"), labels.foodLevel);
-  populateSelect(document.getElementById("diet"), labels.diet);
+  populateSelect(document.getElementById("goodsLevel"), "goodsLevel");
+  populateSelect(document.getElementById("foodLevel"), "foodLevel");
+  populateSelect(document.getElementById("diet"), "diet");
 
   // Range display
   const homeUse = document.getElementById("homeUse");

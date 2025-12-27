@@ -33,8 +33,8 @@ function buildNav(){
 
   const lang = getLang();
   const t = {
-    el: { home:"Αρχική", quiz:"Quiz", foot:"Υπολογιστής CO₂", info:"Πληροφορίες", about:"About", langTitle:"Γλώσσα" },
-    en: { home:"Home", quiz:"Quiz", foot:"Footprint", info:"Info", about:"About", langTitle:"Language" }
+    el: { home:"Αρχική", quiz:"Quiz", foot:"Υπολογιστής CO₂", info:"Πληροφορίες", about:"About" },
+    en: { home:"Home", quiz:"Quiz", foot:"Footprint", info:"Info", about:"About" }
   }[lang];
 
   const here = pageName();
@@ -44,13 +44,13 @@ function buildNav(){
   const items = inPages ? [
     {label:t.home, href: base+"index.html", icon:"home"},
     {label:t.quiz, href: "./quiz.html", icon:"quiz"},
-    {label:t.foot, href: "./footprint.html", icon:"bus"},
+    {label:t.foot, href: "./footprint.html", icon:"co2"},
     {label:t.info, href: "./info.html", icon:"info"},
     {label:t.about, href: "./about.html", icon:"about"},
   ] : [
     {label:t.home, href: "./index.html", icon:"home"},
     {label:t.quiz, href: "./pages/quiz.html", icon:"quiz"},
-    {label:t.foot, href: "./pages/footprint.html", icon:"bus"},
+    {label:t.foot, href: "./pages/footprint.html", icon:"co2"},
     {label:t.info, href: "./pages/info.html", icon:"info"},
     {label:t.about, href: "./pages/about.html", icon:"about"},
   ];
@@ -72,15 +72,14 @@ function buildNav(){
       img.src = iconBase + "homeN.png";
       img.alt = "";
       ic.appendChild(img);
-    } else if (it.icon === "bus"){
-      const img = document.createElement("img");
-      img.src = iconBase + "busN.png";
-      img.alt = "";
-      ic.appendChild(img);
+    } else if (it.icon === "co2"){
+      ic.textContent = "CO₂";
+      ic.style.fontSize = "0.8rem";
+      ic.style.fontWeight = "900";
     } else if (it.icon === "quiz"){
       ic.textContent = "?";
     } else if (it.icon === "about"){
-      ic.textContent = "i";
+      ic.textContent = "👤";
     } else if (it.icon === "info"){
       ic.textContent = "ℹ";
     } else {
@@ -101,15 +100,45 @@ function buildNav(){
 
     nav.appendChild(div);
   });
+}
 
-  // language buttons active state
-  document.querySelectorAll(".drawerItem[data-lang]").forEach(el=>{
-    el.classList.toggle("active", el.getAttribute("data-lang") === lang);
+function buildLangToggle(){
+  const wrap = document.getElementById("drawerLang");
+  if (!wrap) return;
+
+  const lang = getLang();
+  const target = (lang === "el") ? "en" : "el";
+  const label = (lang === "el") ? "English" : "Ελληνικά";
+  const icon = (lang === "el") ? "EN" : "ΕΛ";
+
+  wrap.innerHTML = "";
+
+  const div = document.createElement("div");
+  div.className = "drawerItem";
+  div.setAttribute("data-lang-toggle", "1");
+
+  const ic = document.createElement("span");
+  ic.className = "drawerIcon";
+  ic.textContent = icon;
+
+  const tx = document.createElement("span");
+  tx.className = "drawerText";
+  tx.textContent = label;
+
+  div.appendChild(ic);
+  div.appendChild(tx);
+
+  div.addEventListener("click", ()=>{
+    setLang(target);
+    location.reload();
   });
+
+  wrap.appendChild(div);
 }
 
 document.addEventListener("DOMContentLoaded", ()=>{
   buildNav();
+  buildLangToggle();
 
   const menuBtn = document.getElementById("menuBtn");
   const closeBtn = document.getElementById("drawerClose");
@@ -118,12 +147,4 @@ document.addEventListener("DOMContentLoaded", ()=>{
   if (menuBtn) menuBtn.addEventListener("click", openDrawer);
   if (closeBtn) closeBtn.addEventListener("click", closeDrawer);
   if (backdrop) backdrop.addEventListener("click", closeDrawer);
-
-  document.querySelectorAll(".drawerItem[data-lang]").forEach(el=>{
-    el.addEventListener("click", ()=>{
-      const l = el.getAttribute("data-lang");
-      setLang(l);
-      location.reload();
-    });
-  });
 });

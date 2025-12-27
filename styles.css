@@ -86,18 +86,20 @@ a{color:inherit}
 .logoBox img{width:100%; height:auto; display:block}
 
 .bigBtn{
-  width: 88%;
-  max-width: 420px;
+  width: 92%;
+  max-width: 520px;
   border:none;
   background: #f2f2f2;
   color: var(--text);
-  border-radius: 16px;
-  padding: 14px 16px;
-  font-size: 1.05rem;
-  letter-spacing: .4px;
+  border-radius: 18px;
+  padding: 20px 18px;
+  font-size: 1.22rem;
+  font-weight: 900;
+  letter-spacing: .6px;
   box-shadow: var(--btnShadow);
   cursor:pointer;
   text-transform: uppercase;
+  min-height: 72px;
 }
 
 .bottomRow{
