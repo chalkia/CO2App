@@ -1,4 +1,4 @@
-const CACHE_NAME = "co2-pwa-v6";
+const CACHE_NAME = "co2-pwa-v7";
 const PRECACHE = [
   "./",
   "./index.html",
@@ -24,7 +24,9 @@ const PRECACHE = [
   "./assets/ui/homeN.png",
   "./assets/ui/busN.png",
   "./assets/info/Info_gr.html",
-  "./assets/info/InfoEn.html"
+  "./assets/info/InfoEn.html",
+  "./assets/fonts/Comfortaa-SemiBold.ttf",
+  "./assets/fonts/Comfortaa-Bold.ttf"
 ];
 
 self.addEventListener("install", (event) => {

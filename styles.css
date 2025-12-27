@@ -1,3 +1,16 @@
+
+@font-face{
+  font-family: "Comfortaa", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  src:url("./assets/fonts/Comfortaa-SemiBold.ttf") format("truetype");
+  font-weight:600;
+  font-style:normal;
+}
+@font-face{
+  font-family:"Comfortaa";
+  src:url("./assets/fonts/Comfortaa-Bold.ttf") format("truetype");
+  font-weight:700;
+  font-style:normal;
+}
 :root{
   --bg:#74a974;
   --bg-dark:#5e9b67;
@@ -473,4 +486,110 @@ select, input[type="number"], input[type="range"]{
 }
 .quizShell .choicesRow{
   margin-top: 0;
+}
+
+
+/* Home redesign */
+body.homeNoDrawer #menuBtn,
+body.homeNoDrawer #drawer,
+body.homeNoDrawer #drawerBackdrop{
+  display:none !important;
+}
+
+.homeCard{
+  padding: 18px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap: 14px;
+  text-align:center;
+}
+.homeLogo{
+  width: min(320px, 78vw);
+  margin-top: 4px;
+}
+.homeLogo img{
+  width:100%;
+  height:auto;
+  display:block;
+}
+.homeDesc{
+  font-weight: 600;
+  color: rgba(0,0,0,.62);
+  line-height: 1.35;
+  max-width: 34ch;
+}
+
+.homePrimary{
+  width:100%;
+  border: 1px solid rgba(0,0,0,.10);
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.08);
+  padding: 18px 16px;
+  text-align:left;
+}
+.homePrimaryTitle{
+  font-size: 1.25rem;
+  font-weight: 700;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+}
+.homePrimarySub{
+  margin-top: 6px;
+  font-size: .98rem;
+  font-weight: 600;
+  color: rgba(0,0,0,.60);
+  line-height: 1.35;
+}
+.badge{
+  font-size: .82rem;
+  font-weight: 700;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,.12);
+  background: rgba(255,255,255,.7);
+}
+.badge.orange{ color:#9a4b00; background: rgba(255,167,38,.18); border-color: rgba(255,167,38,.35); }
+.badge.blue{ color:#0b4aa8; background: rgba(59,130,246,.14); border-color: rgba(59,130,246,.30); }
+
+.homeChips{
+  width:100%;
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  flex-wrap:wrap;
+  margin-top: 4px;
+}
+.homeChip{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  border: 1px solid rgba(0,0,0,.12);
+  background: rgba(255,255,255,.75);
+  border-radius: 16px;
+  padding: 10px 12px;
+  font-weight: 700;
+  cursor: default;
+}
+.homeChipIconImg{
+  width: 20px;
+  height: 20px;
+  display:block;
+}
+.homeChipIcon{
+  width:22px;
+  height:22px;
+  border-radius: 10px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-weight: 900;
+  background: rgba(0,0,0,.06);
+}
+@media (max-width: 420px){
+  .homePrimaryTitle{ font-size: 1.15rem; }
+  .homePrimarySub{ font-size: .95rem; }
 }
