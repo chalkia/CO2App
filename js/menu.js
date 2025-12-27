@@ -1,3 +1,7 @@
+function isPagesDir(){
+  return location.pathname.includes("/pages/");
+}
+
 function openDrawer(){
   const d = document.getElementById("drawer");
   const b = document.getElementById("drawerBackdrop");
@@ -18,52 +22,59 @@ function closeDrawer(){
   b.setAttribute("aria-hidden", "true");
 }
 
-function currentPage(){
+function pageName(){
   const p = location.pathname.split("/").pop();
-  // index.html may be empty on some hosts
-  if (!p || p === "") return "index.html";
-  return p;
+  return p && p.length ? p : "index.html";
 }
 
-function buildDrawerNav(){
+function buildNav(){
   const nav = document.getElementById("drawerNav");
   if (!nav) return;
 
   const lang = getLang();
   const t = {
-    el: { home:"Αρχική", quiz:"Quiz", foot:"Υπολογιστής CO₂", info:"Info", about:"About" },
-    en: { home:"Home", quiz:"Quiz", foot:"Footprint", info:"Info", about:"About" }
+    el: { home:"Αρχική", quiz:"Quiz", foot:"Υπολογιστής CO₂", info:"Πληροφορίες", about:"About", langTitle:"Γλώσσα" },
+    en: { home:"Home", quiz:"Quiz", foot:"Footprint", info:"Info", about:"About", langTitle:"Language" }
   }[lang];
 
-  const here = currentPage();
+  const here = pageName();
+  const inPages = isPagesDir();
 
-  const items = [
-    {label:t.home, href: (location.pathname.includes("/pages/") ? "../index.html" : "./index.html"), icon:"home"},
-    {label:t.quiz, href: (location.pathname.includes("/pages/") ? "./quiz.html" : "./pages/quiz.html"), icon:"quiz"},
-    {label:t.foot, href: (location.pathname.includes("/pages/") ? "./footprint.html" : "./pages/footprint.html"), icon:"bus"},
-    {label:t.info, href: (location.pathname.includes("/pages/") ? "./info.html" : "./pages/info.html"), icon:"info"},
-    {label:t.about, href: (location.pathname.includes("/pages/") ? "./about.html" : "./pages/about.html"), icon:"about"},
+  const base = inPages ? "../" : "./";
+  const items = inPages ? [
+    {label:t.home, href: base+"index.html", icon:"home"},
+    {label:t.quiz, href: "./quiz.html", icon:"quiz"},
+    {label:t.foot, href: "./footprint.html", icon:"bus"},
+    {label:t.info, href: "./info.html", icon:"info"},
+    {label:t.about, href: "./about.html", icon:"about"},
+  ] : [
+    {label:t.home, href: "./index.html", icon:"home"},
+    {label:t.quiz, href: "./pages/quiz.html", icon:"quiz"},
+    {label:t.foot, href: "./pages/footprint.html", icon:"bus"},
+    {label:t.info, href: "./pages/info.html", icon:"info"},
+    {label:t.about, href: "./pages/about.html", icon:"about"},
   ];
 
   nav.innerHTML = "";
-
   items.forEach(it=>{
     const div = document.createElement("div");
     div.className = "drawerItem";
-    const targetPage = it.href.split("/").pop();
-    div.classList.toggle("active", here === targetPage);
+
+    const target = it.href.split("/").pop();
+    div.classList.toggle("active", here === target);
 
     const ic = document.createElement("span");
     ic.className = "drawerIcon";
 
+    const iconBase = inPages ? "../assets/ui/" : "./assets/ui/";
     if (it.icon === "home"){
       const img = document.createElement("img");
-      img.src = (location.pathname.includes("/pages/") ? "../assets/ui/homeN.png" : "./assets/ui/homeN.png");
+      img.src = iconBase + "homeN.png";
       img.alt = "";
       ic.appendChild(img);
     } else if (it.icon === "bus"){
       const img = document.createElement("img");
-      img.src = (location.pathname.includes("/pages/") ? "../assets/ui/busN.png" : "./assets/ui/busN.png");
+      img.src = iconBase + "busN.png";
       img.alt = "";
       ic.appendChild(img);
     } else if (it.icon === "quiz"){
@@ -91,15 +102,14 @@ function buildDrawerNav(){
     nav.appendChild(div);
   });
 
-  // Mark language buttons active
-  document.querySelectorAll('.drawerItem[data-action="lang"]').forEach(el=>{
-    const l = el.getAttribute("data-lang");
-    el.classList.toggle("active", l === lang);
+  // language buttons active state
+  document.querySelectorAll(".drawerItem[data-lang]").forEach(el=>{
+    el.classList.toggle("active", el.getAttribute("data-lang") === lang);
   });
 }
 
 document.addEventListener("DOMContentLoaded", ()=>{
-  buildDrawerNav();
+  buildNav();
 
   const menuBtn = document.getElementById("menuBtn");
   const closeBtn = document.getElementById("drawerClose");
@@ -109,11 +119,10 @@ document.addEventListener("DOMContentLoaded", ()=>{
   if (closeBtn) closeBtn.addEventListener("click", closeDrawer);
   if (backdrop) backdrop.addEventListener("click", closeDrawer);
 
-  document.querySelectorAll('.drawerItem[data-action="lang"]').forEach(el=>{
+  document.querySelectorAll(".drawerItem[data-lang]").forEach(el=>{
     el.addEventListener("click", ()=>{
       const l = el.getAttribute("data-lang");
       setLang(l);
-      // reload current page
       location.reload();
     });
   });

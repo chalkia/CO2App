@@ -136,7 +136,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   document.getElementById("euLabel").textContent = t.eu;
   document.getElementById("userLabel").textContent = t.user;
 
-
+    
   const homeValues = JSON.parse(localStorage.getItem("homeValues") || "[]");
   const transportValues = JSON.parse(localStorage.getItem("transportValues") || "[]");
   const lifestyleValues = JSON.parse(localStorage.getItem("lifestyleValues") || "[]");

@@ -16,10 +16,8 @@
   <div class="container">
     <div class="panel" id="mainPanel">
       <div class="topbar">
-        <button class="iconBtn" id="menuBtn" aria-label="Menu">
-          <span class="hamburger"></span>
-        </button>
-        <div style="width:44px;height:44px;"></div>
+        <button class="iconBtn" id="menuBtn" aria-label="Menu"><span class="hamburger"><span></span></span></button>
+        <div class="topbarSpacer"></div>
       </div>
 
       <div class="card">
@@ -37,8 +35,8 @@
     </div>
     <div class="drawerSection" id="drawerNav"></div>
     <div class="drawerSection">
-      <div class="drawerItem" data-action="lang" data-lang="el"><span class="drawerIcon">ΕΛ</span><span class="drawerText">Ελληνικά</span></div>
-      <div class="drawerItem" data-action="lang" data-lang="en"><span class="drawerIcon">EN</span><span class="drawerText">English</span></div>
+      <div class="drawerItem" data-lang="el"><span class="drawerIcon">ΕΛ</span><span class="drawerText">Ελληνικά</span></div>
+      <div class="drawerItem" data-lang="en"><span class="drawerIcon">EN</span><span class="drawerText">English</span></div>
     </div>
   </nav>
 
@@ -46,24 +44,16 @@
   <script src="../js/menu.js"></script>
   <script>
     const lang = getLang();
-    const title = (lang === "el") ? "Πληροφορίες" : "Info";
-    document.getElementById("title").textContent = title;
+    document.getElementById("title").textContent = (lang === "el") ? "Πληροφορίες" : "Info";
 
     const url = (lang === "el") ? "../assets/info/Info_gr.html" : "../assets/info/InfoEn.html";
 
     async function loadInfo(){
       const resp = await fetch(url, {cache:"no-store"});
       const txt = await resp.text();
-
-      // Try to extract body content if full HTML provided
       const bodyMatch = txt.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-      const html = bodyMatch ? bodyMatch[1] : txt;
-
-      // Insert as HTML
-      const c = document.getElementById("content");
-      c.innerHTML = html;
+      document.getElementById("content").innerHTML = bodyMatch ? bodyMatch[1] : txt;
     }
-
     loadInfo();
   </script>
 </body>

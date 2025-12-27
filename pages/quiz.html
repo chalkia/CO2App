@@ -17,7 +17,7 @@
     <div class="panel" id="mainPanel">
     <div class="topbar">
       <button class="iconBtn" id="menuBtn" aria-label="Menu"><span class="hamburger"><span></span></span></button>
-      <div style="width:44px;height:44px;"></div>
+      <div class="topbarSpacer"></div>
     </div>
     </div>
 
@@ -40,7 +40,7 @@
       <button class="choiceBtn" data-choice="3">Γ</button>
     </div>
 
-    
+    </div>
 
   <div class="modalBackdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal">
@@ -51,10 +51,33 @@
         <button class="pillBtn" id="modalOk">OK</button>
       </div>
     </div>
+    </div>
   </div>
 
   <script src="../js/common.js"></script>
   <script src="../js/menu.js"></script>
   <script src="../js/quiz.js"></script>
+
+  <div class="drawerBackdrop" id="drawerBackdrop" aria-hidden="true"></div>
+  <nav class="drawer" id="drawer" aria-hidden="true">
+    <div class="drawerHeader">
+      <div class="drawerTitle">CO2app</div>
+      <button class="iconBtn" id="drawerClose" aria-label="Close menu">×</button>
+    </div>
+
+    <div class="drawerSection" id="drawerNav"></div>
+
+    <div class="drawerSection">
+      <div class="drawerItem" data-lang="el">
+        <span class="drawerIcon">ΕΛ</span>
+        <span class="drawerText">Ελληνικά</span>
+      </div>
+      <div class="drawerItem" data-lang="en">
+        <span class="drawerIcon">EN</span>
+        <span class="drawerText">English</span>
+      </div>
+    </div>
+  </nav>
+
 </body>
 </html>
