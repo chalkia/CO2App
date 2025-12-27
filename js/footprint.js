@@ -185,7 +185,6 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   model = await resp.json();
 
   const lang = getLang();
-  const labels = model.labels[lang];
   const t = T();
 
   // Titles
