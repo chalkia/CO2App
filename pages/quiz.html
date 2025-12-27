@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="el">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CO2 Quiz</title>
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#74a974">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.png">
+
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <button class="iconBtn" id="homeBtn" aria-label="Home">⌂</button>
+      <div style="width:44px;height:44px;"></div>
+    </div>
+
+    <div class="statsBar">
+      <div id="qLabel"></div>
+      <div id="scoreLabel"></div>
+    </div>
+
+    <div class="card">
+      <div class="questionText" id="question"></div>
+      <div class="optionText" id="opt1"></div>
+      <div class="optionText" id="opt2"></div>
+      <div class="optionText" id="opt3"></div>
+      <div class="hint" id="hint"></div>
+    </div>
+
+    <div class="choicesRow">
+      <button class="choiceBtn" data-choice="1">A</button>
+      <button class="choiceBtn" data-choice="2">B</button>
+      <button class="choiceBtn" data-choice="3">Γ</button>
+    </div>
+
+    <div class="bottomRow">
+      <button class="pillBtn" data-lang="en">EN</button>
+      <button class="pillBtn" data-lang="el">ΕΛ</button>
+    </div>
+  </div>
+
+  <div class="modalBackdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <h3 id="modalTitle"></h3>
+      <div class="explain" id="modalExplain"></div>
+      <div class="small" id="modalSource" style="margin-top:10px;"></div>
+      <div class="modalActions">
+        <button class="pillBtn" id="modalOk">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/common.js"></script>
+  <script src="../js/quiz.js"></script>
+</body>
+</html>

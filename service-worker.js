@@ -1,0 +1,62 @@
+const CACHE_NAME = "co2-pwa-v1";
+const PRECACHE = [
+  "./",
+  "./index.html",
+  "./styles.css",
+  "./offline.html",
+  "./manifest.webmanifest",
+  "./service-worker.js",
+  "./js/common.js",
+  "./js/quiz.js",
+  "./js/footprint.js",
+  "./js/dashboard.js",
+  "./pages/quiz.html",
+  "./pages/footprint.html",
+  "./pages/dashboard.html",
+  "./pages/info.html",
+  "./assets/logo.png",
+  "./assets/icons/icon-192.png",
+  "./assets/icons/icon-512.png",
+  "./assets/questions/quiz2.json",
+  "./assets/footprintModel.json"
+];
+
+self.addEventListener("install", (event) => {
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(PRECACHE)));
+  self.skipWaiting();
+});
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys().then(keys => Promise.all(
+      keys.map(k => (k === CACHE_NAME ? null : caches.delete(k)))
+    ))
+  );
+  self.clients.claim();
+});
+
+self.addEventListener("fetch", (event) => {
+  const req = event.request;
+
+  // navigation: fallback to offline page
+  if (req.mode === "navigate") {
+    event.respondWith(
+      fetch(req).catch(() => caches.match("./offline.html"))
+    );
+    return;
+  }
+
+  event.respondWith(
+    caches.match(req).then(cached => {
+      if (cached) return cached;
+      return fetch(req).then(resp => {
+        // cache new GET static assets
+        if (req.method === "GET" && resp && resp.status === 200 && resp.type === "basic") {
+          const clone = resp.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
+        }
+        return resp;
+      });
+    })
+  );
+});

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="el">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CO2 Footprint</title>
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#74a974">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.png">
+
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <button class="iconBtn" id="homeBtn" aria-label="Home">⌂</button>
+      <div style="width:44px;height:44px;"></div>
+    </div>
+
+    <div class="card">
+      <h2 id="title" style="margin:0 0 8px 0;"></h2>
+      <div class="small" id="subtitle"></div>
+    </div>
+
+    <div class="card">
+      <h3 id="homeTitle" style="margin:0 0 10px 0;"></h3>
+      <div class="formGrid">
+        <div class="field">
+          <label id="lblHomeType" for="homeType"></label>
+          <select id="homeType"></select>
+        </div>
+        <div class="field">
+          <label id="lblHomeCond" for="homeCond"></label>
+          <select id="homeCond"></select>
+        </div>
+        <div class="field">
+          <label id="lblHeating" for="heatingType"></label>
+          <select id="heatingType"></select>
+        </div>
+        <div class="field">
+          <label id="lblHomeUse"></label>
+          <div class="rangeRow">
+            <input type="range" id="homeUse" min="0.5" max="1.5" step="0.05" value="1">
+            <div class="rangeValue" id="homeUseVal">1.00×</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 id="trTitle" style="margin:0 0 10px 0;"></h3>
+      <div class="formGrid">
+        <div class="field">
+          <label id="lblWeeklyKm" for="weeklyKm"></label>
+          <input type="number" id="weeklyKm" min="0" max="2000" step="1" value="120">
+        </div>
+
+        <div class="field">
+          <label id="lblCarType" for="carType"></label>
+          <select id="carType"></select>
+        </div>
+
+        <div class="field">
+          <label id="lblPublicType" for="publicType"></label>
+          <select id="publicType"></select>
+        </div>
+
+        <div class="field">
+          <label id="lblPublicPct"></label>
+          <div class="rangeRow">
+            <input type="range" id="publicPct" min="0" max="100" step="1" value="0">
+            <div class="rangeValue" id="publicPctVal">0%</div>
+          </div>
+        </div>
+
+        <div class="field" style="flex-direction:row; align-items:center; justify-content:space-between; gap:12px;">
+          <label id="lblAlone" for="travelsAlone" style="margin:0;"></label>
+          <input type="checkbox" id="travelsAlone" checked style="width:22px; height:22px;">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 id="lifeTitle" style="margin:0 0 10px 0;"></h3>
+      <div class="formGrid">
+        <div class="field">
+          <label id="lblGoods" for="goodsLevel"></label>
+          <select id="goodsLevel"></select>
+        </div>
+        <div class="field">
+          <label id="lblFoodLevel" for="foodLevel"></label>
+          <select id="foodLevel"></select>
+        </div>
+        <div class="field">
+          <label id="lblDiet" for="diet"></label>
+          <select id="diet"></select>
+        </div>
+        <div class="field">
+          <label id="lblFlights" for="flightTrips"></label>
+          <input type="number" id="flightTrips" min="0" max="30" step="1" value="0">
+          <div class="small" id="flightHint"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="kpiRow" style="margin-bottom:0;">
+        <div class="kpi user">
+          <div class="kpiLabel" id="lblTotal"></div>
+          <div class="kpiValue"><span id="totalVal">—</span><span class="small"> t CO₂/yr</span></div>
+        </div>
+      </div>
+      <div class="bottomRow" style="margin-top:10px;">
+        <button class="pillBtn" id="btnCalc"></button>
+        <button class="pillBtn" id="btnDash"></button>
+      </div>
+    </div>
+
+    <div class="bottomRow">
+      <button class="pillBtn" data-lang="en">EN</button>
+      <button class="pillBtn" data-lang="el">ΕΛ</button>
+    </div>
+  </div>
+
+  <script src="../js/common.js"></script>
+  <script src="../js/footprint.js"></script>
+</body>
+</html>

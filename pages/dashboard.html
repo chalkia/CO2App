@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="el">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CO2 Dashboard</title>
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#74a974">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.png">
+
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <button class="iconBtn" id="backBtn" aria-label="Back">←</button>
+      <button class="iconBtn" id="homeBtn" aria-label="Home">⌂</button>
+    </div>
+
+    <div class="card">
+      <h2 id="dashTitle" style="margin:0 0 8px 0;"></h2>
+      <div class="kpiRow">
+        <div class="kpi eu">
+          <div class="kpiLabel" id="euLabel"></div>
+          <div class="kpiValue"><span id="euVal">—</span><span class="small"> t</span></div>
+        </div>
+        <div class="kpi user">
+          <div class="kpiLabel" id="userLabel"></div>
+          <div class="kpiValue"><span id="userVal">—</span><span class="small"> t</span></div>
+        </div>
+      </div>
+
+      <div class="chartRow">
+        <div class="chartBox">
+          <div id="pieHome"></div>
+        </div>
+        <div class="chartBox">
+          <div id="pieTransport"></div>
+        </div>
+        <div class="chartBox">
+          <div id="pieLife"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottomRow">
+      <button class="pillBtn" data-lang="en">EN</button>
+      <button class="pillBtn" data-lang="el">ΕΛ</button>
+    </div>
+  </div>
+
+  <script src="../js/common.js"></script>
+  <script src="../js/dashboard.js"></script>
+</body>
+</html>

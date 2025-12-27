@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="el">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CO2-app Info</title>
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#74a974">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.png">
+
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <button class="iconBtn" id="backBtn" aria-label="Back">←</button>
+      <button class="iconBtn" id="homeBtn" aria-label="Home">⌂</button>
+    </div>
+
+    <div class="card">
+      <h2 id="title" style="margin:0 0 10px 0;"></h2>
+      <div id="body" style="white-space:pre-wrap; line-height:1.35;"></div>
+    </div>
+
+    <div class="bottomRow">
+      <button class="pillBtn" data-lang="en">EN</button>
+      <button class="pillBtn" data-lang="el">ΕΛ</button>
+    </div>
+  </div>
+
+  <script src="../js/common.js"></script>
+  <script>
+    initLangButtons();
+    document.getElementById("backBtn").addEventListener("click", ()=>history.back());
+    document.getElementById("homeBtn").addEventListener("click", ()=>go("../index.html"));
+
+    const lang = getLang();
+    const T = {
+      el: {
+        title: "Πληροφορίες",
+        body:
+`• Το κουίζ φορτώνεται από το αρχείο assets/questions/quiz2.json.
+• Ο υπολογιστής αποτυπώματος βασίζεται σε «βάσεις» (kg CO₂/έτος) και πολλαπλασιαστικούς συντελεστές επιλογών.
+• Οι μεταφορές χρησιμοποιούν τον παράγοντα 0.052 = 52/1000 (εβδομάδες/έτος και kg→t μαζί).
+• Η εφαρμογή είναι PWA: μετά την πρώτη φόρτωση μπορεί να λειτουργεί offline (ανάλογα με το browser).`
+      },
+      en: {
+        title: "Info",
+        body:
+`• The quiz loads from assets/questions/quiz2.json.
+• The footprint calculator uses base values (kg CO₂/year) multiplied by user-selected factors.
+• Transport uses 0.052 = 52/1000 (weeks/year and kg→t together).
+• This is a PWA: after the first load it can run offline (browser-dependent).`
+      }
+    }[lang];
+
+    document.getElementById("title").textContent = T.title;
+    document.getElementById("body").textContent = T.body;
+  </script>
+</body>
+</html>
