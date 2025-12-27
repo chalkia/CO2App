@@ -234,10 +234,10 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   // Range display
   const homeUse = document.getElementById("homeUse");
   const publicPct = document.getElementById("publicPct");
-  function homeUseQual(v){
+  
+function homeUseQual(v){
   const lang = getLang();
   const x = Number(v);
-  // thresholds: 0.5–1.5
   const el = ["Πολύ συνετή", "Συνετή", "Κανονική", "Υπερβολική", "Κατάχρηση"];
   const en = ["Very frugal", "Frugal", "Normal", "High", "Excessive"];
   const levels = (lang === "en") ? en : el;

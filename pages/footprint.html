@@ -1,148 +1,79 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="el">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CO2 Footprint</title>
-
-  <link rel="manifest" href="../manifest.webmanifest">
-  <meta name="theme-color" content="#74a974">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <link rel="apple-touch-icon" href="../assets/icons/icon-192.png">
-
-  <link rel="stylesheet" href="../styles.css" />
-</head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>CO2 Footprint</title>
+<link href="../manifest.webmanifest" rel="manifest"/>
+<meta content="#74a974" name="theme-color"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<link href="../assets/icons/icon-192.png" rel="apple-touch-icon"/>
+<link href="../styles.css" rel="stylesheet">
+</link></head>
 <body>
-  <div class="container">
-    <div class="panel" id="mainPanel">
-    <div class="topbar">
-      <button class="iconBtn" id="menuBtn" aria-label="Menu"><span class="hamburger"><span></span></span></button>
-      <div class="topbarSpacer"></div>
-    </div>
-    </div>
-
-    <div class="card">
-      <h2 id="title" style="margin:0 0 8px 0;"></h2>
-      <div class="small" id="subtitle"></div>
-    </div>
-
-    <div class="card">
-      <h3 id="homeTitle" style="margin:0 0 10px 0;"></h3>
-      <div class="formGrid">
-        <div class="field">
-          <label id="lblHomeType" for="homeType"></label>
-          <select id="homeType"></select>
-        </div>
-        <div class="field">
-          <label id="lblHomeCond" for="homeCond"></label>
-          <select id="homeCond"></select>
-        </div>
-        <div class="field">
-          <label id="lblHeating" for="heatingType"></label>
-          <select id="heatingType"></select>
-        </div>
-        <div class="field">
-  <label id="lblHomeUse" for="homeUse"></label>
-  <div class="rangeRow">
-    <input type="range" id="homeUse" min="0.5" max="1.5" step="0.05" value="1.0">
-    <div class="rangeValue" id="homeUseVal" style="display:none;">1.00×</div>
-  </div>
-  <div class="small" id="homeUseLabel"></div>
+<div class="container">
+<div class="panel" id="mainPanel">
+<div class="topbar">
+<button aria-label="Menu" class="iconBtn" id="menuBtn"><span class="hamburger"><span></span></span></button>
+<div class="topbarSpacer"></div>
 </div>
-        </div>
-      </div>
-    </div>
+</div>
+<div class="card">
+<h2 id="title" style="margin:0 0 8px 0;"></h2>
+<div class="small" id="subtitle"></div>
+</div>
+<div class="card">
+<h3 id="homeTitle" style="margin:0 0 10px 0;"></h3>
+<div class="formGrid">
+<div class="field">
+<label for="homeType" id="lblHomeType"></label>
+<select id="homeType"></select>
+</div>
+<div class="field">
+<label for="homeCond" id="lblHomeCond"></label>
+<select id="homeCond"></select>
+</div>
+<div class="field">
+<label for="heatingType" id="lblHeating"></label>
+<select id="heatingType"></select>
+</div>
+<div class="field"><label for="homeUse" id="lblHomeUse"></label><div class="rangeRow"><input id="homeUse" max="1.5" min="0.5" step="0.05" type="range" value="1.0"/><div class="rangeValue" id="homeUseVal" style="display:none;">1.00×</div></div><div class="small" id="homeUseLabel"></div></div>
+</div>
+</div>
+<div class="card">
+<h3 id="trTitle" style="margin:0 0 10px 0;"></h3>
+<div class="formGrid"><div class="field"><label for="weeklyKm" id="lblWeeklyKm"></label><div class="row2"><input id="weeklyKm" max="2000" min="0" step="1" type="number" value="50"/><div class="field" style="flex:1;"><label for="publicPct" id="lblPublicPct"></label><div class="rangeRow"><input id="publicPct" max="100" min="0" step="5" type="range" value="0"/><div class="rangeValue" id="publicPctVal">0%</div></div></div></div></div><div class="field"><label for="carType" id="lblCarType"></label><div class="row2"><select id="carType"></select><label class="checkLine"><input id="alone" type="checkbox"/><span id="lblAlone"></span></label></div></div><div class="field"><label for="publicType" id="lblPublicType"></label><select id="publicType"></select></div></div>
+</div>
+<div class="card">
+<h3 id="lifeTitle" style="margin:0 0 10px 0;"></h3>
+<div class="formGrid"><div class="field"><label for="diet" id="lblDiet"></label><select id="diet"></select></div><div class="field"><label for="foodLevel" id="lblFoodLevel"></label><select id="foodLevel"></select></div><div class="field"><label for="goodsLevel" id="lblGoods"></label><select id="goodsLevel"></select><div class="small" id="goodsHint"></div></div><div class="field"><label for="flightTrips" id="lblFlights"></label><input id="flightTrips" max="30" min="0" step="1" type="number" value="0"/><div class="small" id="flightHint"></div></div></div>
+</div>
+<div class="card">
+<div class="kpiRow" style="margin-bottom:0;">
+<div class="kpi user">
+<div class="kpiLabel" id="lblTotal"></div>
+<div class="kpiValue"><span id="totalVal">—</span><span class="small"> t CO₂/yr</span></div>
+</div>
+</div>
+<div class="bottomRow" style="margin-top:10px;">
+<button class="pillBtn" id="btnCalc"></button>
+<button class="pillBtn" id="btnDash"></button>
+</div>
+</div>
+</div>
 
-    <div class="card">
-      <h3 id="trTitle" style="margin:0 0 10px 0;"></h3>
-      <div class="formGrid">
-  <div class="field">
-    <label id="lblWeeklyKm" for="weeklyKm"></label>
-    <div class="row2">
-      <input type="number" id="weeklyKm" min="0" max="2000" step="1" value="50">
-      <div class="field" style="flex:1;">
-        <label id="lblPublicPct" for="publicPct"></label>
-        <div class="rangeRow">
-          <input type="range" id="publicPct" min="0" max="100" step="5" value="0">
-          <div class="rangeValue" id="publicPctVal">0%</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="field">
-    <label id="lblCarType" for="carType"></label>
-    <div class="row2">
-      <select id="carType"></select>
-      <label class="checkLine"><input type="checkbox" id="alone"> <span id="lblAlone"></span></label>
-    </div>
-  </div>
-
-  <div class="field">
-    <label id="lblPublicType" for="publicType"></label>
-    <select id="publicType"></select>
-  </div>
-</div></div>
-    </div>
-
-    <div class="card">
-      <h3 id="lifeTitle" style="margin:0 0 10px 0;"></h3>
-      <div class="formGrid">
-  <div class="field">
-    <label id="lblDiet" for="diet"></label>
-    <select id="diet"></select>
-  </div>
-
-  <div class="field">
-    <label id="lblFoodLevel" for="foodLevel"></label>
-    <select id="foodLevel"></select>
-  </div>
-
-  <div class="field">
-    <label id="lblGoods" for="goodsLevel"></label>
-    <select id="goodsLevel"></select>
-    <div class="small" id="goodsHint"></div>
-  </div>
-
-  <div class="field">
-    <label id="lblFlights" for="flightTrips"></label>
-    <input type="number" id="flightTrips" min="0" max="30" step="1" value="0">
-    <div class="small" id="flightHint"></div>
-  </div>
-</div></div>
-    </div>
-
-    <div class="card">
-      <div class="kpiRow" style="margin-bottom:0;">
-        <div class="kpi user">
-          <div class="kpiLabel" id="lblTotal"></div>
-          <div class="kpiValue"><span id="totalVal">—</span><span class="small"> t CO₂/yr</span></div>
-        </div>
-      </div>
-      <div class="bottomRow" style="margin-top:10px;">
-        <button class="pillBtn" id="btnCalc"></button>
-        <button class="pillBtn" id="btnDash"></button>
-      </div>
-    </div>
-
-    </div>
-  </div>
-
-  <script src="../js/common.js"></script>
-  <script src="../js/menu.js"></script>
-  <script src="../js/footprint.js"></script>
-
-  <div class="drawerBackdrop" id="drawerBackdrop" aria-hidden="true"></div>
-  <nav class="drawer" id="drawer" aria-hidden="true">
-    <div class="drawerHeader">
-      <div class="drawerTitle">CO2app</div>
-      <button class="iconBtn" id="drawerClose" aria-label="Close menu">×</button>
-    </div>
-
-    <div class="drawerSection" id="drawerNav"></div>
-
-    <div class="drawerSection" id="drawerLang"></div>
-  </nav>
-
+<script src="../js/common.js"></script>
+<script src="../js/menu.js"></script>
+<script src="../js/footprint.js"></script>
+<div aria-hidden="true" class="drawerBackdrop" id="drawerBackdrop"></div>
+<nav aria-hidden="true" class="drawer" id="drawer">
+<div class="drawerHeader">
+<div class="drawerTitle">CO2app</div>
+<button aria-label="Close menu" class="iconBtn" id="drawerClose">×</button>
+</div>
+<div class="drawerSection" id="drawerNav"></div>
+<div class="drawerSection" id="drawerLang"></div>
+</nav>
 </body>
 </html>
