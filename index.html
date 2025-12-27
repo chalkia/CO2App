@@ -1,42 +1,37 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="el">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CO2-app</title>
-
-  <link rel="manifest" href="./manifest.webmanifest">
-  <meta name="theme-color" content="#74a974">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <link rel="apple-touch-icon" href="./assets/icons/icon-192.png">
-
-  <link rel="stylesheet" href="./styles.css" />
-</head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>CO2-app</title>
+<link href="./manifest.webmanifest" rel="manifest"/>
+<meta content="#74a974" name="theme-color"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<link href="./assets/icons/icon-192.png" rel="apple-touch-icon"/>
+<link href="./styles.css" rel="stylesheet">
+</link></head>
 <body>
-  <div class="container">
-    <div class="panel" id="mainPanel">
-    <div class="topbar">
-      <button class="iconBtn" id="menuBtn" aria-label="Menu"><span class="hamburger"><span></span></span></button>
-      <div class="topbarSpacer"></div>
-    </div>
-      <div style="width:44px;height:44px;"></div>
-    </div>
+<div class="container">
+<div class="panel" id="mainPanel">
+<div class="topbar">
+<button aria-label="Menu" class="iconBtn" id="menuBtn"><span class="hamburger"><span></span></span></button>
+<div class="topbarSpacer"></div>
+</div>
+<div style="width:44px;height:44px;"></div>
+</div>
+<div class="card centerCard">
+<div class="logoBox">
+<img alt="CO2-app logo" src="./assets/logo.png"/>
+</div>
+<button class="bigBtn heroBtn" id="btnQuiz"></button>
+<button class="bigBtn heroBtn" id="btnFoot"></button>
+</div>
+</div>
 
-    <div class="card centerCard">
-      <div class="logoBox">
-        <img src="./assets/logo.png" alt="CO2-app logo" />
-      </div>
-
-      <button class="bigBtn" id="btnQuiz"></button>
-      <button class="bigBtn" id="btnFoot"></button>
-    </div>
-
-    </div>
-  </div>
-
-  <script src="./js/common.js"></script>
-  <script src="./js/menu.js"></script>
-  <script>
+<script src="./js/common.js"></script>
+<script src="./js/menu.js"></script>
+<script>
     initLangButtons();
 
     const lang = getLang();
@@ -59,18 +54,14 @@
       window.addEventListener("load", () => navigator.serviceWorker.register("./service-worker.js"));
     }
   </script>
-
-  <div class="drawerBackdrop" id="drawerBackdrop" aria-hidden="true"></div>
-  <nav class="drawer" id="drawer" aria-hidden="true">
-    <div class="drawerHeader">
-      <div class="drawerTitle">CO2app</div>
-      <button class="iconBtn" id="drawerClose" aria-label="Close menu">×</button>
-    </div>
-
-    <div class="drawerSection" id="drawerNav"></div>
-
-    <div class="drawerSection" id="drawerLang"></div>
-  </nav>
-
+<div aria-hidden="true" class="drawerBackdrop" id="drawerBackdrop"></div>
+<nav aria-hidden="true" class="drawer" id="drawer">
+<div class="drawerHeader">
+<div class="drawerTitle">CO2app</div>
+<button aria-label="Close menu" class="iconBtn" id="drawerClose">×</button>
+</div>
+<div class="drawerSection" id="drawerNav"></div>
+<div class="drawerSection" id="drawerLang"></div>
+</nav>
 </body>
 </html>

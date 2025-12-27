@@ -446,3 +446,31 @@ select, input[type="number"], input[type="range"]{
 
 /* Menu: quiz score badge */
 .quizBadge{ margin-left: 10px; color: var(--accent2); font-weight: 900; }
+
+/* Home: larger primary buttons */
+.heroBtn{
+  font-size: 1.25rem;
+  padding: 18px 18px;
+  min-height: 64px;
+}
+@media (max-width: 600px){
+  .heroBtn{font-size: 1.2rem; min-height: 62px;}
+}
+
+/* Quiz: keep everything inside a single framed card */
+.quizShell{
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.quizShell .statsBar{
+  margin: 0;
+  border-radius: 16px;
+}
+.quizShell .quizCard{
+  margin: 0;
+}
+.quizShell .choicesRow{
+  margin-top: 0;
+}
