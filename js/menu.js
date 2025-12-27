@@ -33,8 +33,8 @@ function buildNav(){
 
   const lang = getLang();
   const t = {
-    el: { home:"Αρχική", quiz:"Quiz", foot:"Υπολογιστής CO₂", info:"Πληροφορίες", about:"About" },
-    en: { home:"Home", quiz:"Quiz", foot:"Footprint", info:"Info", about:"About" }
+    el: { home:"Αρχική", quiz:"Quiz", foot:"Υπολογιστής CO₂", info:"Τεκμηρίωση", about:"Πληροφορίες" },
+    en: { home:"Home", quiz:"Quiz", foot:"Footprint", info:"Documentation", about:"Info" }
   }[lang];
 
   const here = pageName();
@@ -79,9 +79,12 @@ function buildNav(){
     } else if (it.icon === "quiz"){
       ic.textContent = "?";
     } else if (it.icon === "about"){
-      ic.textContent = "👤";
-    } else if (it.icon === "info"){
       ic.textContent = "ℹ";
+    } else if (it.icon === "info"){
+      const img = document.createElement("img");
+      img.src = iconBase + "bookN.png";
+      img.alt = "";
+      ic.appendChild(img);
     } else {
       ic.textContent = "•";
     }
