@@ -1,4 +1,19 @@
+.container{
+  min-height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center; /* ΚΕΝΤΡΑΡΙΣΜΑ ΟΡΙΖΟΝΤΙΑ */
+  padding: 18px 14px 22px;
+  gap: 14px;
+  width: 100%;
+}
 
+/* Σιγουρεύουμε ότι οι κάρτες δεν ξεχειλίζουν και έχουν περιθώριο */
+.card, .panel, .quizShell, .homeCard {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
 @font-face{
   font-family:"Comfortaa";
   src:url("./assets/fonts/Comfortaa-SemiBold.ttf") format("truetype");
