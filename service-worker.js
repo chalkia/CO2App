@@ -1,4 +1,4 @@
-const CACHE_NAME = "co2-pwa-v8";
+const CACHE_NAME = "co2-pwa-v10";
 const PRECACHE = [
   "./",
   "./index.html",
@@ -23,6 +23,8 @@ const PRECACHE = [
   "./pages/about.html",
   "./assets/ui/homeN.png",
   "./assets/ui/busN.png",
+  "./assets/ui/bookN.png",
+  "./assets/ui/FoodLifestyleN.png",
   "./assets/info/Info_gr.html",
   "./assets/info/InfoEn.html",
   "./assets/fonts/Comfortaa-SemiBold.ttf",

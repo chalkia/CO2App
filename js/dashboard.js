@@ -1,4 +1,5 @@
 /* Dashboard: donut charts (no external libraries) */
+
 (function(){
   const lang = getLang();
 
@@ -11,7 +12,7 @@
       home: "Κατοικία",
       transport: "Μεταφορές",
       life: "Διατροφή & Lifestyle",
-      btnToFoot: "Υπολογισμός CO2",
+      btnToFoot: "Υπολογισμός CO₂",
     },
     en: {
       title: "Annual Carbon Footprint Summary",
@@ -21,7 +22,7 @@
       home: "Home",
       transport: "Transport",
       life: "Diet & Lifestyle",
-      btnToFoot: "CO2 Calculator",
+      btnToFoot: "CO₂ Calculator",
     }
   }[lang];
 
@@ -38,7 +39,7 @@
       const raw = localStorage.getItem(key);
       if (!raw) return fallback;
       const v = JSON.parse(raw);
-      return v ?? fallback;
+      return (v === null || v === undefined) ? fallback : v;
     }catch{
       return fallback;
     }
@@ -67,25 +68,30 @@
     ].join(" ");
   }
 
-  // Δημιουργία SVG με μεγαλύτερο ViewBox για να μην κόβονται τα labels
+  /**
+   * Creates an SVG donut chart with outside labels.
+   * @param {Array<{name:string, value:number, color:string}>} series
+   */
   function createDonutSVG(series){
     const total = series.reduce((s, p) => s + (p.value > 0 ? p.value : 0), 0) || 1;
 
-    // Μεγαλώνουμε το μέγεθος (360) αλλά κρατάμε το radius ίδιο, άρα πιο πολύ κενό γύρω γύρω
-    const size = 360; 
+    const size = 260;
     const cx = size/2;
     const cy = size/2;
-    const rOuter = 85; 
-    const rInner = 52;
+    const rOuter = 92;
+    const rInner = 58;
 
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute("width", "100%");
-    svg.setAttribute("height", "auto");
-    svg.setAttribute("viewBox", `0 0 ${size} ${size}`);
+    const pad = 46;
+    svg.setAttribute("viewBox", `${-pad} ${-pad} ${size + pad*2} ${size + pad*2}`);
     svg.setAttribute("role", "img");
-    // Επιτρέπει στα labels να βγαίνουν λίγο έξω από το box αν χρειαστεί
-    svg.style.overflow = "visible";
+    svg.style.maxWidth = "260px";
+    svg.style.width = "100%";
+    svg.style.height = "auto";
+    svg.style.display = "block";
+    svg.style.margin = "0 auto";
 
+    // background ring (subtle)
     const bg = document.createElementNS(svg.namespaceURI, "circle");
     bg.setAttribute("cx", cx);
     bg.setAttribute("cy", cy);
@@ -101,26 +107,28 @@
 
     for (const p of series){
       const v = Math.max(0, p.value);
-      if (v < 0.01) continue;
-
       const da = (v/total) * 2*Math.PI;
       const a0 = a;
       const a1 = a + da;
       a = a1;
 
-      // Slice
+      // slice
       const path = document.createElementNS(svg.namespaceURI, "path");
       path.setAttribute("d", donutSlicePath(cx, cy, rInner, rOuter, a0, a1));
       path.setAttribute("fill", p.color);
       path.setAttribute("stroke", "white");
       path.setAttribute("stroke-width", "2");
+
+      const title = document.createElementNS(svg.namespaceURI, "title");
+      title.textContent = `${p.name}: ${fmt2(v)} ${TEXT.unitYear}`;
+      path.appendChild(title);
+
       sliceLayer.appendChild(path);
 
-      // Label Alignment
+      // label (outside)
       const mid = (a0 + a1) / 2;
       const pEdge = polar(cx, cy, rOuter + 2, mid);
-      // Τραβάμε τη γραμμή πιο μακριά
-      const pLabel = polar(cx, cy, rOuter + 45, mid); 
+      const pLabel = polar(cx, cy, rOuter + 30, mid);
 
       const leader = document.createElementNS(svg.namespaceURI, "path");
       leader.setAttribute("class", "donutLeader");
@@ -132,19 +140,16 @@
       text.setAttribute("y", pLabel.y.toFixed(2));
       text.setAttribute("dominant-baseline", "middle");
       text.setAttribute("text-anchor", (pLabel.x < cx) ? "end" : "start");
-      // Μικρή διόρθωση padding για να μην κολλάει στη γραμμή
-      text.setAttribute("dx", (pLabel.x < cx) ? "-4" : "4");
 
       const t1 = document.createElementNS(svg.namespaceURI, "tspan");
       t1.setAttribute("class", "donutLabel");
-      t1.textContent = p.name;
+      t1.textContent = p.name + ":";
       text.appendChild(t1);
 
       const t2 = document.createElementNS(svg.namespaceURI, "tspan");
       t2.setAttribute("class", "donutValue");
       t2.setAttribute("x", pLabel.x.toFixed(2));
-      t2.setAttribute("dx", (pLabel.x < cx) ? "-4" : "4");
-      t2.setAttribute("dy", "16"); 
+      t2.setAttribute("dy", "18");
       t2.textContent = `${fmt1(v)} t`;
       text.appendChild(t2);
 
@@ -154,22 +159,24 @@
     svg.appendChild(sliceLayer);
     svg.appendChild(labelLayer);
 
-    // Total in Center
+    // center text: total
+    const centerTotal = series.reduce((s,p)=>s+Math.max(0,p.value),0);
+
     const center = document.createElementNS(svg.namespaceURI, "text");
     center.setAttribute("x", cx);
     center.setAttribute("y", cy);
     center.setAttribute("text-anchor", "middle");
     center.setAttribute("dominant-baseline", "middle");
-    center.setAttribute("style", "font-weight:900; fill:#2b2b2b; font-size:22px;");
-    center.textContent = fmt1(series.reduce((s,p)=>s+p.value,0));
+    center.setAttribute("style", "font-weight:900; fill:#2b2b2b; font-size:20px;");
+    center.textContent = fmt1(centerTotal);
     svg.appendChild(center);
 
     const center2 = document.createElementNS(svg.namespaceURI, "text");
     center2.setAttribute("x", cx);
-    center2.setAttribute("y", cy + 24);
+    center2.setAttribute("y", cy + 22);
     center2.setAttribute("text-anchor", "middle");
     center2.setAttribute("dominant-baseline", "middle");
-    center2.setAttribute("style", "font-weight:800; fill:#888; font-size:12px;");
+    center2.setAttribute("style", "font-weight:800; fill:#666; font-size:12px;");
     center2.textContent = (lang === "el") ? "t CO₂/έτος" : "t CO₂/yr";
     svg.appendChild(center2);
 
@@ -188,41 +195,61 @@
     if (el) el.textContent = text;
   }
 
-  const euTarget = toNum(localStorage.getItem("EU_TARGET"), 2.3);
-  const userTotal = toNum(localStorage.getItem("USER_TOTAL"), 0);
+  // --- Load values from calculator ---
+  const schema = localStorage.getItem("DASH_SCHEMA") || "";
 
-  const homeValues = getJSON("CO2_HOME_VALUES", [0, 0]);           
-  const transportValues = getJSON("CO2_TRANSPORT_VALUES", [0, 0]); 
-  const lifeValues = getJSON("CO2_LIFE_VALUES", [0, 0, 0]);        
+  const euTarget = toNum(localStorage.getItem("EU_TARGET") || localStorage.getItem("euTargetTons"), 2.3);
+  const userTotal = toNum(localStorage.getItem("USER_TOTAL") || localStorage.getItem("userTotalTons"), 0);
 
+  const homeValues = getJSON("CO2_HOME_VALUES", null) || getJSON("homeValues", [0, 0]);           // [heating, other]
+  const transportValues = getJSON("CO2_TRANSPORT_VALUES", null) || getJSON("transportValues", [0, 0]); // [car, public]
+  let lifeValues = getJSON("CO2_LIFE_VALUES", null) || getJSON("lifestyleValues", [0, 0, 0]);        // v2: [diet, goods, flights]
+
+  if (schema !== "v2" && Array.isArray(lifeValues) && lifeValues.length === 3){
+    // older ordering was often [goods, diet, flights]
+    lifeValues = [lifeValues[1], lifeValues[0], lifeValues[2]];
+  }
+
+  // Titles / KPI
   setText("dashTitle", TEXT.title);
   setText("euLabel", TEXT.euLabel);
   setText("userLabel", TEXT.userLabel);
-  
-  // ΔΙΟΡΘΩΣΗ: Σωστά IDs για να φύγουν οι παύλες
   setText("euVal", fmt1(euTarget));
   setText("userVal", fmt1(userTotal));
 
+  setText("homeTitle", TEXT.home);
+  setText("transportTitle", TEXT.transport);
+  setText("lifeTitle", TEXT.life);
+
+  // Charts
   const homeSeries = [
-    { name: (lang==="el") ? "Θέρμανση" : "Heating", value: toNum(homeValues[0]), color: "#f39c12" },
-    { name: (lang==="el") ? "Λοιπές χρήσεις" : "Other uses", value: toNum(homeValues[1]), color: "#f7dc6f" }
+    { name: (lang === "el") ? "Θέρμανση" : "Heating", value: toNum(homeValues[0]), color: "#f59e0b" },
+    { name: (lang === "el") ? "Λοιπές χρήσεις" : "Other uses", value: toNum(homeValues[1]), color: "#fde68a" }
   ];
 
   const transportSeries = [
-    { name: (lang==="el") ? "ΙΧ" : "Car", value: toNum(transportValues[0]), color: "#1f77b4" },
-    { name: (lang==="el") ? "Δημόσια" : "Public", value: toNum(transportValues[1]), color: "#8fd3ff" }
+    { name: (lang === "el") ? "ΙΧ" : "Car", value: toNum(transportValues[0]), color: "#3b82f6" },
+    { name: (lang === "el") ? "Δημόσια" : "Public", value: toNum(transportValues[1]), color: "#93c5fd" }
   ];
 
   const lifeSeries = [
-    { name: (lang==="el") ? "Διατροφή" : "Diet", value: toNum(lifeValues[0]), color: "#3ca34a" },
-    { name: (lang==="el") ? "Καταναλωτικά" : "Goods", value: toNum(lifeValues[1]), color: "#a8d8ff" },
-    { name: (lang==="el") ? "Αεροπορικά" : "Flights", value: toNum(lifeValues[2]), color: "#dcdcdc" }
+    { name: (lang === "el") ? "Διατροφή" : "Diet", value: toNum(lifeValues[0]), color: "#22c55e" },
+    { name: (lang === "el") ? "Προϊόντα" : "Goods", value: toNum(lifeValues[1]), color: "#86efac" },
+    { name: (lang === "el") ? "Αεροπορικά" : "Flights", value: toNum(lifeValues[2]), color: "#d1d5db" }
   ];
 
   mount("pieHome", createDonutSVG(homeSeries));
   mount("pieTransport", createDonutSVG(transportSeries));
   mount("pieLife", createDonutSVG(lifeSeries));
 
-  const homeBtn = document.getElementById("homeBtn");
-  if (homeBtn) homeBtn.addEventListener("click", () => go("home"));
+  // Buttons
+  const toFoot = document.getElementById("toFootprintBtn");
+  if (toFoot) {
+    toFoot.textContent = TEXT.btnToFoot;
+    toFoot.addEventListener("click", () => go("./footprint.html"));
+  }
+
+  const backBtn = document.getElementById("backBtn");
+  if (backBtn) backBtn.addEventListener("click", () => history.back());
+
 })();

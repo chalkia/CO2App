@@ -127,7 +127,7 @@ function compute(){
 
   // --- TRANSPORT ---
   const weeklyKm = getNumber("weeklyKm");
-  
+
   // Car Type is a string key now (e.g. 'petrol', 'diesel')
   const carId = document.getElementById("carType").value; 
   const fCar = val(f.carType?.[carId] ?? 0);
@@ -137,7 +137,7 @@ function compute(){
   const fPublic = val(f.publicTransport?.[publicId] ?? 0);
 
   const pPublic = getNumber("publicPct") / 100;
-  
+
   // Fix Checkbox ID mismatch (travelsAlone vs alone)
   const aloneEl = document.getElementById("travelsAlone") || document.getElementById("alone");
   const travelsAlone = aloneEl ? aloneEl.checked : false;
@@ -193,9 +193,9 @@ function saveForDashboard(res){
   localStorage.setItem("CO2_HOME_VALUES", JSON.stringify(res.homeValues));
   localStorage.setItem("CO2_TRANSPORT_VALUES", JSON.stringify(res.transportValues));
   localStorage.setItem("CO2_LIFE_VALUES", JSON.stringify(res.lifestyleValues));
-  
+
   localStorage.setItem("USER_TOTAL", String(res.totalTons));
-  
+
   // Default target if missing
   const target = model && model.targets ? val(model.targets.euTargetTonsPerYear) : 2.3;
   localStorage.setItem("EU_TARGET", String(target));
@@ -249,7 +249,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     const el = document.getElementById(id);
     if(el) el.textContent = txt;
   }
-  
+
   const gh = document.getElementById("goodsHint"); if (gh) gh.textContent = t.goodsHint;
   const fh = document.getElementById("flightHint"); if (fh) fh.textContent = t.flightHint;
 
@@ -269,7 +269,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   // Range display logic
   const homeUse = document.getElementById("homeUse");
   const publicPct = document.getElementById("publicPct");
-  
+
   function homeUseQual(v){
     const lang = getLang();
     const x = Number(v);
@@ -293,7 +293,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     }
     const hl = document.getElementById("homeUseLabel");
     if (hl) hl.textContent = homeUseQual(homeUse.value);
-    
+
     const pp = document.getElementById("publicPctVal");
     if(pp) pp.textContent = `${publicPct.value}%`;
   }
@@ -317,7 +317,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     el.addEventListener("input", updateTotal);
     el.addEventListener("change", updateTotal);
   });
-  
+
   // Initial calculation to prevent "—" on load
   setTimeout(updateTotal, 500);
 
