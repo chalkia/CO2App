@@ -55,7 +55,7 @@ a{color:inherit}
   max-width: 520px;
   display:flex;
   align-items:center;
-  justify-content:space-between;
+  justify-content:center;
   padding: 6px 4px;
 }
 
@@ -150,7 +150,7 @@ a{color:inherit}
   width:100%;
   max-width:520px;
   display:flex;
-  justify-content:space-between;
+  justify-content:center;
   gap: 10px;
   padding: 10px 16px;
   background: rgba(255,255,255,.85);
@@ -395,7 +395,7 @@ select, input[type="number"], input[type="range"]{
 .drawerHeader{
   display:flex;
   align-items:center;
-  justify-content:space-between;
+  justify-content:center;
   gap: 10px;
 }
 
@@ -550,7 +550,7 @@ body.homeNoDrawer #drawerBackdrop{
   font-weight: 700;
   display:flex;
   align-items:center;
-  justify-content:space-between;
+  justify-content:center;
   gap: 10px;
 }
 .homePrimarySub{
@@ -647,7 +647,7 @@ h1, h2, h3, .homePrimaryTitle, .homePrimarySub, .homeChip, .statsBar{
   justify-content:center;
 }
 @media (min-width: 900px){
-  .footNavRow{ max-width: 640px; justify-content:space-between; }
+  .footNavRow{ max-width: 640px; justify-content:center; }
 }
 .footNavBtn{
   flex:1;
@@ -976,4 +976,86 @@ select option{
   }
   .installSection{ flex:1; }
   .installQr{ width: 300px; }
+}
+
+
+/* Quiz stats pills */
+.statPill{padding:8px 12px; border-radius:999px; background: rgba(255,255,255,.92); box-shadow: var(--btnShadow); font-family: var(--uiFont); font-weight: 800; min-width: 140px; text-align:center;}
+
+/* Quiz navigation (review) */
+.quizNavTop{
+  width:100%;
+  max-width:520px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap: 12px;
+  margin-left:auto;
+  margin-right:auto;
+}
+.quizNavMid{
+  font-family: var(--uiFont);
+  font-weight: 800;
+  opacity: .75;
+}
+.quizNavBtn{
+  min-width: 64px;
+}
+.quizNavBtn:disabled{
+  opacity: .45;
+  cursor: default;
+}
+
+/* Correct/Wrong highlighting (only correct option + user's wrong choice) */
+.optionText.answerCorrect{
+  background: rgba(47,74,49,.14);
+  border-color: rgba(47,74,49,.30);
+}
+.optionText.answerWrong{
+  background: rgba(239,68,68,.14);
+  border-color: rgba(239,68,68,.30);
+}
+.optionText.answerChosen{
+  outline: 2px solid rgba(0,0,0,.08);
+}
+
+/* Inline explanation card (turns into bottom sheet on mobile) */
+.answerCard{
+  width:100%;
+  max-width:520px;
+  margin-left:auto;
+  margin-right:auto;
+  background: rgba(255,255,255,.95);
+  border-radius: 18px;
+  box-shadow: 0 10px 26px rgba(0,0,0,.14);
+  padding: 14px 14px 12px;
+}
+.answerHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.answerTitle{
+  font-family: var(--uiFont);
+  font-weight: 900;
+}
+.answerClose{
+  width:38px;
+  height:38px;
+  border-radius: 14px;
+}
+@media (max-width: 760px){
+  .answerCard{
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 12px;
+    width: min(520px, calc(100% - 28px));
+    max-height: 38vh;
+    overflow:auto;
+    z-index: 50;
+  }
+  body.answerOpen{ padding-bottom: 42vh; }
 }
