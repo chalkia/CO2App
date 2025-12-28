@@ -25,7 +25,7 @@ function T(){
   return {
     el: {
       title: "Υπολογισμός Αποτυπώματος CO₂",
-      subtitle: "Τα αποτελέσματα είναι προσεγγιστικά, αναλυτικά στοιχεία για το μοντέλο δες στην Τεκμηρίωση".,
+      subtitle: "Τα αποτελέσματα είναι προσεγγιστικά, αναλυτικά στοιχεία για το μοντέλο δες στην Τεκμηρίωση",
       home: "Κατοικία",
       transport: "Μεταφορές",
       lifestyle: "Διατροφή και Lifestyle",
@@ -204,7 +204,10 @@ function saveForDashboard(res){
 document.addEventListener("DOMContentLoaded", async ()=>{
   initLangButtons();
 
-  // --- Set UI text FIRST (even if model fails to load) ---
+  const resp = await fetch("../assets/footprintModel.json", {cache:"no-store"});
+  model = await resp.json();
+
+  const lang = getLang();
   const t = T();
 
   // Titles
@@ -253,60 +256,6 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   const btnCalc = document.getElementById("btnCalc"); if(btnCalc) btnCalc.textContent = t.calc;
   const btnDash = document.getElementById("btnDash"); if(btnDash) btnDash.textContent = t.dash;
 
-  // --- Robust model loader (fixes "empty page" + works offline) ---
-  async function loadModel(){
-    // 0) Inline model (preferred)
-    try{
-      const inline = document.getElementById("fpModel");
-      if (inline && inline.textContent){
-        return JSON.parse(inline.textContent);
-      }
-    }catch(e){}
-
-    const urls = [
-      "../assets/footprintModel.json",
-      "./../assets/footprintModel.json",
-      "/assets/footprintModel.json",
-      "../assets/footprintModel.json?v=" + Date.now()
-    ];
-
-    // 1) Try network fetch
-    for (const u of urls){
-      try{
-        const r = await fetch(u, { cache: "no-store" });
-        if (r && r.ok){
-          return await r.json();
-        }
-      }catch(e){}
-    }
-
-    // 2) Try Cache Storage (if SW cached it)
-    try{
-      const cached =
-        (await caches.match("../assets/footprintModel.json")) ||
-        (await caches.match("/assets/footprintModel.json")) ||
-        (await caches.match("./assets/footprintModel.json"));
-      if (cached){
-        return await cached.json();
-      }
-    }catch(e){}
-
-    return null;
-  }
-
-  model = await loadModel();
-
-  if (!model){
-    if (subEl){
-      subEl.textContent =
-        (getLang() === "en")
-          ? "Model failed to load. Please refresh once while online."
-          : "Δεν φορτώθηκε το μοντέλο. Κάνε μια ανανέωση όταν έχεις σύνδεση (online).";
-    }
-    console.error("footprint model failed to load.");
-    return;
-  }
-
   // Populate selects
   populateSelect(document.getElementById("homeType"), "homeType");
   populateSelect(document.getElementById("homeCond"), "homeCondition");
@@ -340,7 +289,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     const hv = document.getElementById("homeUseVal");
     if (hv) {
       hv.textContent = `${fmt(homeUse.value,2)}×`;
-      hv.style.display = "block";
+      hv.style.display = "block"; // Ensure it shows
     }
     const hl = document.getElementById("homeUseLabel");
     if (hl) hl.textContent = homeUseQual(homeUse.value);
@@ -349,8 +298,8 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     if(pp) pp.textContent = `${publicPct.value}%`;
   }
 
-  if (homeUse) homeUse.addEventListener("input", updateRanges);
-  if (publicPct) publicPct.addEventListener("input", updateRanges);
+  homeUse.addEventListener("input", updateRanges);
+  publicPct.addEventListener("input", updateRanges);
   updateRanges();
 
   function updateTotal(){
@@ -363,12 +312,14 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     }
   }
 
+  // Live update events
   document.querySelectorAll("select,input").forEach(el=>{
     el.addEventListener("input", updateTotal);
     el.addEventListener("change", updateTotal);
   });
 
-  setTimeout(updateTotal, 200);
+  // Initial calculation to prevent "—" on load
+  setTimeout(updateTotal, 500);
 
   if(btnCalc) btnCalc.addEventListener("click", updateTotal);
 
@@ -376,6 +327,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     btnDash.addEventListener("click", ()=>{
       const res = compute();
       saveForDashboard(res);
+      // Assuming footprint.html is in /pages/, dashboard is also in /pages/
       go("./dashboard.html");
     });
   }
