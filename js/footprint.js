@@ -130,7 +130,8 @@ function compute(){
   const carIdx = Number(document.getElementById("carType").value);
   const publicId = String(document.getElementById("publicType").value);
   const pPublic = getNumber("publicPct") / 100;
-  const travelsAlone = document.getElementById("travelsAlone").checked;
+  const aloneEl = document.getElementById("travelsAlone") || document.getElementById("alone");
+  const travelsAlone = aloneEl ? !!aloneEl.checked : false;
   const carAloneFactor = travelsAlone ? 1 : c.carPoolFactor;
 
   const carTons =
