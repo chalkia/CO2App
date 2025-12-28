@@ -10,13 +10,11 @@ function val(x){
 function getUILabel(dim){
   const lang = getLang();
   if (model && model.ui && model.ui[dim]) return model.ui[dim].labels[lang];
-  // fallback legacy
   return (model && model.legacy && model.legacy.labels && model.legacy.labels[lang]) ? model.legacy.labels[lang][dim] : null;
 }
 
 function getUIOrder(dim){
   if (model && model.ui && model.ui[dim]) return model.ui[dim].order;
-  // fallback legacy: indices 0..n-1
   const lang = getLang();
   const legacy = (model && model.legacy && model.legacy.labels && model.legacy.labels[lang]) ? model.legacy.labels[lang][dim] : [];
   return Array.isArray(legacy) ? legacy.map((_,i)=>String(i)) : [];
@@ -28,7 +26,7 @@ function T(){
     el: {
       title: "Υπολογισμός Αποτυπώματος CO₂",
       subtitle: "Τα αποτελέσματα είναι προσεγγιστικά (σχετικό μοντέλο με πολλαπλασιαστικούς συντελεστές).",
-      home: "Κατοίκηση",
+      home: "Κατοικία",
       transport: "Μεταφορές",
       lifestyle: "Διατροφή και Lifestyle",
       homeType: "Τύπος κατοικίας",
@@ -102,66 +100,83 @@ function getNumber(id){
   return Number.isFinite(v) ? v : 0;
 }
 
+// === FIX: Updated compute function to handle String IDs correctly ===
 function compute(){
+  if (!model) return { totalTons:0, homeValues:[0,0], transportValues:[0,0], lifestyleValues:[0,0,0] };
+
   const f = (model.factors || {});
   const b = (model.base || {});
   const c = (model.constants || {});
-  const t = (model.targets || {});
 
-  // Home
-  const homeTypeId = String(document.getElementById("homeType").value);
-  const homeCondId = String(document.getElementById("homeCond").value);
-  const heatingId = String(document.getElementById("heatingType").value);
+  // --- HOME ---
+  const homeTypeId = document.getElementById("homeType").value; // string key
+  const homeCondId = document.getElementById("homeCond").value; // string key
+  const heatingId = document.getElementById("heatingType").value; // string key
   const homeUseFactor = getNumber("homeUse");
 
-  const heatingKg =
-    val(b.heatingKgPerYear) *
-    val(f.homeType?.[homeTypeId]) *
-    val(f.homeCondition?.[homeCondId]) *
-    val(f.heatingType?.[heatingId]);
+  // Fetch factors using string keys
+  const fHomeType = val(f.homeType?.[homeTypeId] ?? 1);
+  const fHomeCond = val(f.homeCondition?.[homeCondId] ?? 1);
+  const fHeating = val(f.heatingType?.[heatingId] ?? 0);
 
-  const useKg = b.homeUseKgPerYear * homeUseFactor;
+  const heatingKg = val(b.heatingKgPerYear) * fHomeType * fHomeCond * fHeating;
+  const useKg = val(b.homeUseKgPerYear) * homeUseFactor;
 
   const homeValues = [heatingKg/1000, useKg/1000];
   const homeTons = homeValues[0] + homeValues[1];
 
-  // Transport
+  // --- TRANSPORT ---
   const weeklyKm = getNumber("weeklyKm");
-  const carIdx = Number(document.getElementById("carType").value);
-  const publicId = String(document.getElementById("publicType").value);
+  
+  // Car Type is a string key now (e.g. 'petrol', 'diesel')
+  const carId = document.getElementById("carType").value; 
+  const fCar = val(f.carType?.[carId] ?? 0);
+
+  // Public Transport Type
+  const publicId = document.getElementById("publicType").value;
+  const fPublic = val(f.publicTransport?.[publicId] ?? 0);
+
   const pPublic = getNumber("publicPct") / 100;
+  
+  // Fix Checkbox ID mismatch (travelsAlone vs alone)
   const aloneEl = document.getElementById("travelsAlone") || document.getElementById("alone");
-  const travelsAlone = aloneEl ? !!aloneEl.checked : false;
-  const carAloneFactor = travelsAlone ? 1 : c.carPoolFactor;
+  const travelsAlone = aloneEl ? aloneEl.checked : false;
+  const carPoolFactor = travelsAlone ? 1.0 : val(c.carPoolFactor);
 
   const carTons =
-    weeklyKm * c.weeklyToTonsFactor *
+    weeklyKm * val(c.weeklyToTonsFactor) *
     (1 - pPublic) *
-    carAloneFactor *
-    f.carType[carIdx];
+    carPoolFactor *
+    fCar;
 
   const publicTons =
-    weeklyKm * c.weeklyToTonsFactor *
+    weeklyKm * val(c.weeklyToTonsFactor) *
     (pPublic) *
-    f.publicTransport[publicIdx];
+    fPublic;
 
   const transportValues = [carTons, publicTons];
   const transportTons = carTons + publicTons;
 
-  // Lifestyle: goods + food + flights
-  const goodsId = String(document.getElementById("goodsLevel").value);
-  const foodLevelIdx = Number(document.getElementById("foodLevel").value);
-  const dietIdx = Number(document.getElementById("diet").value);
+  // --- LIFESTYLE ---
+  const goodsId = document.getElementById("goodsLevel").value;
+  const fGoods = val(f.goodsLevel?.[goodsId] ?? 1);
+
+  const foodId = document.getElementById("foodLevel").value;
+  const fFood = val(f.foodLevel?.[foodId] ?? 1);
+
+  const dietId = document.getElementById("diet").value;
+  const fDiet = val(f.diet?.[dietId] ?? 1);
+
   const trips = getNumber("flightTrips");
 
-  const goodsTons = (b.goodsKgPerYear * f.goodsLevel[goodsIdx]) / 1000;
-  const foodTons = (b.foodKgPerYear * f.foodLevel[foodLevelIdx] * f.diet[dietIdx]) / 1000;
+  const goodsTons = (val(b.goodsKgPerYear) * fGoods) / 1000;
+  const foodTons = (val(b.foodKgPerYear) * fFood * fDiet) / 1000;
 
   const kgPerTrip = val(c.flightKgPerKmPerPassenger) * val(c.flightTripDistanceKm);
-  const flightsTons = (trips * kgPerTrip) / 1000; // 0.1 t each
+  const flightsTons = (trips * kgPerTrip) / 1000; 
 
-  const lifestyleValues = [goodsTons, foodTons, flightsTons];
-  const lifestyleTons = goodsTons + foodTons + flightsTons;
+  const lifestyleValues = [foodTons, goodsTons, flightsTons]; // Order: Diet, Goods, Flights
+  const lifestyleTons = foodTons + goodsTons + flightsTons;
 
   const totalTons = homeTons + transportTons + lifestyleTons;
 
@@ -173,30 +188,38 @@ function compute(){
   };
 }
 
+// === FIX: Save keys that match dashboard.js ===
 function saveForDashboard(res){
-  localStorage.setItem("homeValues", JSON.stringify(res.homeValues));
-  localStorage.setItem("transportValues", JSON.stringify(res.transportValues));
-  localStorage.setItem("lifestyleValues", JSON.stringify(res.lifestyleValues));
-  localStorage.setItem("userTotalTons", String(res.totalTons));
-  localStorage.setItem("euTargetTons", String(val(model.targets?.euTargetTonsPerYear)));
+  localStorage.setItem("CO2_HOME_VALUES", JSON.stringify(res.homeValues));
+  localStorage.setItem("CO2_TRANSPORT_VALUES", JSON.stringify(res.transportValues));
+  localStorage.setItem("CO2_LIFE_VALUES", JSON.stringify(res.lifestyleValues));
+  
+  localStorage.setItem("USER_TOTAL", String(res.totalTons));
+  
+  // Default target if missing
+  const target = model && model.targets ? val(model.targets.euTargetTonsPerYear) : 2.3;
+  localStorage.setItem("EU_TARGET", String(target));
 }
 
 document.addEventListener("DOMContentLoaded", async ()=>{
   initLangButtons();
 
-    const resp = await fetch("../assets/footprintModel.json", {cache:"no-store"});
+  const resp = await fetch("../assets/footprintModel.json", {cache:"no-store"});
   model = await resp.json();
 
   const lang = getLang();
   const t = T();
 
   // Titles
-  document.getElementById("title").textContent = t.title;
-  document.getElementById("subtitle").textContent = t.subtitle;
+  const titleEl = document.getElementById("title");
+  if(titleEl) titleEl.textContent = t.title;
+  const subEl = document.getElementById("subtitle");
+  if(subEl) subEl.textContent = t.subtitle;
 
-  document.getElementById("homeTitle").textContent = t.home;
-  document.getElementById("trTitle").textContent = t.transport;
-  document.getElementById("lifeTitle").textContent = t.lifestyle;
+  const hTitle = document.getElementById("homeTitle"); if(hTitle) hTitle.textContent = t.home;
+  const tTitle = document.getElementById("trTitle"); if(tTitle) tTitle.textContent = t.transport;
+  const lTitle = document.getElementById("lifeTitle"); if(lTitle) lTitle.textContent = t.lifestyle;
+
   // Section navigation chips
   const navHome = document.getElementById("navHome");
   const navTransport = document.getElementById("navTransport");
@@ -214,88 +237,98 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   if (navTransport) navTransport.addEventListener("click", ()=>goTo("cardTransport"));
   if (navLifestyle) navLifestyle.addEventListener("click", ()=>goTo("cardLifestyle"));
 
+  // Labels
+  const lblIds = {
+    "lblHomeType": t.homeType, "lblHomeCond": t.homeCond, "lblHeating": t.heating, "lblHomeUse": t.homeUse,
+    "lblWeeklyKm": t.weeklyKm, "lblCarType": t.carType, "lblPublicType": t.publicType, "lblPublicPct": t.publicPct,
+    "lblAlone": t.alone, "lblGoods": t.goods, "lblFoodLevel": t.foodLevel, "lblDiet": t.diet, "lblFlights": t.flights,
+    "lblTotal": t.total
+  };
 
-  document.getElementById("lblHomeType").textContent = t.homeType;
-  document.getElementById("lblHomeCond").textContent = t.homeCond;
-  document.getElementById("lblHeating").textContent = t.heating;
-  document.getElementById("lblHomeUse").textContent = t.homeUse;
-
-  document.getElementById("lblWeeklyKm").textContent = t.weeklyKm;
-  document.getElementById("lblCarType").textContent = t.carType;
-  document.getElementById("lblPublicType").textContent = t.publicType;
-  document.getElementById("lblPublicPct").textContent = t.publicPct;
-  document.getElementById("lblAlone").textContent = t.alone;
-
-  document.getElementById("lblGoods").textContent = t.goods;
+  for(const [id, txt] of Object.entries(lblIds)){
+    const el = document.getElementById(id);
+    if(el) el.textContent = txt;
+  }
+  
   const gh = document.getElementById("goodsHint"); if (gh) gh.textContent = t.goodsHint;
-  document.getElementById("lblFoodLevel").textContent = t.foodLevel;
-  document.getElementById("lblDiet").textContent = t.diet;
-  document.getElementById("lblFlights").textContent = t.flights;
-  document.getElementById("flightHint").textContent = t.flightHint;
+  const fh = document.getElementById("flightHint"); if (fh) fh.textContent = t.flightHint;
 
-  document.getElementById("lblTotal").textContent = t.total;
-  document.getElementById("btnCalc").textContent = t.calc;
-  document.getElementById("btnDash").textContent = t.dash;
+  const btnCalc = document.getElementById("btnCalc"); if(btnCalc) btnCalc.textContent = t.calc;
+  const btnDash = document.getElementById("btnDash"); if(btnDash) btnDash.textContent = t.dash;
 
   // Populate selects
   populateSelect(document.getElementById("homeType"), "homeType");
   populateSelect(document.getElementById("homeCond"), "homeCondition");
   populateSelect(document.getElementById("heatingType"), "heatingType");
-
   populateSelect(document.getElementById("carType"), "carType");
   populateSelect(document.getElementById("publicType"), "publicTransport");
-
   populateSelect(document.getElementById("goodsLevel"), "goodsLevel");
   populateSelect(document.getElementById("foodLevel"), "foodLevel");
   populateSelect(document.getElementById("diet"), "diet");
 
-  // Range display
+  // Range display logic
   const homeUse = document.getElementById("homeUse");
   const publicPct = document.getElementById("publicPct");
   
-function homeUseQual(v){
-  const lang = getLang();
-  const x = Number(v);
-  const el = ["Πολύ συνετή", "Συνετή", "Κανονική", "Υπερβολική", "Κατάχρηση"];
-  const en = ["Very frugal", "Frugal", "Normal", "High", "Excessive"];
-  const levels = (lang === "en") ? en : el;
-  let idx = 2;
-  if (x <= 0.70) idx = 0;
-  else if (x <= 0.90) idx = 1;
-  else if (x <= 1.10) idx = 2;
-  else if (x <= 1.30) idx = 3;
-  else idx = 4;
-  return levels[idx];
-}
+  function homeUseQual(v){
+    const lang = getLang();
+    const x = Number(v);
+    const el = ["Πολύ συνετή", "Συνετή", "Κανονική", "Υπερβολική", "Κατάχρηση"];
+    const en = ["Very frugal", "Frugal", "Normal", "High", "Excessive"];
+    const levels = (lang === "en") ? en : el;
+    let idx = 2;
+    if (x <= 0.70) idx = 0;
+    else if (x <= 0.90) idx = 1;
+    else if (x <= 1.10) idx = 2;
+    else if (x <= 1.30) idx = 3;
+    else idx = 4;
+    return levels[idx];
+  }
 
-function updateRanges(){
-  const hv = document.getElementById("homeUseVal");
-  if (hv) hv.textContent = `${fmt(homeUse.value,2)}×`;
-  const hl = document.getElementById("homeUseLabel");
-  if (hl) hl.textContent = homeUseQual(homeUse.value);
-  document.getElementById("publicPctVal").textContent = `${publicPct.value}%`;
-}
-homeUse.addEventListener("input", updateRanges);("input", updateRanges);
+  function updateRanges(){
+    const hv = document.getElementById("homeUseVal");
+    if (hv) {
+      hv.textContent = `${fmt(homeUse.value,2)}×`;
+      hv.style.display = "block"; // Ensure it shows
+    }
+    const hl = document.getElementById("homeUseLabel");
+    if (hl) hl.textContent = homeUseQual(homeUse.value);
+    
+    const pp = document.getElementById("publicPctVal");
+    if(pp) pp.textContent = `${publicPct.value}%`;
+  }
+
+  homeUse.addEventListener("input", updateRanges);
   publicPct.addEventListener("input", updateRanges);
   updateRanges();
 
   function updateTotal(){
-    const res = compute();
-    document.getElementById("totalVal").textContent = fmt(res.totalTons, 2);
+    try {
+      const res = compute();
+      const tv = document.getElementById("totalVal");
+      if(tv) tv.textContent = fmt(res.totalTons, 2);
+    } catch(e) {
+      console.error("Calculation error:", e);
+    }
   }
 
-  // live update
+  // Live update events
   document.querySelectorAll("select,input").forEach(el=>{
     el.addEventListener("input", updateTotal);
     el.addEventListener("change", updateTotal);
   });
-  updateTotal();
+  
+  // Initial calculation to prevent "—" on load
+  setTimeout(updateTotal, 500);
 
-  document.getElementById("btnCalc").addEventListener("click", updateTotal);
+  if(btnCalc) btnCalc.addEventListener("click", updateTotal);
 
-  document.getElementById("btnDash").addEventListener("click", ()=>{
-    const res = compute();
-    saveForDashboard(res);
-    go("./dashboard.html");
-  });
+  if(btnDash) {
+    btnDash.addEventListener("click", ()=>{
+      const res = compute();
+      saveForDashboard(res);
+      // Assuming footprint.html is in /pages/, dashboard is also in /pages/
+      go("./dashboard.html");
+    });
+  }
 });
