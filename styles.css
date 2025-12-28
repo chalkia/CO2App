@@ -916,3 +916,45 @@ select option{
   display: flex;
   justify-content: center;
 }
+
+
+/* --- Install on phone page --- */
+.muted{ color: var(--muted); }
+
+.installQrWrap{
+  width:100%;
+  display:flex;
+  justify-content:center;
+  margin: 6px 0 6px;
+}
+.installQr{
+  width: min(320px, 82vw);
+  height:auto;
+  display:block;
+  border-radius: 18px;
+  background:#fff;
+  box-shadow: var(--shadow);
+}
+
+.installColumns{
+  display:flex;
+  flex-direction:column;
+  gap: 14px;
+}
+.installSection{ width:100%; }
+.installList{
+  margin: 0;
+  padding-left: 1.15rem;
+  line-height: 1.35;
+}
+.installList li{ margin: 6px 0; }
+
+@media (min-width: 900px){
+  .installColumns{
+    flex-direction: row;
+    gap: 18px;
+    align-items:flex-start;
+  }
+  .installSection{ flex:1; }
+  .installQr{ width: 300px; }
+}

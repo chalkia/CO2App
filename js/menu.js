@@ -33,8 +33,8 @@ function buildNav(){
 
   const lang = getLang();
   const t = {
-    el: { home:"Αρχική", quiz:"Quiz", foot:"Υπολογιστής CO₂", info:"Τεκμηρίωση", about:"Πληροφορίες" },
-    en: { home:"Home", quiz:"Quiz", foot:"Footprint", info:"Documentation", about:"Info" }
+    el: {home:"Αρχική", quiz:"Quiz", foot:"Υπολογιστής CO₂", info:"Τεκμηρίωση", about:"Πληροφορίες", install:"Εγκατάσταση σε κινητό" },
+    en: {home:"Home", quiz:"Quiz", foot:"Footprint", info:"Documentation", about:"Info", install:"Install on phone" }
   }[lang];
 
   const here = pageName();
@@ -47,13 +47,13 @@ function buildNav(){
     {label:t.foot, href: "./footprint.html", icon:"co2"},
     {label:t.info, href: "./info.html", icon:"info"},
     {label:t.about, href: "./about.html", icon:"about"},
-  ] : [
+    {label:t.install, href: "./install.html", icon:"install"},  ] : [
     {label:t.home, href: "./index.html", icon:"home"},
     {label:t.quiz, href: "./pages/quiz.html", icon:"quiz"},
     {label:t.foot, href: "./pages/footprint.html", icon:"co2"},
     {label:t.info, href: "./pages/info.html", icon:"info"},
     {label:t.about, href: "./pages/about.html", icon:"about"},
-  ];
+    {label:t.install, href: "./pages/install.html", icon:"install"},  ];
 
   nav.innerHTML = "";
   items.forEach(it=>{
@@ -86,6 +86,8 @@ function buildNav(){
       ic.textContent = "?";
     } else if (it.icon === "about"){
       ic.textContent = "ℹ";
+    } else if (it.icon === "install"){
+      ic.textContent = "📱";
     } else if (it.icon === "info"){
       const img = document.createElement("img");
       img.src = iconBase + "bookN.png";
