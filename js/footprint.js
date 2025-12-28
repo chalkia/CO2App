@@ -253,8 +253,16 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   const btnCalc = document.getElementById("btnCalc"); if(btnCalc) btnCalc.textContent = t.calc;
   const btnDash = document.getElementById("btnDash"); if(btnDash) btnDash.textContent = t.dash;
 
-  // --- Robust model loader (fixes "empty page" if fetch fails) ---
+  // --- Robust model loader (fixes "empty page" + works offline) ---
   async function loadModel(){
+    // 0) Inline model (preferred)
+    try{
+      const inline = document.getElementById("fpModel");
+      if (inline && inline.textContent){
+        return JSON.parse(inline.textContent);
+      }
+    }catch(e){}
+
     const urls = [
       "../assets/footprintModel.json",
       "./../assets/footprintModel.json",
@@ -262,7 +270,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
       "../assets/footprintModel.json?v=" + Date.now()
     ];
 
-    // 1) Try network fetch first
+    // 1) Try network fetch
     for (const u of urls){
       try{
         const r = await fetch(u, { cache: "no-store" });
@@ -289,18 +297,17 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   model = await loadModel();
 
   if (!model){
-    // Show a clear message instead of an empty UI
     if (subEl){
       subEl.textContent =
         (getLang() === "en")
           ? "Model failed to load. Please refresh once while online."
           : "Δεν φορτώθηκε το μοντέλο. Κάνε μια ανανέωση όταν έχεις σύνδεση (online).";
     }
-    console.error("footprintModel.json failed to load (network + cache).");
+    console.error("footprint model failed to load.");
     return;
   }
 
-  // Populate selects (now safe)
+  // Populate selects
   populateSelect(document.getElementById("homeType"), "homeType");
   populateSelect(document.getElementById("homeCond"), "homeCondition");
   populateSelect(document.getElementById("heatingType"), "heatingType");
@@ -356,13 +363,11 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     }
   }
 
-  // Live update events
   document.querySelectorAll("select,input").forEach(el=>{
     el.addEventListener("input", updateTotal);
     el.addEventListener("change", updateTotal);
   });
 
-  // Initial calculation to prevent "—" on load
   setTimeout(updateTotal, 200);
 
   if(btnCalc) btnCalc.addEventListener("click", updateTotal);

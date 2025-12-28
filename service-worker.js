@@ -1,4 +1,4 @@
-const CACHE_NAME = "co2-pwa-v13";
+const CACHE_NAME = "co2-pwa-v14";
 const PRECACHE = [
   "./",
   "./index.html",
