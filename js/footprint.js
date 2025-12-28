@@ -204,10 +204,7 @@ function saveForDashboard(res){
 document.addEventListener("DOMContentLoaded", async ()=>{
   initLangButtons();
 
-  const resp = await fetch("../assets/footprintModel.json", {cache:"no-store"});
-  model = await resp.json();
-
-  const lang = getLang();
+  // --- Set UI text FIRST (even if model fails to load) ---
   const t = T();
 
   // Titles
@@ -256,7 +253,54 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   const btnCalc = document.getElementById("btnCalc"); if(btnCalc) btnCalc.textContent = t.calc;
   const btnDash = document.getElementById("btnDash"); if(btnDash) btnDash.textContent = t.dash;
 
-  // Populate selects
+  // --- Robust model loader (fixes "empty page" if fetch fails) ---
+  async function loadModel(){
+    const urls = [
+      "../assets/footprintModel.json",
+      "./../assets/footprintModel.json",
+      "/assets/footprintModel.json",
+      "../assets/footprintModel.json?v=" + Date.now()
+    ];
+
+    // 1) Try network fetch first
+    for (const u of urls){
+      try{
+        const r = await fetch(u, { cache: "no-store" });
+        if (r && r.ok){
+          return await r.json();
+        }
+      }catch(e){}
+    }
+
+    // 2) Try Cache Storage (if SW cached it)
+    try{
+      const cached =
+        (await caches.match("../assets/footprintModel.json")) ||
+        (await caches.match("/assets/footprintModel.json")) ||
+        (await caches.match("./assets/footprintModel.json"));
+      if (cached){
+        return await cached.json();
+      }
+    }catch(e){}
+
+    return null;
+  }
+
+  model = await loadModel();
+
+  if (!model){
+    // Show a clear message instead of an empty UI
+    if (subEl){
+      subEl.textContent =
+        (getLang() === "en")
+          ? "Model failed to load. Please refresh once while online."
+          : "Δεν φορτώθηκε το μοντέλο. Κάνε μια ανανέωση όταν έχεις σύνδεση (online).";
+    }
+    console.error("footprintModel.json failed to load (network + cache).");
+    return;
+  }
+
+  // Populate selects (now safe)
   populateSelect(document.getElementById("homeType"), "homeType");
   populateSelect(document.getElementById("homeCond"), "homeCondition");
   populateSelect(document.getElementById("heatingType"), "heatingType");
@@ -289,7 +333,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     const hv = document.getElementById("homeUseVal");
     if (hv) {
       hv.textContent = `${fmt(homeUse.value,2)}×`;
-      hv.style.display = "block"; // Ensure it shows
+      hv.style.display = "block";
     }
     const hl = document.getElementById("homeUseLabel");
     if (hl) hl.textContent = homeUseQual(homeUse.value);
@@ -298,8 +342,8 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     if(pp) pp.textContent = `${publicPct.value}%`;
   }
 
-  homeUse.addEventListener("input", updateRanges);
-  publicPct.addEventListener("input", updateRanges);
+  if (homeUse) homeUse.addEventListener("input", updateRanges);
+  if (publicPct) publicPct.addEventListener("input", updateRanges);
   updateRanges();
 
   function updateTotal(){
@@ -319,7 +363,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   });
 
   // Initial calculation to prevent "—" on load
-  setTimeout(updateTotal, 500);
+  setTimeout(updateTotal, 200);
 
   if(btnCalc) btnCalc.addEventListener("click", updateTotal);
 
@@ -327,7 +371,6 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     btnDash.addEventListener("click", ()=>{
       const res = compute();
       saveForDashboard(res);
-      // Assuming footprint.html is in /pages/, dashboard is also in /pages/
       go("./dashboard.html");
     });
   }
