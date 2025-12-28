@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Install</title>
+  <title>Install CO2app</title>
   <link rel="manifest" href="../manifest.webmanifest"/>
   <meta name="theme-color" content="#74a974"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -39,9 +39,7 @@
           <ol id="androidSteps" class="installList"></ol>
         </div>
       </div>
-
-        <div id="note" class="installNote"></div>
-      </div>
+</div>
     </div>
   </div>
 
@@ -68,8 +66,8 @@
     const lang = getLang();
     const T = {
       el: {
-        title: "Εγκατάσταση σε κινητό",
-        subtitle: "Σκάναρε το QR ή άνοιξε το link σε browser και πρόσθεσε την εφαρμογή στην αρχική οθόνη.",
+        title: "Εγκατάσταση σε κινητό - τάμπλετ",
+        subtitle: "Η εφαρμογή μπορεί να εγκατασταθεί σε κινητή συσκευή iPhone/Android μέσα από τον αντίστοιχο browser Safari/Chrome. Σκάναρε το QR ή γράψε απευθείας τη URL της σελίδας στον browser και ακολούθησε τις οδηγίες.",
         iosTitle: "iPhone / iPad (Safari)",
         ios: [
           "Άνοιξε το link στο <b>Safari</b> (όχι μέσα από in-app browser).",
@@ -83,7 +81,6 @@
           "Πάτησε το μενού <b>⋮</b> και επίλεξε <b>Install app</b> ή <b>Προσθήκη στην αρχική οθόνη</b>.",
           "Πάτησε <b>Install</b> και άνοιξε την εφαρμογή από το εικονίδιο."
         ],
-        note: "Αν είσαι ήδη μέσα στη σελίδα, μπορείς να χρησιμοποιήσεις το URL που εμφανίζεται στον browser."
       },
       en: {
         title: "Install on your phone",
@@ -101,7 +98,6 @@
           "Tap <b>⋮</b> and choose <b>Install app</b> or <b>Add to Home screen</b>.",
           "Tap <b>Install</b> and launch the app from the icon."
         ],
-        note: "If you are already on this page, you can use the URL shown in your browser."
       }
     }[lang];
 
@@ -109,8 +105,6 @@
     document.getElementById("subtitle").innerHTML = T.subtitle;
     document.getElementById("iosTitle").textContent = T.iosTitle;
     document.getElementById("androidTitle").textContent = T.androidTitle;
-    document.getElementById("note").innerHTML = "<div class='muted' style='margin-top:10px; line-height:1.35;'>" + T.note + "</div>";
-
     function fillList(id, items){
       const el = document.getElementById(id);
       el.innerHTML = items.map(x => "<li>" + x + "</li>").join("");

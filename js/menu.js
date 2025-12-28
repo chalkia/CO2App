@@ -124,7 +124,16 @@ function buildNav(){
       img.style.objectFit = "contain";
       ic.appendChild(img);
     } else if (it.icon === "install"){
-      ic.textContent = "📱";
+      const img = document.createElement("img");
+      img.src = iconBase + "installN.png";
+      img.alt = "";
+      img.width = 26;
+      img.height = 26;
+      img.style.width = "26px";
+      img.style.height = "26px";
+      img.style.display = "block";
+      img.style.objectFit = "contain";
+      ic.appendChild(img);
     } else if (it.icon === "info"){
       const img = document.createElement("img");
       img.src = iconBase + "bookN.png";
