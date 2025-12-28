@@ -2,6 +2,15 @@ function isPagesDir(){
   return location.pathname.includes("/pages/");
 }
 
+
+function isStandaloneMode(){
+  try{
+    return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || (window.navigator && window.navigator.standalone === true);
+  }catch(e){
+    return false;
+  }
+}
+
 function openDrawer(){
   const d = document.getElementById("drawer");
   const b = document.getElementById("drawerBackdrop");
@@ -56,7 +65,10 @@ function buildNav(){
     {label:t.install, href: "./pages/install.html", icon:"install"},  ];
 
   nav.innerHTML = "";
-  items.forEach(it=>{
+  const standalone = isStandaloneMode();
+  const visibleItems = standalone ? items.filter(x => x.icon !== 'install') : items;
+
+  visibleItems.forEach(it=>{
     const div = document.createElement("div");
     div.className = "drawerItem";
 
@@ -79,13 +91,38 @@ function buildNav(){
       img.style.objectFit = "contain";
       ic.appendChild(img);
     } else if (it.icon === "co2"){
-      ic.textContent = "CO₂";
-      ic.style.fontSize = "0.8rem";
-      ic.style.fontWeight = "900";
+      const img = document.createElement("img");
+      img.src = iconBase + "co2N.png";
+      img.alt = "";
+      img.width = 26;
+      img.height = 26;
+      img.style.width = "26px";
+      img.style.height = "26px";
+      img.style.display = "block";
+      img.style.objectFit = "contain";
+      ic.appendChild(img);
     } else if (it.icon === "quiz"){
-      ic.textContent = "?";
+      const img = document.createElement("img");
+      img.src = iconBase + "quizN.png";
+      img.alt = "";
+      img.width = 26;
+      img.height = 26;
+      img.style.width = "26px";
+      img.style.height = "26px";
+      img.style.display = "block";
+      img.style.objectFit = "contain";
+      ic.appendChild(img);
     } else if (it.icon === "about"){
-      ic.textContent = "ℹ";
+      const img = document.createElement("img");
+      img.src = iconBase + "infoN.png";
+      img.alt = "";
+      img.width = 26;
+      img.height = 26;
+      img.style.width = "26px";
+      img.style.height = "26px";
+      img.style.display = "block";
+      img.style.objectFit = "contain";
+      ic.appendChild(img);
     } else if (it.icon === "install"){
       ic.textContent = "📱";
     } else if (it.icon === "info"){
@@ -140,7 +177,7 @@ function buildLangToggle(){
   const lang = getLang();
   const target = (lang === "el") ? "en" : "el";
   const label = (lang === "el") ? "English" : "Ελληνικά";
-  const icon = (lang === "el") ? "EN" : "ΕΛ";
+  const icon = (lang === "el") ? "lang_en.png" : "lang_el.png";
 
   wrap.innerHTML = "";
 
@@ -150,7 +187,16 @@ function buildLangToggle(){
 
   const ic = document.createElement("span");
   ic.className = "drawerIcon";
-  ic.textContent = icon;
+  const img = document.createElement("img");
+  img.src = (isPagesDir() ? "../assets/ui/" : "./assets/ui/") + icon;
+  img.alt = "";
+  img.width = 28;
+  img.height = 28;
+  img.style.width = "28px";
+  img.style.height = "28px";
+  img.style.display = "block";
+  img.style.objectFit = "contain";
+  ic.appendChild(img);
 
   const tx = document.createElement("span");
   tx.className = "drawerText";

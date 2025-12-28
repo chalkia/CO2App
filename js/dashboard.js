@@ -1,5 +1,4 @@
-/* Dashboard: donut charts (no external libraries) */
-
+/* Dashboard powered by ECharts (offline, self-hosted) */
 (function(){
   const lang = getLang();
 
@@ -8,248 +7,208 @@
       title: "Ετήσιος Πίνακας Αποτυπώματος Άνθρακα",
       euLabel: "Ευρωπαϊκός στόχος 2030",
       userLabel: "Σύνολο χρήστη",
-      unitYear: "τόνοι CO₂/έτος",
+      unitYear: "t CO₂/έτος",
       home: "Κατοικία",
       transport: "Μεταφορές",
       life: "Διατροφή & Lifestyle",
-      btnToFoot: "Υπολογισμός CO₂",
+      btnToFoot: "Πίσω στον υπολογισμό",
+      labels: {
+        heating: "Θέρμανση",
+        electricity: "Ηλεκτρική ενέργεια",
+        car: "ΙΧ",
+        public: "Δημόσια μέσα",
+        food: "Διατροφή",
+        goods: "Λοιπές χρήσεις",
+        flights: "Αεροπορικά"
+      }
     },
     en: {
-      title: "Annual Carbon Footprint Summary",
-      euLabel: "EU 2030 target",
+      title: "Annual Carbon Footprint Dashboard",
+      euLabel: "EU target 2030",
       userLabel: "User total",
       unitYear: "t CO₂/year",
       home: "Home",
       transport: "Transport",
       life: "Diet & Lifestyle",
-      btnToFoot: "CO₂ Calculator",
+      btnToFoot: "Back to calculator",
+      labels: {
+        heating: "Heating",
+        electricity: "Electricity",
+        car: "Car",
+        public: "Public transport",
+        food: "Diet",
+        goods: "Goods",
+        flights: "Flights"
+      }
     }
   }[lang];
 
-  const numFmt1 = new Intl.NumberFormat(lang === "el" ? "el-GR" : "en-US", { maximumFractionDigits: 1, minimumFractionDigits: 1 });
-  const numFmt2 = new Intl.NumberFormat(lang === "el" ? "el-GR" : "en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+  function setText(id, value){
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  }
 
-  const toNum = (v, d=0) => {
-    const n = Number(v);
-    return Number.isFinite(n) ? n : d;
-  };
+  function readNumber(key, fallback=0){
+    try{
+      const v = Number(localStorage.getItem(key));
+      return Number.isFinite(v) ? v : fallback;
+    }catch(e){ return fallback; }
+  }
 
-  function getJSON(key, fallback){
+  function readArray(key, len){
     try{
       const raw = localStorage.getItem(key);
-      if (!raw) return fallback;
-      const v = JSON.parse(raw);
-      return (v === null || v === undefined) ? fallback : v;
-    }catch{
-      return fallback;
+      if (!raw) return Array(len).fill(0);
+      const arr = JSON.parse(raw);
+      if (!Array.isArray(arr)) return Array(len).fill(0);
+      const out = arr.slice(0,len).map(x=>{
+        const n = Number(x);
+        return Number.isFinite(n) ? n : 0;
+      });
+      while (out.length < len) out.push(0);
+      return out;
+    }catch(e){
+      return Array(len).fill(0);
     }
   }
 
-  function fmt1(v){ return numFmt1.format(v); }
-  function fmt2(v){ return numFmt2.format(v); }
+  function sum(arr){ return arr.reduce((a,b)=>a + (Number.isFinite(b)?b:0), 0); }
 
-  function polar(cx, cy, r, a){
-    return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+  // Keep colors simple for now (we'll revisit palette later)
+  const COLORS = [
+    "#2f4a31", // deep green
+    "#f59e0b", // orange
+    "#3b82f6", // blue
+    "#22c55e", // green
+    "#ef4444", // red
+    "#9ca3af"  // gray
+  ];
+
+  function donutOption(title, total, rows){
+    const hasData = total > 0.0001;
+
+    const data = hasData ? rows : [{ name: "—", value: 1, itemStyle: { color: COLORS[5] } }];
+
+    return {
+      animation: false,
+      tooltip: {
+        trigger: "item",
+        formatter: (p)=>{
+          if (!hasData) return "—";
+          return `${p.name}: ${fmt(p.value, 1)} ${TEXT.unitYear.replace("t CO₂/έτος","t").replace("t CO₂/year","t")}`;
+        }
+      },
+      series: [{
+        type: "pie",
+        radius: ["58%", "78%"],
+        center: ["50%", "55%"],
+        avoidLabelOverlap: true,
+        padAngle: 0,
+        itemStyle: { borderColor: "#fff", borderWidth: 2 },
+        labelLine: { length: 16, length2: 10, lineStyle: { width: 1 } },
+        label: {
+          show: hasData,
+          fontSize: 13,
+          fontWeight: 800,
+          formatter: (p)=> `${p.name}\n${fmt(p.value,1)} t`,
+          overflow: "truncate"
+        },
+        data
+      }],
+      color: COLORS,
+      graphic: [
+        {
+          type: "text",
+          left: "center",
+          top: "46%",
+          style: {
+            text: hasData ? fmt(total, 1) : "—",
+            fontSize: 28,
+            fontWeight: 900,
+            fill: "#111"
+          }
+        },
+        {
+          type: "text",
+          left: "center",
+          top: "61%",
+          style: {
+            text: TEXT.unitYear,
+            fontSize: 12,
+            fontWeight: 800,
+            fill: "#555"
+          }
+        }
+      ]
+    };
   }
 
-  function donutSlicePath(cx, cy, rInner, rOuter, a0, a1){
-    const p0o = polar(cx, cy, rOuter, a0);
-    const p1o = polar(cx, cy, rOuter, a1);
-    const p1i = polar(cx, cy, rInner, a1);
-    const p0i = polar(cx, cy, rInner, a0);
-    const large = (a1 - a0) > Math.PI ? 1 : 0;
+  function makeChart(elId, total, rows){
+    const el = document.getElementById(elId);
+    if (!el || typeof echarts === "undefined") return null;
 
-    return [
-      `M ${p0o.x.toFixed(2)} ${p0o.y.toFixed(2)}`,
-      `A ${rOuter} ${rOuter} 0 ${large} 1 ${p1o.x.toFixed(2)} ${p1o.y.toFixed(2)}`,
-      `L ${p1i.x.toFixed(2)} ${p1i.y.toFixed(2)}`,
-      `A ${rInner} ${rInner} 0 ${large} 0 ${p0i.x.toFixed(2)} ${p0i.y.toFixed(2)}`,
-      "Z"
-    ].join(" ");
+    const chart = echarts.init(el, null, { renderer: "svg" });
+    chart.setOption(donutOption(elId, total, rows));
+    return chart;
   }
 
-  /**
-   * Creates an SVG donut chart with outside labels.
-   * @param {Array<{name:string, value:number, color:string}>} series
-   */
-  function createDonutSVG(series){
-    const total = series.reduce((s, p) => s + (p.value > 0 ? p.value : 0), 0) || 1;
+  function init(){
+    // Titles
+    setText("dashTitle", TEXT.title);
+    setText("euLabel", TEXT.euLabel);
+    setText("userLabel", TEXT.userLabel);
+    setText("homeTitle", TEXT.home);
+    setText("transportTitle", TEXT.transport);
+    setText("lifeTitle", TEXT.life);
+    setText("toFootprintBtn", TEXT.btnToFoot);
 
-    const size = 260;
-    const cx = size/2;
-    const cy = size/2;
-    const rOuter = 92;
-    const rInner = 58;
+    // Values
+    const userTotal = readNumber("USER_TOTAL", 0);
+    const euTarget = readNumber("EU_TARGET", 2.3);
 
-    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    const pad = 46;
-    svg.setAttribute("viewBox", `${-pad} ${-pad} ${size + pad*2} ${size + pad*2}`);
-    svg.setAttribute("role", "img");
-    svg.style.maxWidth = "260px";
-    svg.style.width = "100%";
-    svg.style.height = "auto";
-    svg.style.display = "block";
-    svg.style.margin = "0 auto";
+    setText("userVal", fmt(userTotal, 1));
+    setText("euVal", fmt(euTarget, 1));
 
-    // background ring (subtle)
-    const bg = document.createElementNS(svg.namespaceURI, "circle");
-    bg.setAttribute("cx", cx);
-    bg.setAttribute("cy", cy);
-    bg.setAttribute("r", (rInner + rOuter)/2);
-    bg.setAttribute("fill", "none");
-    bg.setAttribute("stroke", "rgba(0,0,0,.06)");
-    bg.setAttribute("stroke-width", String(rOuter - rInner));
-    svg.appendChild(bg);
+    // Breakdown arrays
+    const homeVals = readArray("CO2_HOME_VALUES", 2);       // [heating, electricity]
+    const trVals   = readArray("CO2_TRANSPORT_VALUES", 2);  // [car, public]
+    const lifeVals = readArray("CO2_LIFE_VALUES", 3);       // [food, goods, flights]
 
-    let a = -Math.PI/2;
-    const labelLayer = document.createElementNS(svg.namespaceURI, "g");
-    const sliceLayer = document.createElementNS(svg.namespaceURI, "g");
+    const homeTotal = sum(homeVals);
+    const trTotal = sum(trVals);
+    const lifeTotal = sum(lifeVals);
 
-    for (const p of series){
-      const v = Math.max(0, p.value);
-      const da = (v/total) * 2*Math.PI;
-      const a0 = a;
-      const a1 = a + da;
-      a = a1;
+    const charts = [];
 
-      // slice
-      const path = document.createElementNS(svg.namespaceURI, "path");
-      path.setAttribute("d", donutSlicePath(cx, cy, rInner, rOuter, a0, a1));
-      path.setAttribute("fill", p.color);
-      path.setAttribute("stroke", "white");
-      path.setAttribute("stroke-width", "2");
+    charts.push(makeChart("pieHome", homeTotal, [
+      { name: TEXT.labels.heating, value: homeVals[0] },
+      { name: TEXT.labels.electricity, value: homeVals[1] }
+    ]));
 
-      const title = document.createElementNS(svg.namespaceURI, "title");
-      title.textContent = `${p.name}: ${fmt2(v)} ${TEXT.unitYear}`;
-      path.appendChild(title);
+    charts.push(makeChart("pieTransport", trTotal, [
+      { name: TEXT.labels.car, value: trVals[0] },
+      { name: TEXT.labels.public, value: trVals[1] }
+    ]));
 
-      sliceLayer.appendChild(path);
+    charts.push(makeChart("pieLife", lifeTotal, [
+      { name: TEXT.labels.food, value: lifeVals[0] },
+      { name: TEXT.labels.goods, value: lifeVals[1] },
+      { name: TEXT.labels.flights, value: lifeVals[2] }
+    ]));
 
-      // label (outside)
-      const mid = (a0 + a1) / 2;
-      const pEdge = polar(cx, cy, rOuter + 2, mid);
-      const pLabel = polar(cx, cy, rOuter + 30, mid);
-
-      const leader = document.createElementNS(svg.namespaceURI, "path");
-      leader.setAttribute("class", "donutLeader");
-      leader.setAttribute("d", `M ${pEdge.x.toFixed(2)} ${pEdge.y.toFixed(2)} L ${pLabel.x.toFixed(2)} ${pLabel.y.toFixed(2)}`);
-      labelLayer.appendChild(leader);
-
-      const text = document.createElementNS(svg.namespaceURI, "text");
-      text.setAttribute("x", pLabel.x.toFixed(2));
-      text.setAttribute("y", pLabel.y.toFixed(2));
-      text.setAttribute("dominant-baseline", "middle");
-      text.setAttribute("text-anchor", (pLabel.x < cx) ? "end" : "start");
-
-      const t1 = document.createElementNS(svg.namespaceURI, "tspan");
-      t1.setAttribute("class", "donutLabel");
-      t1.textContent = p.name + ":";
-      text.appendChild(t1);
-
-      const t2 = document.createElementNS(svg.namespaceURI, "tspan");
-      t2.setAttribute("class", "donutValue");
-      t2.setAttribute("x", pLabel.x.toFixed(2));
-      t2.setAttribute("dy", "18");
-      t2.textContent = `${fmt1(v)} t`;
-      text.appendChild(t2);
-
-      labelLayer.appendChild(text);
+    // Resize handler
+    function onResize(){
+      charts.forEach(c => { try{ c && c.resize(); }catch(e){} });
     }
+    window.addEventListener("resize", onResize);
 
-    svg.appendChild(sliceLayer);
-    svg.appendChild(labelLayer);
+    // Buttons
+    const toFoot = document.getElementById("toFootprintBtn");
+    if (toFoot) toFoot.addEventListener("click", ()=>go("./footprint.html"));
 
-    // center text: total
-    const centerTotal = series.reduce((s,p)=>s+Math.max(0,p.value),0);
-
-    const center = document.createElementNS(svg.namespaceURI, "text");
-    center.setAttribute("x", cx);
-    center.setAttribute("y", cy);
-    center.setAttribute("text-anchor", "middle");
-    center.setAttribute("dominant-baseline", "middle");
-    center.setAttribute("style", "font-weight:900; fill:#2b2b2b; font-size:20px;");
-    center.textContent = fmt1(centerTotal);
-    svg.appendChild(center);
-
-    const center2 = document.createElementNS(svg.namespaceURI, "text");
-    center2.setAttribute("x", cx);
-    center2.setAttribute("y", cy + 22);
-    center2.setAttribute("text-anchor", "middle");
-    center2.setAttribute("dominant-baseline", "middle");
-    center2.setAttribute("style", "font-weight:800; fill:#666; font-size:12px;");
-    center2.textContent = (lang === "el") ? "t CO₂/έτος" : "t CO₂/yr";
-    svg.appendChild(center2);
-
-    return svg;
+    const backBtn = document.getElementById("backBtn");
+    if (backBtn) backBtn.addEventListener("click", ()=>history.back());
   }
 
-  function mount(id, svg){
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.innerHTML = "";
-    el.appendChild(svg);
-  }
-
-  function setText(id, text){
-    const el = document.getElementById(id);
-    if (el) el.textContent = text;
-  }
-
-  // --- Load values from calculator ---
-  const schema = localStorage.getItem("DASH_SCHEMA") || "";
-
-  const euTarget = toNum(localStorage.getItem("EU_TARGET") || localStorage.getItem("euTargetTons"), 2.3);
-  const userTotal = toNum(localStorage.getItem("USER_TOTAL") || localStorage.getItem("userTotalTons"), 0);
-
-  const homeValues = getJSON("CO2_HOME_VALUES", null) || getJSON("homeValues", [0, 0]);           // [heating, other]
-  const transportValues = getJSON("CO2_TRANSPORT_VALUES", null) || getJSON("transportValues", [0, 0]); // [car, public]
-  let lifeValues = getJSON("CO2_LIFE_VALUES", null) || getJSON("lifestyleValues", [0, 0, 0]);        // v2: [diet, goods, flights]
-
-  if (schema !== "v2" && Array.isArray(lifeValues) && lifeValues.length === 3){
-    // older ordering was often [goods, diet, flights]
-    lifeValues = [lifeValues[1], lifeValues[0], lifeValues[2]];
-  }
-
-  // Titles / KPI
-  setText("dashTitle", TEXT.title);
-  setText("euLabel", TEXT.euLabel);
-  setText("userLabel", TEXT.userLabel);
-  setText("euVal", fmt1(euTarget));
-  setText("userVal", fmt1(userTotal));
-
-  setText("homeTitle", TEXT.home);
-  setText("transportTitle", TEXT.transport);
-  setText("lifeTitle", TEXT.life);
-
-  // Charts
-  const homeSeries = [
-    { name: (lang === "el") ? "Θέρμανση" : "Heating", value: toNum(homeValues[0]), color: "#f59e0b" },
-    { name: (lang === "el") ? "Λοιπές χρήσεις" : "Other uses", value: toNum(homeValues[1]), color: "#fde68a" }
-  ];
-
-  const transportSeries = [
-    { name: (lang === "el") ? "ΙΧ" : "Car", value: toNum(transportValues[0]), color: "#3b82f6" },
-    { name: (lang === "el") ? "Δημόσια" : "Public", value: toNum(transportValues[1]), color: "#93c5fd" }
-  ];
-
-  const lifeSeries = [
-    { name: (lang === "el") ? "Διατροφή" : "Diet", value: toNum(lifeValues[0]), color: "#22c55e" },
-    { name: (lang === "el") ? "Προϊόντα" : "Goods", value: toNum(lifeValues[1]), color: "#86efac" },
-    { name: (lang === "el") ? "Αεροπορικά" : "Flights", value: toNum(lifeValues[2]), color: "#d1d5db" }
-  ];
-
-  mount("pieHome", createDonutSVG(homeSeries));
-  mount("pieTransport", createDonutSVG(transportSeries));
-  mount("pieLife", createDonutSVG(lifeSeries));
-
-  // Buttons
-  const toFoot = document.getElementById("toFootprintBtn");
-  if (toFoot) {
-    toFoot.textContent = TEXT.btnToFoot;
-    toFoot.addEventListener("click", () => go("./footprint.html"));
-  }
-
-  const backBtn = document.getElementById("backBtn");
-  if (backBtn) backBtn.addEventListener("click", () => history.back());
-
+  document.addEventListener("DOMContentLoaded", init);
 })();
