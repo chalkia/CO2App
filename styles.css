@@ -26,6 +26,7 @@
   --accent2:#f59e0b;
   --accent3:#3b82f6;
   --accent4:#ef4444;
+  --danger: var(--accent4);
 }
 
 *{box-sizing:border-box}
@@ -819,4 +820,99 @@ select option{
 /* Donut SVG: allow leader lines/labels to extend */
 .chartWrap svg{
   overflow: visible;
+}
+
+
+/* ===== Update 17: Fix centering of Quiz buttons & Dashboard actions + clearer answer colors ===== */
+
+/* Center narrow rows inside wide cards */
+.choicesRow,
+.bottomRow{
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  justify-content: center;
+}
+
+/* Quiz choice buttons: compact by default, wide only for Restart */
+.choiceBtn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 78px;
+  height: 54px;
+  padding: 0;
+  white-space: nowrap;
+}
+
+.choiceBtn.choiceWide{
+  width: 100%;
+  max-width: 520px;
+  height: auto;
+  padding: 14px 16px;
+  white-space: normal;
+  line-height: 1.2;
+}
+
+/* Make A/B/Γ badge inside answers look centered */
+.optLetter{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  background: rgba(0,0,0,.06);
+  margin-right: 10px;
+}
+
+/* Stronger feedback: highlight the correct option (light green) and the chosen wrong option (light red) */
+.optionText{
+  padding: 12px 12px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  transition: background .15s ease, border-color .15s ease;
+}
+
+.optionText.answerCorrect{
+  background: rgba(116,169,116,.25);
+  border-color: rgba(47,74,49,.35);
+}
+
+.optionText.answerWrong{
+  background: rgba(239,68,68,.14);
+  border-color: rgba(239,68,68,.35);
+}
+
+/* Keep text colors explicit (also for iOS) */
+.optionText.answerCorrect .optAns{
+  color: var(--accent);
+  -webkit-text-fill-color: var(--accent);
+  font-weight: 700;
+}
+.optionText.answerWrong .optAns{
+  color: var(--danger);
+  -webkit-text-fill-color: var(--danger);
+  font-weight: 700;
+}
+.optionText.answerCorrect .optLetter{
+  color: var(--accent);
+  -webkit-text-fill-color: var(--accent);
+}
+.optionText.answerWrong .optLetter{
+  color: var(--danger);
+  -webkit-text-fill-color: var(--danger);
+}
+
+/* Dashboard: center chart boxes and keep titles aligned */
+.chartBox{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.chartWrap{
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }

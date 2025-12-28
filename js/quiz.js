@@ -100,6 +100,8 @@ function setChoiceLabelsForQuestion(){
   const k = langKey();
   const buttons = Array.from(document.querySelectorAll(".choiceBtn"));
   if (buttons.length < 3) return;
+  // ensure normal (compact) styling
+  buttons.forEach(b=>b.classList.remove("choiceWide"));
   buttons[0].textContent = "A";
   buttons[1].textContent = "B";
   buttons[2].textContent = (k === "gr") ? "Γ" : "C";
@@ -111,6 +113,7 @@ function setChoiceLabelsForRestart(){
   const buttons = Array.from(document.querySelectorAll(".choiceBtn"));
   if (buttons.length < 1) return;
   buttons[0].textContent = t.restart;
+  buttons[0].classList.add("choiceWide");
   buttons[0].disabled = false;
   buttons[0].style.opacity = 1;
   if (buttons[1]) buttons[1].style.display = "none";
