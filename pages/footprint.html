@@ -22,7 +22,24 @@
 <div class="card" id="cardIntro">
 <h2 id="title" style="margin:0 0 8px 0;"></h2>
 <div class="small" id="subtitle"></div>
-</div><div class="card"><div class="footNavRow"><button class="footNavBtn" id="navHome" type="button"></button><button class="footNavBtn" id="navTransport" type="button"></button><button class="footNavBtn" id="navLifestyle" type="button"></button></div></div>
+</div><div class="card" id="cardNav">
+  <div class="footNavRow">
+    <button class="footNavBtn" id="navHome" type="button"></button>
+    <button class="footNavBtn" id="navTransport" type="button"></button>
+    <button class="footNavBtn" id="navLifestyle" type="button"></button>
+  </div>
+
+  <!-- Mobile stepper (shown only on phones/tablets) -->
+  <div class="mobileStepper" id="mobileStepper" style="display:none;">
+    <button class="pillBtn" id="stepPrev" type="button" aria-label="Previous section">‹</button>
+    <div class="stepInfo">
+      <div class="stepTitle" id="stepTitle"></div>
+      <div class="stepKpi" id="stepKpi"></div>
+    </div>
+    <button class="pillBtn" id="stepNext" type="button" aria-label="Next section">›</button>
+  </div>
+</div>
+
 <div class="card" id="cardHome">
 <h3 id="homeTitle" style="margin:0 0 10px 0;"></h3>
 <div class="formGrid">
@@ -49,12 +66,13 @@
 <h3 id="lifeTitle" style="margin:0 0 10px 0;"></h3>
 <div class="formGrid"><div class="field"><label for="diet" id="lblDiet"></label><select id="diet"></select></div><div class="field"><label for="foodLevel" id="lblFoodLevel"></label><select id="foodLevel"></select></div><div class="field"><label for="goodsLevel" id="lblGoods"></label><select id="goodsLevel"></select><div class="small" id="goodsHint"></div></div><div class="field"><label for="flightTrips" id="lblFlights"></label><input id="flightTrips" max="30" min="0" step="1" type="number" value="0"/><div class="small" id="flightHint"></div></div></div>
 </div>
-<div class="card">
+<div class="card" id="cardSummary">
 <div class="kpiRow" style="margin-bottom:0;">
 <div class="kpi user">
 <div class="kpiLabel" id="lblTotal"></div>
 <div class="kpiValue"><span id="totalVal">—</span><span class="small"> t CO₂/yr</span></div>
 </div>
+<div class="small" id="reducePct" style="text-align:center; margin-top:6px;"></div>
 </div>
   <div class="bottomRow" style="margin-top:10px;">
   <button class="pillBtn" id="btnDash"></button>

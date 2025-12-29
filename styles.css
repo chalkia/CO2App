@@ -1059,3 +1059,64 @@ select option{
   }
   body.answerOpen{ padding-bottom: 42vh; }
 }
+
+
+/* === Footprint: chip KPI + mobile stepper === */
+.chipTitle{ font-family: var(--uiFont); font-weight: 800; }
+.chipKpi{ margin-top: 4px; font-size: .86rem; opacity: .75; font-weight: 800; }
+
+.mobileStepper{
+  width: 100%;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.mobileStepper .pillBtn{
+  min-width: 56px;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+.stepInfo{
+  flex: 1;
+  text-align: center;
+}
+.stepTitle{
+  font-family: var(--uiFont);
+  font-weight: 900;
+}
+.stepKpi{
+  margin-top: 2px;
+  font-weight: 800;
+  opacity: .75;
+}
+
+@media (max-width: 760px){
+  /* On phones/tablets we use the stepper instead of the chips row */
+  #cardNav .footNavRow{ display: none; }
+}
+
+/* === Drawer footer language row (fix mobile layout on all pages) === */
+.drawerFooter{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.drawerFooter .version{ opacity:.75; font-weight:700; }
+.drawerLang{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+.drawerLang .pillBtn{
+  min-width: 64px;
+  -webkit-text-fill-color: var(--text);
+}
+
+
+@media (max-width: 420px){
+  .drawerFooter{ justify-content:center; flex-wrap:wrap; }
+  .drawerLang{ width:100%; justify-content:space-between; }
+}

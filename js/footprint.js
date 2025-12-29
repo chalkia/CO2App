@@ -182,6 +182,9 @@ function compute(){
 
   return {
     totalTons,
+    homeTons,
+    transportTons,
+    lifestyleTons,
     homeValues,
     transportValues,
     lifestyleValues
@@ -237,6 +240,71 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   if (navTransport) navTransport.addEventListener("click", ()=>goTo("cardTransport"));
   if (navLifestyle) navLifestyle.addEventListener("click", ()=>goTo("cardLifestyle"));
 
+  // === Mobile: split sections into steps (Home → Transport → Lifestyle → Summary) ===
+  const isMobile = window.matchMedia("(max-width: 760px)").matches;
+  const stepper = document.getElementById("mobileStepper");
+  let currentStep = 0;
+  const steps = ["cardHome", "cardTransport", "cardLifestyle", "cardSummary"];
+
+  function setStep(i){
+    currentStep = Math.max(0, Math.min(steps.length - 1, i));
+    steps.forEach((id, idx)=>{
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (isMobile){
+        el.style.display = (idx === currentStep) ? "block" : "none";
+      } else {
+        el.style.display = ""; // normal
+      }
+    });
+
+    const intro = document.getElementById("cardIntro");
+    if (intro && isMobile){
+      intro.style.display = (currentStep === 0) ? "block" : "none";
+    }
+
+    const navCard = document.getElementById("cardNav");
+    if (navCard && isMobile){
+      // show stepper, hide chips row (chips still exist but stepper is clearer)
+      if (stepper) stepper.style.display = "flex";
+    } else {
+      if (stepper) stepper.style.display = "none";
+    }
+
+    // Update header info for stepper using latest computed values
+    updateTotal();
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+
+  // Expose for updateTotal()
+  window.updateStepperInfo = function(res){
+    if (!isMobile) return;
+    const titleEl = document.getElementById("stepTitle");
+    const kpiEl = document.getElementById("stepKpi");
+    const t = T();
+    const stepNames = [t.home, t.transport, t.lifestyle, (getLang()==="en" ? "Total & charts" : "Σύνολο & διαγράμματα")];
+    const stepKpis = [res.homeTons, res.transportTons, res.lifestyleTons, res.totalTons];
+    if (titleEl) titleEl.textContent = stepNames[currentStep] || "";
+    if (kpiEl) kpiEl.textContent = `${fmt(stepKpis[currentStep] || 0, 2)} t CO₂/yr`;
+  };
+
+  if (isMobile){
+    // Hide chip row layout differences handled by stepper
+    const prevBtn = document.getElementById("stepPrev");
+    const nextBtn = document.getElementById("stepNext");
+    if (prevBtn) prevBtn.addEventListener("click", ()=>setStep(currentStep - 1));
+    if (nextBtn) nextBtn.addEventListener("click", ()=>setStep(currentStep + 1));
+    setStep(0);
+  } else {
+    // Ensure normal view on desktop
+    steps.forEach(id=>{
+      const el = document.getElementById(id);
+      if (el) el.style.display = "";
+    });
+    if (stepper) stepper.style.display = "none";
+  }
+
+
   // Labels
   const lblIds = {
     "lblHomeType": t.homeType, "lblHomeCond": t.homeCond, "lblHeating": t.heating, "lblHomeUse": t.homeUse,
@@ -265,6 +333,39 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   populateSelect(document.getElementById("goodsLevel"), "goodsLevel");
   populateSelect(document.getElementById("foodLevel"), "foodLevel");
   populateSelect(document.getElementById("diet"), "diet");
+
+  // === Default (most common) selections ===
+  const setIfExists = (id, value) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    // Only set if option exists (for selects) or if empty/zero (for inputs)
+    if (el.tagName === "SELECT"){
+      if ([...el.options].some(o => o.value === String(value))) el.value = String(value);
+    } else if (el.type === "checkbox"){
+      el.checked = Boolean(value);
+    } else {
+      el.value = String(value);
+    }
+  };
+
+  setIfExists("homeType", "apartment");
+  setIfExists("homeCond", "medium");
+  setIfExists("heatingType", "heating_oil");
+  setIfExists("homeUse", 1.0);
+
+  setIfExists("weeklyKm", 40);
+  setIfExists("carType", "petrol");
+  setIfExists("publicPct", 50);
+  // Checkbox (supports both ids)
+  const aloneEl = document.getElementById("alone") || document.getElementById("travelsAlone");
+  if (aloneEl) aloneEl.checked = true;
+  setIfExists("publicType", "bus");
+
+  setIfExists("diet", "mediterranean");
+  setIfExists("foodLevel", "medium");
+  setIfExists("goodsLevel", "normal");
+  setIfExists("flightTrips", 1);
+
 
   // Range display logic
   const homeUse = document.getElementById("homeUse");
@@ -305,8 +406,47 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   function updateTotal(){
     try {
       const res = compute();
+
+      // Total KPI
       const tv = document.getElementById("totalVal");
       if(tv) tv.textContent = fmt(res.totalTons, 2);
+
+      // EU target reduction hint
+      const target = (model && model.targets) ? val(model.targets.euTargetTonsPerYear) : 2.3;
+      const rp = document.getElementById("reducePct");
+      if (rp){
+        const lang = getLang();
+        if (res.totalTons > 0 && res.totalTons > target){
+          const pct = Math.max(0, (1 - (target / res.totalTons)) * 100);
+          rp.textContent = (lang === "en")
+            ? `Needed reduction to reach EU target (${fmt(target,2)} t/yr): ${fmt(pct,0)}%`
+            : `Απαιτούμενη μείωση για τον στόχο ΕΕ (${fmt(target,2)} t/έτος): ${fmt(pct,0)}%`;
+        } else if (res.totalTons > 0){
+          rp.textContent = (lang === "en")
+            ? `You are at or below the EU target (${fmt(target,2)} t/yr).`
+            : `Είσαι εντός στόχου ΕΕ (${fmt(target,2)} t/έτος).`;
+        } else {
+          rp.textContent = "";
+        }
+      }
+
+      // Desktop: show KPI under the section chips
+      if (!window.matchMedia("(max-width: 760px)").matches){
+        const lang = getLang();
+        const t = T();
+        const nH = document.getElementById("navHome");
+        const nT = document.getElementById("navTransport");
+        const nL = document.getElementById("navLifestyle");
+        if (nH) nH.innerHTML = `<div class="chipTitle">${t.home}</div><div class="chipKpi">${fmt(res.homeTons,2)} t</div>`;
+        if (nT) nT.innerHTML = `<div class="chipTitle">${t.transport}</div><div class="chipKpi">${fmt(res.transportTons,2)} t</div>`;
+        if (nL) nL.innerHTML = `<div class="chipTitle">${t.lifestyle}</div><div class="chipKpi">${fmt(res.lifestyleTons,2)} t</div>`;
+      }
+
+      // Mobile stepper KPI line (if enabled)
+      if (typeof updateStepperInfo === "function"){
+        updateStepperInfo(res);
+      }
+
     } catch(e) {
       console.error("Calculation error:", e);
     }
