@@ -1,4 +1,4 @@
-const CACHE_NAME = "co2-pwa-v14";
+const CACHE_NAME = 'co2app-cache-v20';
 const PRECACHE = [
   "./",
   "./index.html",
@@ -10,19 +10,22 @@ const PRECACHE = [
   "./js/quiz.js",
   "./js/footprint.js",
   "./js/dashboard.js",
+  "./js/settings.js",
+  "./config.json",
+  "./pages/settings.html",
   "./pages/quiz.html",
   "./pages/footprint.html",
   "./pages/dashboard.html",
   "./pages/info.html",
   "./pages/install.html",
   "./assets/logo.png",
-  "./assets/qrCO2App.png",
   "./assets/icons/icon-192.png",
   "./assets/icons/icon-512.png",
   "./assets/questions/quiz2.json",
   "./assets/footprintModel.json",
   "./js/menu.js",
   "./assets/vendor/echarts.min.js",
+  "./assets/footprintModel_final_draft.json",
   "./pages/about.html",
   "./assets/ui/homeN.png",
   "./assets/ui/busN.png",
@@ -36,6 +39,7 @@ const PRECACHE = [
   "./assets/ui/co2N.png",
   "./assets/ui/quizN.png",
   "./assets/ui/infoN.png",
+  "./assets/ui/settingsN.png",
   "./assets/ui/lang_en.png",
   "./assets/ui/lang_el.png"];
 
