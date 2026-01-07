@@ -1,5 +1,15 @@
 # CO2App
 
+## Update v3.4 (2026-01-07)
+
+- Documentation pages refreshed:
+  - `/pages/model.html` (Model Documentation) is now the active documentation entry in the menu.
+  - `/pages/values.html` (Constants & References) is styled consistently and cross-linked with the model page.
+- Drawer menu restored to the intended structure (removed Dashboard / Values from the menu; values page is reachable from Documentation).
+- Icons adjusted: **Info** uses the “i” icon, **Documentation** uses the book icon.
+- Mobile fix: menu open/close improved for touch devices.
+- Info page updated with current/upcoming version note.
+
 ## Update v3.0 (2026-01-03)
 
 - Added `config.json` for easy updates of key constants (Grid CI, EU target, social services, transport factors) with safe fallbacks.

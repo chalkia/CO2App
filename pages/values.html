@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="el">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CO2App – Values & References</title>
-
-  <!-- Match app look -->
-  <link rel="stylesheet" href="../styles.css?v=20" />
-
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>CO2App – Σταθερές και Βιβλιογραφία</title>
+  <link href="../manifest.webmanifest" rel="manifest"/>
+  <meta name="theme-color" content="#74a974"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <link href="../assets/icons/icon-192.png" rel="apple-touch-icon"/>
+  <link href="../styles.css?v=20" rel="stylesheet">
   <style>
     /* Small page-specific tweaks, keep app feel */
     .doc-card { max-width: 980px; margin: 0 auto; }
@@ -30,25 +31,24 @@
     .divider { height: 1px; background: rgba(0,0,0,0.08); margin: 18px 0; }
   </style>
 </head>
-
 <body>
-  <div class="page">
-
-    <!-- Topbar like the app -->
-    <header class="topbar">
-      <div class="topbar-left">
-        <img src="../assets/icons/icon-192.png" alt="CO2App" class="app-icon" />
-        <div class="topbar-title">CO2App</div>
+  <div class="container">
+    <div class="panel infoWide" id="mainPanel">
+      <div class="topbar">
+        <button aria-label="Menu" class="iconBtn" id="menuBtn"><span class="hamburger"><span></span></span></button>
+        <div class="topbarSpacer"></div>
       </div>
-      <div class="topbar-right">
-        <button class="pill" id="langBtn" type="button">EN</button>
-        <a class="pill" href="../index.html">↩</a>
-      </div>
-    </header>
 
-    <main class="content">
+      <div class="card">
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin:0 0 12px 0;">
+          <a class="pillBtn" href="./model.html" style="text-decoration:none;">Τεκμηρίωση Μοντέλου</a>
+          <a class="pillBtn" href="./info.html" style="text-decoration:none;">Σχετικά</a>
+        </div>
+
+        <div class="docPage">
+
       <section class="card doc-card">
-        <h2 data-el="Τιμές & Παραπομπές" data-en="Values & References">Τιμές & Παραπομπές</h2>
+        <h2 data-el="Σταθερές και Βιβλιογραφία" data-en="Constants & References">Τιμές & Παραπομπές</h2>
         <p class="lang-note" data-el="Ο πίνακας περιλαμβάνει όλες τις σταθερές του μοντέλου και τις αντίστοιχες παραπομπές (IEEE)."
            data-en="This table lists all model constants and the corresponding IEEE references.">
           Ο πίνακας περιλαμβάνει όλες τις σταθερές του μοντέλου και τις αντίστοιχες παραπομπές (IEEE).
@@ -418,25 +418,28 @@
 <li id="ref-21"><span class="ref-num">[21]</span> M. Berners-Lee, The Carbon Footprint of Everything. London, UK: Profile Books, 2022.</li>
         </ol>
       </section>
-    </main>
-
-    <footer class="footer">
-      <div class="footer-inner">
-        <img src="../assets/icons/icon-192.png" alt="CO2App" class="footer-icon" />
-        <div class="footer-text">
-          <div><strong>CO2App</strong></div>
-          <div data-el="Τεκμηρίωση μοντέλου & σταθερών (έκδοση IEEE)" data-en="Model & constants documentation (IEEE edition)">Τεκμηρίωση μοντέλου & σταθερών (έκδοση IEEE)</div>
+    
         </div>
       </div>
-    </footer>
-
+    </div>
   </div>
 
+  <div aria-hidden="true" class="drawerBackdrop" id="drawerBackdrop"></div>
+  <nav aria-hidden="true" class="drawer" id="drawer">
+    <div class="drawerHeader">
+      <div class="drawerTitle">CO2app</div>
+      <button aria-label="Close" class="drawerClose" id="drawerClose">×</button>
+    </div>
+    <div class="drawerNav" id="drawerNav"></div>
+  </nav>
+
+  <script src="../js/common.js"></script>
+  <script src="../js/menu.js"></script>
   <script>
     // Simple bilingual toggle (keeps references as-is)
     (function() {
       const langBtn = document.getElementById('langBtn');
-      const KEY = 'CO2APP_LANG';
+      const KEY = "lang";
       function apply(lang) {
         document.documentElement.lang = lang;
         document.querySelectorAll('[data-el][data-en]').forEach(el => {
