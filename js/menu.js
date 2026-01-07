@@ -42,8 +42,9 @@ function buildNav(){
 
   const lang = getLang();
   const t = {
-    el: {home:"Αρχική", quiz:"Quiz", foot:"Υπολογιστής CO₂", info:"Τεκμηρίωση", about:"Πληροφορίες", install:"Εγκατάσταση σε κινητό", settings:"Ρυθμίσεις" },
-    en: {home:"Home", quiz:"Quiz", foot:"Footprint", info:"Documentation", about:"Info", install:"Install on phone", settings:"Settings" }
+    const t = {
+    el: {home:"Αρχική", quiz:"Quiz", foot:"Υπολογιστής CO₂", info:"Τεκμηρίωση", about:"Πληροφορίες", install:"Εγκατάσταση σε κινητό", settings:"Ρυθμίσεις", values:"Τιμές & Παραπομπές" },
+    en: {home:"Home", quiz:"Quiz", foot:"Footprint", info:"Documentation", about:"Info", install:"Install on phone", settings:"Settings", values:"Values & References" }
   }[lang];
 
   const here = pageName();
@@ -55,6 +56,7 @@ function buildNav(){
     {label:t.quiz, href: "./quiz.html", icon:"quiz"},
     {label:t.foot, href: "./footprint.html", icon:"co2"},
     {label:t.info, href: "./info.html", icon:"info"},
+    {label:t.values, href: "./values.html", icon:"book"},
     {label:t.about, href: "./about.html", icon:"about"},
     {label:t.settings, href: "./settings.html", icon:"settings"},
     {label:t.install, href: "./install.html", icon:"install"},  ] : [
@@ -62,6 +64,7 @@ function buildNav(){
     {label:t.quiz, href: "./pages/quiz.html", icon:"quiz"},
     {label:t.foot, href: "./pages/footprint.html", icon:"co2"},
     {label:t.info, href: "./pages/info.html", icon:"info"},
+    {label:t.values, href: "./pages/values.html", icon:"book"},
     {label:t.about, href: "./pages/about.html", icon:"about"},
     {label:t.settings, href: "./pages/settings.html", icon:"settings"},
     {label:t.install, href: "./pages/install.html", icon:"install"},  ];

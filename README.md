@@ -1,6 +1,6 @@
 # CO2App
 
-# Update v3.0 (2026-01-03)
+## Update v3.0 (2026-01-03)
 
 - Added `config.json` for easy updates of key constants (Grid CI, EU target, social services, transport factors) with safe fallbacks.
 - Added a **Settings** page to temporarily override selected constants (stored in `localStorage`) and reset to defaults.
@@ -40,7 +40,7 @@
 - Public transport slider now displays km (computed from weekly distance × share).
 - Improved inline wrapping alignment for mobile/desktop.
 
-## v1.2
+### v1.2
 - Διόρθωση κεντραρίσματος λογοτύπου στην αρχική σελίδα.
 - Καλύτερες αποστάσεις (desktop) μεταξύ των cards στο footprint.
 - Ενημέρωση τίτλου/υπότιτλου στο footprint.
@@ -53,7 +53,7 @@
 - More prominent category KPI badge styling (closer to total KPI).
 - Version bump for cache-busting (styles/js) and service worker cache name.
 
-# 2026-01-01 — UI improvements (v1.1)
+## 2026-01-01 — UI improvements (v1.1)
 - Responsive container widths for the footprint calculator (desktop & mobile).
 - More prominent category KPI badge styling (closer to total KPI).
 - Version bump for cache-busting (styles/js) and service worker cache name.

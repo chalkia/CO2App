@@ -1,238 +1,101 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="el">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CO2App – Τεκμηρίωση</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Σχετικά με την Εφαρμογή CO₂</title>
   <style>
-    /* Scoped styles so we inherit the app look & feel */
-    .co2-doc { line-height: 1.55; }
-    .co2-doc h2 { margin: 0.4rem 0 0.8rem; }
-    .co2-doc h3 { margin: 1rem 0 0.5rem; }
-    .co2-doc p { margin: 0.55rem 0; }
-    .co2-doc .muted { opacity: 0.85; }
-    .co2-doc .divider { height: 1px; background: rgba(49,78,78,0.15); margin: 1rem 0; }
-    .co2-doc .tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.75rem 0 0.5rem; }
-    .co2-doc .tabbtn {
-      border: 1px solid rgba(49,78,78,0.25);
-      background: rgba(255,255,255,0.65);
-      color: #314e4e;
-      padding: 0.45rem 0.7rem;
-      border-radius: 999px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.95rem;
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f4;
+      color: #333;
     }
-    .co2-doc .tabbtn[aria-selected="true"] {
-      border-color: rgba(49,78,78,0.6);
-      box-shadow: 0 2px 8px rgba(50, 78, 79, 0.10);
-      background: #fff;
+    header {
+      background-color: #2e8b57;
+      color: white;
+      padding: 20px 10px;
+      text-align: center;
+      border-radius: 8px;
     }
-    .co2-doc .panel { display: none; }
-    .co2-doc .panel.active { display: block; }
-    .co2-doc .callout {
-      border-left: 4px solid rgba(49,78,78,0.35);
-      background: rgba(49,78,78,0.04);
-      padding: 0.65rem 0.75rem;
-      border-radius: 12px;
-      margin: 0.8rem 0;
+    section {
+      background: white;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
-    .co2-doc table { width: 100%; border-collapse: collapse; overflow: hidden; border-radius: 12px; }
-    .co2-doc th, .co2-doc td { padding: 0.55rem 0.6rem; border-bottom: 1px solid rgba(49,78,78,0.12); vertical-align: top; }
-    .co2-doc th { text-align: left; background: rgba(49,78,78,0.06); }
-    .co2-doc code { background: rgba(49,78,78,0.06); padding: 0.12rem 0.28rem; border-radius: 8px; }
-    .co2-doc .refcol { width: 4.5rem; white-space: nowrap; }
-    .co2-doc ol { padding-left: 1.25rem; }
-    .co2-doc a { color: #314e4e; text-decoration: underline; }
-    @media (max-width: 720px) {
-      .co2-doc table { display: block; overflow-x: auto; }
+    h1, h2 {
+      color: #2e8b57;
+    }
+    footer {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 0.9em;
+      color: #555;
     }
   </style>
 </head>
 <body>
-  <div class="co2-doc">
-    <h2>CO2App – Τεκμηρίωση μοντέλου</h2>
-    <p class="muted">
-      Η σελίδα αυτή τεκμηριώνει <strong>τι υπολογίζει</strong> το CO2App, <strong>πώς</strong> το υπολογίζει και ποιες
-      <strong>παραδοχές</strong> και <strong>σταθερές</strong> χρησιμοποιεί.
-    </p>
+  <header>
+    <h1>Σχετικά με την Εφαρμογή CO₂</h1>
+  </header>
 
-    <div class="divider"></div>
+  <section>
+    <h2>Πληροφορίες για την Εφαρμογή</h2>
+    <p>Η εφαρμογή CO₂ είναι ένα εκπαιδευτικό εργαλείο που περιλαμβάνει κουίζ γνώσεων και έναν υπολογιστή για την εκτίμηση του ανθρακικού αποτυπώματος ενός νοικοκυριού με απλό αλλά αξιόπιστο τρόπο, βασισμένο σε καθημερινές δραστηριότητες.</p>
+  </section>
 
-    <!-- Always visible: Sections 1–2 -->
-    <section>
-      <h3>1. Σκοπός και φιλοσοφία του μοντέλου</h3>
-      <p>
-        Το <strong>CO2App</strong> είναι μια εφαρμογή τύπου PWA που εκτιμά το <strong>ετήσιο ατομικό ανθρακικό αποτύπωμα</strong>
-        (σε <strong>tCO₂/έτος</strong>) με βάση επιλογές που αφορούν: την <strong>κατοικία</strong>, τις <strong>μεταφορές</strong> και
-        <strong>τη διατροφή/τρόπο ζωής</strong>.
-      </p>
-      <p>
-        Η εφαρμογή έχει <strong>εκπαιδευτικό χαρακτήρα</strong>: αποτυπώνει <em>τάξεις μεγέθους</em> και επιτρέπει συγκρίσεις σεναρίων
-        (what‑if), αποφεύγοντας την «ψευδή ακρίβεια». Όλες οι σταθερές και οι συντελεστές είναι συγκεντρωμένοι σε αρχείο JSON.
-      </p>
-      <p>
-        Το μοντέλο έχει <strong>τοπική ισχύ</strong> (Ελλάδα/Νότια Ελλάδα) επειδή παράγοντες όπως το ενεργειακό μίγμα ηλεκτροπαραγωγής,
-        ο γερασμένος στόλος οχημάτων και οι κλιματικές ζώνες επηρεάζουν καθοριστικά το αποτέλεσμα.
-      </p>
+  <section>
+    <h2>Κουίζ Γνώσεων</h2>
+    <p>Το κουίζ βοηθά τους χρήστες να αξιολογήσουν την κατανόησή τους για τις εκπομπές CO₂, τις πηγές τους και τις επιπτώσεις τους στο περιβάλλον. Έχει εκπαιδευτικό χαρακτήρα και συνοδεύεται από επεξηγήσεις για ενίσχυση της μάθησης.</p>
+  </section>
 
-      <h3>2. Βασική δομή υπολογισμού</h3>
-      <p>Το συνολικό ετήσιο αποτύπωμα ορίζεται ως άθροισμα τριών κατηγοριών:</p>
-      <p><code>CO2_total = CO2_housing + CO2_transport + CO2_lifestyle</code></p>
-      <p class="muted">Οι ενδιάμεσες και τελικές τιμές αποθηκεύονται ώστε το Dashboard να παρουσιάζει τόσο το σύνολο όσο και την κατανομή.</p>
-    </section>
+  <section>
+    <h2>Βασικές Παραδοχές</h2>
+    <ul>
+      <li>Χρησιμοποιούνται διεθνώς αποδεκτοί συντελεστές εκπομπών CO₂ για διαφορετικές δραστηριότητες.</li>
+      <li>Οι εκπομπές υπολογίζονται ανά κατηγορία: Ενέργεια, Μεταφορές, Διατροφή & Κατανάλωση.</li>
+      <li>Οι χρήστες παρέχουν εκτιμήσεις με βάση τις συνήθειές τους.</li>
+      <li>Οι εκπομπές εκφράζονται σε ετήσια βάση (kg ή τόνοι CO₂/έτος).</li>
+    </ul>
+  </section>
 
-    <div class="divider"></div>
+  <section>
+    <h2>Μέθοδος Υπολογισμού</h2>
+    <p>Η εφαρμογή πολλαπλασιάζει τις εκτιμώμενες δραστηριότητες (όπως κατανάλωση ηλεκτρικής ενέργειας ή απόσταση μετακίνησης) με τους αντίστοιχους συντελεστές εκπομπών CO₂. Το συνολικό αποτύπωμα προκύπτει από το άθροισμα των επιμέρους κατηγοριών. Οι τιμές βασίζονται σε πηγές όπως ο ΟΗΕ, ο ΟΟΣΑ ή η βάση δεδομένων ADEME.</p>
+  </section>
 
-    <!-- Tabs controlling remaining sections -->
-    <div class="tabs" role="tablist" aria-label="Ενότητες τεκμηρίωσης">
-      <button class="tabbtn" role="tab" id="tab-model" aria-controls="panel-model" aria-selected="true">Μοντέλο</button>
-      <button class="tabbtn" role="tab" id="tab-values" aria-controls="panel-values" aria-selected="false">Τιμές &amp; Παραπομπές</button>
-    </div>
+  <section>
+    <h2>Επεξήγηση Παραγόντων</h2>
+    <ul>
+      <li><strong>Base_Heating_kWh:</strong> Εκτιμώμενη ετήσια κατανάλωση ενέργειας για θέρμανση (kWh).</li>
+      <li><strong>CI<sub>heating</sub>:</strong> Συντελεστής έντασης άνθρακα για το καύσιμο θέρμανσης (kg CO₂/kWh).</li>
+      <li><strong>Housing_Factor:</strong> Αντιπροσωπεύει το μέγεθος και τον τύπο της κατοικίας.</li>
+      <li><strong>Insulation_Factor:</strong> Εκφράζει την ποιότητα της θερμομόνωσης.</li>
+      <li><strong>Heating_Factor:</strong> Απόδοση και τεχνολογία του συστήματος θέρμανσης.</li>
+      <li><strong>Base_Use_kWh:</strong> Ετήσια κατανάλωση ηλεκτρικής ενέργειας για χρήσεις πέραν της θέρμανσης.</li>
+      <li><strong>CI<sub>electricity</sub>:</strong> Συντελεστής έντασης άνθρακα για την παραγωγή ηλεκτρισμού, με βάση τις εκπομπές CO₂ ανά kWh (λαμβάνοντας υπόψη τον κύκλο ζωής). Για την Ελλάδα, η μέση τιμή για το 2024 είναι περίπου <strong>0.326 kg CO₂/kWh</strong>.</li>
+      <li><strong>Behavior_Factor<sub>use</sub>:</strong> Παράγοντας που σχετίζεται με τη συμπεριφορά του χρήστη (λιτός, μέσος, σπάταλος).</li>
+    </ul>
+  </section>
 
-    <!-- Panel: Model (Sections 3–8) -->
-    <section class="panel active" id="panel-model" role="tabpanel" aria-labelledby="tab-model">
-      <h3>3. Κατοικία (Housing)</h3>
-      <p>
-        Η κατηγορία <strong>Κατοικία</strong> προσεγγίζει τις εκπομπές μιας κατοικίας αναφοράς και περιλαμβάνει:
-        θέρμανση χώρου, ηλεκτρική κατανάλωση εκτός θέρμανσης, ζεστό νερό χρήσης και κατανομή ανά ένοικο.
-      </p>
-      <div class="callout">
-        <strong>Ηλεκτρικές χρήσεις (κτίριο/μετρό/EV):</strong> οι εκπομπές υπολογίζονται ως <code>CO2 = kWh × CI</code>, ώστε η εφαρμογή
-        να προσαρμόζεται όταν αλλάζει το ενεργειακό μίγμα της χώρας.
-      </div>
+  <section>
+    <h2>Διαδικτυακές Αναφορές</h2>
+    <ul>
+      <li><a href="https://www.ipcc.ch/" target="_blank">IPCC - Διακυβερνητική Επιτροπή για την Κλιματική Αλλαγή</a></li>
+      <li><a href="https://www.iea.org/" target="_blank">IEA - Διεθνής Οργανισμός Ενέργειας</a></li>
+      <li><a href="https://www.ademe.fr/" target="_blank">ADEME - Γαλλικός Οργανισμός Διαχείρισης Περιβάλλοντος και Ενέργειας</a></li>
+      <li><a href="https://ourworldindata.org/co2-emissions" target="_blank">Our World in Data - Εκπομπές CO₂</a></li>
+      <li><a href="https://www.eea.europa.eu/" target="_blank">EEA - Ευρωπαϊκός Οργανισμός Περιβάλλοντος</a></li>
+      <li><a href="https://app.electricitymaps.com/map/72h/hourly" target="_blank">Electricity Maps</a></li>
+    </ul>
+  </section>
 
-      <h3>4. Μεταφορές (Transport)</h3>
-      <p>
-        Οι μεταφορές υπολογίζονται από τη <strong>συνολική απόσταση</strong>, τον τύπο μέσου (ιδιωτικό/δημόσιο) και την
-        <strong>πληρότητα</strong> (μοίρασμα διαδρομής). Οι πτήσεις εκτιμώνται ανά πλήθος ταξιδιών/έτος με
-        <strong>εκπαιδευτικές αποστάσεις αναφοράς</strong> (π.χ. εσωτερικού/Ευρώπης), ώστε να γίνονται συγκρίσεις τάξης μεγέθους.
-      </p>
-
-      <h3>5. Τρόπος ζωής (Lifestyle)</h3>
-      <p>
-        Περιλαμβάνει διατροφή, καταναλωτικά αγαθά (goods) και ψηφιακή κατανάλωση, ώστε να αναδεικνύεται ότι το αποτύπωμα δεν
-        καθορίζεται μόνο από ενέργεια/μετακινήσεις.
-      </p>
-
-      <h3>6. Κοινωνικό μερίδιο (Social Share)</h3>
-      <p>
-        Σταθερή συνιστώσα που προσεγγίζει εκπομπές από συλλογικές υποδομές και δημόσιες υπηρεσίες, οι οποίες δεν ελέγχονται άμεσα
-        από τον χρήστη.
-      </p>
-
-      <h3>7. Στόχος αναφοράς 2030</h3>
-      <p><strong>2.5 tCO₂/έτος ανά άτομο</strong> ως στόχος αναφοράς (1.5°C lifestyles). </p>
-
-      <h3>8. Όρια και δηλωμένες παραδοχές</h3>
-      <ul>
-        <li>Δεν αποτελεί εργαλείο πιστοποίησης.</li>
-        <li>Δεν υλοποιεί πλήρη ανάλυση κύκλου ζωής (LCA) για όλα τα προϊόντα/υπηρεσίες.</li>
-        <li>Δεν ενσωματώνει offsets/credits.</li>
-      </ul>
-    </section>
-
-    <!-- Panel: Values & references (Constants table + bibliography) -->
-    <section class="panel" id="panel-values" role="tabpanel" aria-labelledby="tab-values">
-      <h3>9. Πίνακας σταθερών και συντελεστών</h3>
-      <p class="muted">Στον πίνακα, η στήλη <strong>Ref.</strong> παραπέμπει στην αριθμημένη βιβλιογραφία στο τέλος.</p>
-
-      <table aria-label="Σταθερές και συντελεστές">
-        <thead>
-          <tr>
-            <th>Σταθερά / Συντελεστής</th>
-            <th>Περιγραφή</th>
-            <th>Τυπική τιμή</th>
-            <th>Μονάδες</th>
-            <th class="refcol">Ref.</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td><code>CI</code></td><td>Ένταση άνθρακα ηλεκτρικού δικτύου Ελλάδας</td><td>0.25</td><td>kgCO₂/kWh</td><td>[23]</td></tr>
-          <tr><td><code>HeatingDemand</code></td><td>Ετήσια θερμική ζήτηση κατοικίας αναφοράς</td><td>1,500–13,000</td><td>kWh/yr</td><td>[24][26][30]</td></tr>
-          <tr><td><code>HomeElec</code></td><td>Ετήσια ηλεκτρική κατανάλωση (εκτός θέρμανσης)</td><td>3,100–4,900</td><td>kWh/yr</td><td>[17][25][31]</td></tr>
-          <tr><td><code>FuelCO2_gasoline</code></td><td>Παραγωγή CO₂ ανά λίτρο βενζίνης</td><td>2.31</td><td>kgCO₂/lt</td><td>[20]</td></tr>
-          <tr><td><code>FuelCO2_diesel</code></td><td>Παραγωγή CO₂ ανά λίτρο diesel</td><td>2.68</td><td>kgCO₂/lt</td><td>[20]</td></tr>
-          <tr><td><code>FuelCO2_LPG</code></td><td>Παραγωγή CO₂ ανά λίτρο LPG</td><td>1.51</td><td>kgCO₂/lt</td><td>[20]</td></tr>
-          <tr><td><code>EF_private_gasoline</code></td><td>ΙΧ (βενζίνη) – πραγματικός ελληνικός στόλος</td><td>0.180</td><td>kgCO₂/km</td><td>[11][21][27]</td></tr>
-          <tr><td><code>EF_private_diesel</code></td><td>ΙΧ (diesel)</td><td>0.155</td><td>kgCO₂/km</td><td>[11][21][27]</td></tr>
-          <tr><td><code>EF_private_hybrid</code></td><td>Υβριδικό (full hybrid) – real‑world</td><td>0.110</td><td>kgCO₂/km</td><td>[21][27]</td></tr>
-          <tr><td><code>EV_consumption</code></td><td>Τυπική κατανάλωση EV (real‑world)</td><td>0.16</td><td>kWh/km</td><td>[14][15]</td></tr>
-          <tr><td><code>EF_EV</code></td><td>Εκπομπές EV (παράγωγη μεταβλητή)</td><td><code>CI × EV_consumption</code></td><td>kgCO₂/km</td><td>[14][15][23]</td></tr>
-          <tr><td><code>EF_public_bus</code></td><td>Αστικό λεωφορείο (ανά επιβάτη‑km)</td><td>0.089</td><td>kgCO₂/pkm</td><td>[12][28]</td></tr>
-          <tr><td><code>EF_public_metro</code></td><td>Μετρό (ανά επιβάτη‑km, από kWh/pkm × CI)</td><td>0.012</td><td>kgCO₂/pkm</td><td>[19][23][32]</td></tr>
-          <tr><td><code>EF_flight_GR</code></td><td>Πτήση εσωτερικού (short‑haul)</td><td>0.20</td><td>kgCO₂/pkm</td><td>[16][18]</td></tr>
-          <tr><td><code>EF_flight_EU</code></td><td>Πτήση εντός Ευρώπης (long‑haul)</td><td>0.13</td><td>kgCO₂/pkm</td><td>[16][18]</td></tr>
-          <tr><td><code>d_GR</code></td><td>Τυπική απόσταση πτήσης εσωτερικού (one‑way)</td><td>450</td><td>km</td><td>—</td></tr>
-          <tr><td><code>d_EU</code></td><td>Τυπική απόσταση πτήσης εντός Ευρώπης (one‑way)</td><td>1600</td><td>km</td><td>—</td></tr>
-          <tr><td><code>FoodBase</code></td><td>Βάση αναφοράς διατροφής</td><td>2,000</td><td>kgCO₂/yr</td><td>[10][22]</td></tr>
-          <tr><td><code>DietFactor</code></td><td>Συντελεστής διατροφικού προφίλ</td><td>0.5–1.4</td><td>—</td><td>[10][13][22]</td></tr>
-          <tr><td><code>GoodsUnit</code></td><td>Βάση αναφοράς καταναλωτικών αγαθών</td><td>1,000</td><td>kgCO₂/yr</td><td>[6][9][34]</td></tr>
-          <tr><td><code>GoodsProfileFactor</code></td><td>Συντελεστής υπερκατανάλωσης αγαθών</td><td>0.4–2.2</td><td>—</td><td>[6][9][34]</td></tr>
-          <tr><td><code>DigitalUnit</code></td><td>Βάση αναφοράς ψηφιακού αποτυπώματος</td><td>120</td><td>kgCO₂/yr</td><td>[8][29]</td></tr>
-          <tr><td><code>DigitalLevelFactor</code></td><td>Συντελεστής ψηφιακής χρήσης</td><td>0.4–2.2</td><td>—</td><td>[8][29]</td></tr>
-          <tr><td><code>SocialShare</code></td><td>Κοινωνικό/δομικό αποτύπωμα ανά πολίτη</td><td>1,200</td><td>kgCO₂/yr</td><td>[5][7][33]</td></tr>
-          <tr><td><code>EU2030_target</code></td><td>Στόχος αναφοράς 2030 (ανά άτομο)</td><td>2.5</td><td>tCO₂/yr</td><td>[... ]</td></tr>
-        </tbody>
-      </table>
-
-      <div class="divider"></div>
-
-      <h3>Βιβλιογραφία</h3>
-      <ol>
-        <li><a href="https://www.acea.auto/" target="_blank" rel="noopener">ACEA (European Automobile Manufacturers’ Association) – statistics and reports.</a></li>
-        <li><a href="https://www.carbonfootprint.com/" target="_blank" rel="noopener">Carbon Footprint Ltd – Methodology (secondary footprint / government services).</a></li>
-        <li><a href="https://www.carbontrust.com/resources/carbon-impact-of-video-streaming" target="_blank" rel="noopener">Carbon Trust (2021) – Carbon impact of video streaming.</a></li>
-        <li><a href="https://datatopics.worldbank.org/what-a-waste/" target="_blank" rel="noopener">World Bank (2018) – What a Waste 2.0.</a></li>
-        <li><a href="https://www.goodreads.com/book/show/61654672-the-carbon-footprint-of-everything" target="_blank" rel="noopener">Berners‑Lee, M. – The Carbon Footprint of Everything.</a></li>
-        <li><a href="https://circulareconomy.europa.eu/platform/sites/default/files/emf_completing_the_picture.pdf" target="_blank" rel="noopener">Ellen MacArthur Foundation (2019) – Completing the Picture: How the Circular Economy Tackles Climate Change.</a></li>
-        <li><a href="https://ec.europa.eu/jrc/en" target="_blank" rel="noopener">European Commission JRC – studies on real‑world vs WLTP energy use (EVs).</a></li>
-        <li><a href="https://www.iea.org/" target="_blank" rel="noopener">IEA – “The carbon footprint of streaming video: fact‑checking the headlines”.</a></li>
-        <li><a href="https://www.eea.europa.eu/en/analysis/publications/textiles-and-the-environment-the-role-of-design-in-europes-circular-economy-1" target="_blank" rel="noopener">European Environment Agency (2022) – Textiles and the environment.</a></li>
-        <li><a href="https://doi.org/10.1126/science.aaq0216" target="_blank" rel="noopener">Poore, J. &amp; Nemecek, T. (2018) – Reducing food’s environmental impacts through producers and consumers (Science).</a></li>
-        <li><a href="https://www.eea.europa.eu/en/datahub/datahubitem-view/5f4d3f8d-2c16-4a6b-a847-2d655edc7b4c" target="_blank" rel="noopener">EEA – Monitoring CO₂ emissions from new passenger cars (dataset/briefings).</a></li>
-        <li><a href="https://www.eea.europa.eu/en/publications/rail-and-waterborne-transport-best" target="_blank" rel="noopener">EEA (2021) – Rail and waterborne transport: best for low‑carbon motorised transport.</a></li>
-        <li><a href="https://www.thelancet.com/commissions/EAT" target="_blank" rel="noopener">EAT‑Lancet Commission – Food, Planet, Health (Planetary Health Diet).</a></li>
-        <li><a href="https://ev-database.org/cheatsheet/energy-consumption-electric-car" target="_blank" rel="noopener">EV‑Database – Energy Consumption Cheatsheet.</a></li>
-        <li><a href="https://www.globalcarbonproject.org/carbonbudget/" target="_blank" rel="noopener">Global Carbon Project – Global Carbon Budget.</a></li>
-        <li><a href="https://www.iges.or.jp/en/publication_documents/pub/reportchapter/en/6719/15_Degree_Lifestyles_MainReport.pdf" target="_blank" rel="noopener">IGES (1.5‑Degree Lifestyles) – Main report (Chapter/Report PDF).</a></li>
-        <li><a href="https://www.ipcc-nggip.iges.or.jp/public/2006gl/" target="_blank" rel="noopener">IPCC (2006) – Guidelines for National Greenhouse Gas Inventories (fuel CO₂ factors).</a></li>
-        <li><a href="https://www.ipcc.ch/srccl/" target="_blank" rel="noopener">IPCC (2019) – Special Report on Climate Change and Land (SRCCL).</a></li>
-        <li><a href="https://www.statistics.gr/" target="_blank" rel="noopener">ΕΛΣΤΑΤ – Στατιστικά ενέργειας νοικοκυριών / οχημάτων.</a></li>
-        <li><a href="https://www.emisia.com/utilities/copert/" target="_blank" rel="noopener">EMISIA/COPERT – Official model for road transport emissions.</a></li>
-        <li><a href="https://link.springer.com/article/10.1007/s10584-014-1169-1" target="_blank" rel="noopener">Scarborough, P. et al. (2014) – Dietary greenhouse gas emissions… (Climatic Change).</a></li>
-        <li><a href="https://www.stasy.gr/" target="_blank" rel="noopener">ΣΤΑΣΥ – Εκθέσεις βιωσιμότητας / στοιχεία λειτουργίας μέσων σταθερής τροχιάς.</a></li>
-        <li><a href="https://thegreentank.gr/2025/12/05/emissionswatch-oct25-el/" target="_blank" rel="noopener">The Green Tank (2025) – Emissions Watch: carbon footprint of electricity production in Greece.</a></li>
-        <li><a href="https://web.tee.gr/" target="_blank" rel="noopener">ΤΟΤΕΕ 20701‑1/2017 – Οδηγίες ενεργειακής απόδοσης κτιρίων.</a></li>
-        <li><a href="https://episcope.eu/" target="_blank" rel="noopener">EPISCOPE/TABULA – National Building Typology (Greece).</a></li>
-        <li><a href="https://www.odyssee-mure.eu/" target="_blank" rel="noopener">Odyssee‑Mure – Energy efficiency indicators (Greece).</a></li>
-        <li><a href="https://unfccc.int/ghg-inventories-annex-i-parties/" target="_blank" rel="noopener">UNFCCC – Greece National Inventory Report (Annual submission).</a></li>
-        <li><a href="https://www.unep.org/resources/emissions-gap-report" target="_blank" rel="noopener">UNEP – Emissions Gap Report.</a></li>
-        <li><a href="https://uic.org/" target="_blank" rel="noopener">UIC/IEA – Railway Handbook (energy and CO₂).</a></li>
-      </ol>
-
-      <p class="muted">Σημ.: Η βιβλιογραφία εμφανίζεται στην αυθεντική γλώσσα/ονομασία του εκάστοτε φορέα ή έργου.</p>
-    </section>
-  </div>
-
-  <script>
-    (function () {
-      const tabs = [
-        { btn: document.getElementById('tab-model'), panel: document.getElementById('panel-model') },
-        { btn: document.getElementById('tab-values'), panel: document.getElementById('panel-values') },
-      ];
-
-      function setActive(activeIdx) {
-        tabs.forEach((t, idx) => {
-          const active = idx === activeIdx;
-          t.btn.setAttribute('aria-selected', String(active));
-          t.panel.classList.toggle('active', active);
-        });
-      }
-
-      tabs[0].btn.addEventListener('click', () => setActive(0));
-      tabs[1].btn.addEventListener('click', () => setActive(1));
-    })();
-  </script>
+  <footer>
+    Η εφαρμογή αναπτύχθηκε από τον Κωστή Χαλκιαδάκη, υπεύθυνο του ΕΚΦΕ Ρεθύμνου.
+  </footer>
 </body>
 </html>
