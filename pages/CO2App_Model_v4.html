@@ -8,12 +8,12 @@
   <link rel="icon" href="../assets/icons/icon-192.png" />
   <link rel="stylesheet" href="../styles.css" />
   <style>
-    .doc-page h1, .doc-page h2, .doc-page h3 { margin-top: 1.2rem; }
-    .doc-page h1 { font-size: 1.6rem; }
-    .doc-page h2 { font-size: 1.25rem; }
-    .doc-page h3 { font-size: 1.05rem; }
-    .doc-page p, .doc-page li { line-height: 1.55; }
-    .doc-page .pill {
+    .docPage h1, .docPage h2, .docPage h3 { margin-top: 1.2rem; }
+    .docPage h1 { font-size: 1.6rem; }
+    .docPage h2 { font-size: 1.25rem; }
+    .docPage h3 { font-size: 1.05rem; }
+    .docPage p, .docPage li { line-height: 1.55; }
+    .docPage .pill {
       display: inline-block;
       padding: 0.15rem 0.6rem;
       border-radius: 999px;
@@ -21,25 +21,25 @@
       margin-right: 0.35rem;
       font-size: 0.9rem;
     }
-    .doc-page .note {
+    .docPage .note {
       background: rgba(116, 169, 116, 0.10);
       border: 1px solid rgba(116, 169, 116, 0.35);
       border-radius: 16px;
       padding: 0.9rem 1rem;
       margin: 0.9rem 0;
     }
-    .doc-page .warn {
+    .docPage .warn {
       background: rgba(255, 159, 64, 0.12);
       border: 1px solid rgba(255, 159, 64, 0.40);
       border-radius: 16px;
       padding: 0.9rem 1rem;
       margin: 0.9rem 0;
     }
-    .doc-page a.inline {
+    .docPage a.inline {
       text-decoration: none;
       border-bottom: 1px dashed rgba(49, 78, 78, 0.55);
     }
-    .doc-page code {
+    .docPage code {
       background: rgba(49, 78, 78, 0.06);
       padding: 0.1rem 0.3rem;
       border-radius: 8px;
@@ -48,14 +48,16 @@
   </style>
 </head>
 <body>
-  <div class="panel doc-page">
+  <body>
+  <div class="panel infoWide">
     <div class="topbar">
       <div class="appTitle">CO2App</div>
       <button class="hamburger" id="menuBtn" aria-label="menu">☰</button>
     </div>
 
-    <main>
-      <h1>Τεκμηρίωση Μοντέλου Υπολογισμού (v4)</h1>
+    <div class="card">
+      <div class="docPage">
+       <h1>Τεκμηρίωση Μοντέλου Υπολογισμού (v4)</h1>
 
       <div class="note">
         <strong>Σκοπός:</strong> Η CO2App είναι εκπαιδευτικό εργαλείο που εκτιμά το ανθρακικό αποτύπωμα (kg ή t CO₂/έτος)
@@ -150,9 +152,10 @@
         <strong>Πηγές &amp; σταθερές:</strong> Όλες οι αριθμητικές σταθερές και οι παραπομπές τους βρίσκονται στη σελίδα
         <a class="inline" href="values.html">Σταθερές και Βιβλιογραφία</a>.
       </div>
+      </div> <!-- docPage -->
+    </div>   <!-- card -->
+  </div>     <!-- panel -->
 
-    </main>
-  </div>
 
   <!-- Drawer skeleton (required by menu.js) -->
   <div class="drawerBackdrop" id="drawerBackdrop" aria-hidden="true"></div>
