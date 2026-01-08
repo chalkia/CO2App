@@ -1,3 +1,9 @@
+## v3.5.0 – 2026-01-09
+- Added full scientific documentation pages (EL & EN) and kept Model ↔ Values & References separation.
+- Fixed broken drawer menu JavaScript and restored Settings page rendering.
+- Updated Service Worker cache version and precached documentation pages.
+- Updated About page content and version label.
+
 # CO2App
 
 ## Update v3.4 (2026-01-07)

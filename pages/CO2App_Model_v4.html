@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CO2App – Μοντέλο Υπολογισμού</title>
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.png" />
+  <link rel="icon" href="../assets/icons/icon-192.png" />
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    .doc-page h1, .doc-page h2, .doc-page h3 { margin-top: 1.2rem; }
+    .doc-page h1 { font-size: 1.6rem; }
+    .doc-page h2 { font-size: 1.25rem; }
+    .doc-page h3 { font-size: 1.05rem; }
+    .doc-page p, .doc-page li { line-height: 1.55; }
+    .doc-page .pill {
+      display: inline-block;
+      padding: 0.15rem 0.6rem;
+      border-radius: 999px;
+      background: rgba(49, 78, 78, 0.08);
+      margin-right: 0.35rem;
+      font-size: 0.9rem;
+    }
+    .doc-page .note {
+      background: rgba(116, 169, 116, 0.10);
+      border: 1px solid rgba(116, 169, 116, 0.35);
+      border-radius: 16px;
+      padding: 0.9rem 1rem;
+      margin: 0.9rem 0;
+    }
+    .doc-page .warn {
+      background: rgba(255, 159, 64, 0.12);
+      border: 1px solid rgba(255, 159, 64, 0.40);
+      border-radius: 16px;
+      padding: 0.9rem 1rem;
+      margin: 0.9rem 0;
+    }
+    .doc-page a.inline {
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(49, 78, 78, 0.55);
+    }
+    .doc-page code {
+      background: rgba(49, 78, 78, 0.06);
+      padding: 0.1rem 0.3rem;
+      border-radius: 8px;
+      font-size: 0.95em;
+    }
+  </style>
+</head>
+<body>
+  <div class="panel doc-page">
+    <div class="topbar">
+      <div class="appTitle">CO2App</div>
+      <button class="hamburger" id="menuBtn" aria-label="menu">☰</button>
+    </div>
+
+    <main>
+      <h1>Τεκμηρίωση Μοντέλου Υπολογισμού (v4)</h1>
+
+      <div class="note">
+        <strong>Σκοπός:</strong> Η CO2App είναι εκπαιδευτικό εργαλείο που εκτιμά το ανθρακικό αποτύπωμα (kg ή t CO₂/έτος)
+        από καθημερινές δραστηριότητες ενός νοικοκυριού/ατόμου, με απλό αλλά αξιόπιστο τρόπο.
+      </div>
+
+      <p>
+        Η τεκμηρίωση χωρίζεται σε δύο μέρη:
+        <span class="pill">Μοντέλο</span> (αυτή η σελίδα) και
+        <span class="pill">Σταθερές &amp; Βιβλιογραφία</span> (προχωρημένη επέκταση).
+      </p>
+
+      <p>
+        Για τον πλήρη πίνακα σταθερών και τις παραπομπές, δες:
+        <a class="inline" href="values.html">Σταθερές και Βιβλιογραφία</a>.
+      </p>
+
+      <h2>1. Βασικές αρχές</h2>
+      <ul>
+        <li>Το αποτύπωμα υπολογίζεται ως άθροισμα επιμέρους κατηγοριών: <code>Housing + Transport + Food + Lifestyle + Digital + Social</code>.</li>
+        <li>Οι μονάδες είναι <strong>kg CO₂/έτος</strong> (και μετατροπή σε <strong>t CO₂/έτος</strong> όπου χρειάζεται).</li>
+        <li>Ο στόχος αναφοράς για βιώσιμο τρόπο ζωής είναι <strong>2.5 tCO₂ / άτομο / έτος</strong>.</li>
+        <li>Οι υπολογισμοί της εφαρμογής αναφέρονται <strong>κυρίως στην Ελλάδα του 2025</strong>, ιδιαίτερα ως προς την ένταση άνθρακα του ηλεκτρικού δικτύου (Carbon Intensity).</li>
+        <li>Για την κατηγορία <em>Κατοικία</em>, οι υπολογισμοί κανονικοποιούνται ως προς <strong>κατοικία αναφοράς 100 m²</strong>, ώστε να επιτρέπονται συγκρίσεις μεταξύ νοικοκυριών.</li>
+      </ul>
+
+      <div class="warn">
+        <strong>Σημείωση:</strong> Η CO2App δεν επιχειρεί την πλήρη και λεπτομερή καταμέτρηση όλων των επιμέρους εκπομπών CO₂ του μαθητή-χρήστη, μια διαδικασία που θα ήταν ιδιαίτερα χρονοβόρα, κουραστική και συχνά αναξιόπιστη σε εκπαιδευτικό πλαίσιο.
+        Αντίθετα, η εφαρμογή επιδιώκει να <strong>κατατάξει τον χρήστη σε αντιπροσωπευτικές κατηγορίες συμπεριφοράς</strong> (κατοικία, μεταφορές, διατροφή, κατανάλωση κ.ά.), οι οποίες αντιστοιχούν σε τυπικά επίπεδα εκπομπών, όπως αυτά προκύπτουν από διεθνή και εθνικά εμπειρικά δεδομένα.
+        Το μοντέλο βασίζεται σε <strong>τεκμηριωμένους μέσους όρους και συντελεστές</strong>, αλλά περιλαμβάνει συνειδητές απλουστεύσεις με στόχο τη διδακτική σαφήνεια και τη συγκρισιμότητα των αποτελεσμάτων. Με τον τρόπο αυτό, <strong>θυσιάζεται μέρος της αριθμητικής ακρίβειας</strong> προς όφελος της κατανόησης των βασικών μηχανισμών που συνδέουν τις καθημερινές επιλογές με το ανθρακικό αποτύπωμα.
+      </div>
+
+      <div class="note">
+        <strong>Διερεύνηση σεναρίων:</strong> Η εφαρμογή παρέχει τη δυνατότητα τροποποίησης βασικών σταθερών του μοντέλου, ώστε οι χρήστες —και ιδιαίτερα οι εκπαιδευτικοί— να μπορούν να <strong>διερευνήσουν εναλλακτικά σενάρια</strong> και να μελετήσουν την επίδραση παραμέτρων στο συνολικό ανθρακικό αποτύπωμα.
+      </div>
+
+      <h2>2. Μαθηματική μορφή</h2>
+      <p>
+        Για κάθε δραστηριότητα εφαρμόζεται η γενική σχέση:
+        <code>Εκπομπές = Δραστηριότητα × Συντελεστής</code>.
+      </p>
+
+      <h3>2.1 Συνολικό αποτύπωμα</h3>
+      <p>
+        <code>CO2_total = CO2_housing + CO2_transport + CO2_food + CO2_goods + CO2_digital + CO2_social</code>
+      </p>
+
+      <h2>3. Κατοικία (Housing)</h2>
+      <ul>
+        <li><strong>Θερμικές ανάγκες:</strong> εκφράζονται σε <code>kWh/m²·έτος</code> και βασίζονται σε παραδοχές κλίματος για τη <strong>νότια Ελλάδα</strong>.</li>
+        <li><strong>Ηλεκτρική κατανάλωση:</strong> προσεγγίζεται μέσω μέσων τιμών αναφοράς από εθνικές και ευρωπαϊκές στατιστικές πηγές.</li>
+        <li><strong>Αντλία θερμότητας:</strong> η απόδοσή της δεν εμφανίζεται ρητά στο περιβάλλον χρήστη, αλλά ενσωματώνεται στους σχετικούς συντελεστές του μοντέλου.</li>
+      </ul>
+
+      <h2>4. Μεταφορές (Transport)</h2>
+      <ul>
+        <li><strong>ΙΧ:</strong> συντελεστές σε <code>kg CO₂/km</code> για βενζίνη, diesel, EV, δίκυκλο.</li>
+        <li><strong>EV:</strong> οι εκπομπές τους δεν θεωρούνται μηδενικές και εξαρτώνται από την <em>ένταση άνθρακα του ηλεκτρικού δικτύου</em> (Carbon Intensity), η οποία αποτελεί βασική σταθερά του μοντέλου.</li>
+        <li><strong>Δημόσιες συγκοινωνίες:</strong> διαχωρισμός <em>Μετρό</em> / <em>Λεωφορείο</em>.</li>
+        <li><strong>Πτήσεις:</strong> εκπαιδευτικές αποστάσεις αναφοράς (π.χ. 450 km, 1600 km).</li>
+      </ul>
+
+      <h2>5. Διατροφή (Food)</h2>
+      <p>Η κατηγορία εκφράζεται ως πολλαπλασιαστής σε σχέση με «κλασική» διατροφή (1.0):</p>
+      <ul>
+        <li>Vegan: 0.5</li>
+        <li>Vegetarian: 0.65</li>
+        <li>Mediterranean: 0.85</li>
+        <li>Classic: 1.0</li>
+        <li>Beef-heavy: 1.4</li>
+      </ul>
+
+      <h2>6. Αγαθά &amp; Κατανάλωση (Lifestyle / Goods)</h2>
+      <ul>
+        <li>Ο slider είναι εκπαιδευτικός και τεκμηριώνεται μόνο για: <code>0.4</code>, <code>1.0</code>, <code>2.2</code>.</li>
+      </ul>
+
+      <h2>7. Ψηφιακό αποτύπωμα (Digital)</h2>
+      <ul>
+        <li>Το ψηφιακό αποτύπωμα δεν συγκαταλέγεται στους κυριότερους παράγοντες εκπομπών, ωστόσο συμπεριλαμβάνεται <strong>σκόπιμα για εκπαιδευτικούς λόγους</strong>.</li>
+        <li>Στόχος του είναι να προκαλέσει συζήτηση γύρω από το γεγονός ότι οι εκπομπές αερίων του θερμοκηπίου συνδέονται και με <em>«άυλες» δραστηριότητες</em>, όπως η χρήση ψηφιακών υπηρεσιών, η αποθήκευση δεδομένων και η διαδικτυακή κατανάλωση.</li>
+      </ul>
+
+      <h2>8. Κοινό/Κοινωνικό αποτύπωμα (Social / Shared)</h2>
+      <ul>
+        <li>Το κοινό ή κοινωνικό αποτύπωμα αναφέρεται στις εκπομπές που σχετίζονται με τη λειτουργία συλλογικών υποδομών και δημόσιων υπηρεσιών (π.χ. υγεία, εκπαίδευση, μεταφορές, διοίκηση).</li>
+        <li>Δεν αποτελεί αποτέλεσμα ατομικών επιλογών, αλλά <strong>συλλογικών αποφάσεων και κοινωνικών προτεραιοτήτων</strong>.</li>
+        <li>Η συμπερίληψή του στο μοντέλο αναδεικνύει τη <strong>δημοκρατική ευθύνη του πολίτη</strong> να επιδιώγει τη μείωσή του μέσω κοινωνικής και πολιτικής συμμετοχής, και όχι μόνο μέσω ατομικής κατανάλωσης.</li>
+      </ul>
+
+      <div class="note">
+        <strong>Πηγές &amp; σταθερές:</strong> Όλες οι αριθμητικές σταθερές και οι παραπομπές τους βρίσκονται στη σελίδα
+        <a class="inline" href="values.html">Σταθερές και Βιβλιογραφία</a>.
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Drawer skeleton (required by menu.js) -->
+  <div class="drawerBackdrop" id="drawerBackdrop" aria-hidden="true"></div>
+  <nav class="drawer" id="drawer" aria-hidden="true">
+    <div class="drawerHeader">
+      <div class="drawerTitle">CO2App</div>
+      <button class="drawerClose" id="drawerClose" aria-label="close">×</button>
+    </div>
+    <div class="drawerLang" id="drawerLang"></div>
+    <div class="drawerNav" id="drawerNav"></div>
+  </nav>
+
+  <script src="../js/menu.js"></script>
+</body>
+</html>
