@@ -1,55 +1,85 @@
 <!DOCTYPE html>
-
 <html lang="el">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>About</title>
-<link href="../manifest.webmanifest" rel="manifest"/>
-<meta content="#74a974" name="theme-color"/>
-<meta content="yes" name="apple-mobile-web-app-capable"/>
-<link href="../assets/icons/icon-192.png" rel="apple-touch-icon"/>
-<link href="../styles.css" rel="stylesheet">
-</link></head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CO2App – Πληροφορίες / About</title>
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.png" />
+  <link rel="icon" href="../assets/icons/icon-192.png" />
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    .docPage h1 { font-size: 1.6rem; margin-top: 1.2rem; }
+    .docPage p, .docPage li { line-height: 1.55; }
+    .docPage .note{
+      background: rgba(116, 169, 116, 0.10);
+      border: 1px solid rgba(116, 169, 116, 0.35);
+      border-radius: 16px;
+      padding: 0.9rem 1rem;
+      margin: 0.9rem 0;
+    }
+    .langBlock{ display:none; }
+    .langBlock.active{ display:block; }
+  </style>
+</head>
 <body>
-<div class="container">
-<div class="panel infoWide" id="mainPanel">
-<div class="topbar">
-<button aria-label="Menu" class="iconBtn" id="menuBtn"><span class="hamburger"><span></span></span></button>
-<div class="topbarSpacer"></div>
-</div>
-<div class="card">
-<h2 id="title" style="margin:0 0 10px 0;"></h2>
-<div id="body" style="white-space:pre-wrap; line-height:1.35;"></div>
-</div>
-</div>
-</div>
-<div aria-hidden="true" class="drawerBackdrop" id="drawerBackdrop"></div>
-<nav aria-hidden="true" class="drawer" id="drawer">
-<div class="drawerHeader">
-<div class="drawerTitle">CO2app</div>
-<button aria-label="Close menu" class="iconBtn" id="drawerClose">×</button>
-</div>
-<div class="drawerSection" id="drawerNav"></div>
-<div class="drawerSection" id="drawerLang"></div>
-</nav>
-<script src="../js/common.js"></script>
-<script src="../js/menu.js"></script>
-<script>
-    const lang = getLang();
-    const T = {
-      el: {
-        title: "Πληροφορίες",
-        body: "Η εφαρμογή CO2app δημιουργήθηκε το 2025 με χρηματοδότηση του Δήμου Αγίου Νικολάου για τον Περιβαλλοντικό Σταθμό Φινοκαλιά, που λειτουργεί το Χημικό Τμήμα της Σχολής Θετικών Επιστημών του Πανεπιστημίου Κρήτης. Ο σχεδιασμός, η επιλογή του περιεχομένου και ο προγραμματισμός της εφαρμογής έγινε από τον Κωστή Χαλκιαδάκη, υπεύθυνο του Ε.Κ.Φ.Ε. Ρεθύμνου."
-      },
-      en: {
-        title: "About",
-        body: "The CO2app was created in 2025 with funding from the Municipality of Agios Nikolaos, for the Finokalia Atmospheric Station operated by the Department of Chemistry, School of Sciences, University of Crete. The design, content selection, and development of the app were carried out by Kostis Chalkiadakis, head of the Rethymno School Laboratory Center (E.K.F.E.)."
-      }
-    }[lang];
+  <div class="panel infoWide">
+    <div class="topbar">
+      <div class="appTitle">CO2App</div>
+      <button class="hamburger" id="menuBtn" aria-label="menu">☰</button>
+    </div>
 
-    document.getElementById("title").textContent = T.title;
-    document.getElementById("body").textContent = T.body;
+    <div class="card">
+      <div class="docPage">
+
+        <div id="about-el" class="langBlock">
+          <h1>Πληροφορίες</h1>
+          <p>
+            Η εφαρμογή CO2app δημιουργήθηκε το 2025 με χρηματοδότηση του Δήμου Αγίου Νικολάου για τον Περιβαλλοντικό Σταθμό Φινοκαλιά,
+            που λειτουργεί το Χημικό Τμήμα της Σχολής Θετικών Επιστημών του Πανεπιστημίου Κρήτης.
+            Ο σχεδιασμός, η επιλογή του περιεχομένου και ο προγραμματισμός της εφαρμογής έγινε από τον Κωστή Χαλκιαδάκη, υπεύθυνο του Ε.Κ.Φ.Ε. Ρεθύμνου.
+          </p>
+          <p>
+            Η εφαρμογή CO₂app είναι ένα εκπαιδευτικό εργαλείο για την κατανόηση της συνεισφοράς των ανθρώπινων δραστηριοτήτων στην αύξηση του CO2.
+            Περιλαμβάνει κουίζ γνώσεων που έχει σκοπό να πληροφορήσει για τις κύριες ανθρωπογενείς πηγές παραγωγής CO2 και συνοδεύεται από επεξηγήσεις
+            για ενίσχυση της μάθησης και έναν υπολογιστή για την εκτίμηση του ατομικού ανθρακικού αποτυπώματος με απλό αλλά αξιόπιστο τρόπο,
+            βασισμένο σε καθημερινές δραστηριότητες.
+          </p>
+          <p class="note">
+            Πληροφορίες για το μοντέλο και τις σταθερές που χρησιμοποιήθηκαν καθώς και τη σχετική βιβλιογραφία θα βρείτε στη σελίδα της τεκμηρίωσης.
+          </p>
+        </div>
+
+        <div id="about-en" class="langBlock">
+          <h1>About</h1>
+          <p>
+            The CO2App application was created in 2025 with funding from the Municipality of Agios Nikolaos for the Finokalia Environmental Station,
+            operated by the Department of Chemistry, School of Sciences, University of Crete.
+            The design, content selection, and software development were carried out by Kostis Chalkiadakis, Head of the Rethymno Science Laboratory Center (E.K.F.E. Rethymno).
+          </p>
+          <p>
+            CO2App is an educational tool designed to help users understand how human activities contribute to increasing atmospheric CO2.
+            It includes a knowledge quiz that introduces the main anthropogenic sources of CO2 emissions and provides explanations to support learning,
+            along with a calculator that estimates the carbon footprint of a person in a simple yet reliable way, based on everyday activities.
+          </p>
+          <p class="note">
+            Details about the calculation model, the constants used, and the related references can be found on the documentation page.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/menu.js"></script>
+  <script>
+    function applyLang(){
+      const lang = (localStorage.getItem('lang') || 'el');
+      document.getElementById('about-el').classList.toggle('active', lang === 'el');
+      document.getElementById('about-en').classList.toggle('active', lang === 'en');
+      document.documentElement.lang = lang;
+      document.title = (lang === 'en') ? 'CO2App – About' : 'CO2App – Πληροφορίες';
+    }
+    document.addEventListener('DOMContentLoaded', applyLang);
   </script>
 </body>
 </html>
