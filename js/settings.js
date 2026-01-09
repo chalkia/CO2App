@@ -58,14 +58,10 @@ function applySettingsTexts(){
   set("settingsTitle", tt.pageTitle);
   set("settingsSectionTitle", tt.sectionTitle);
   set("settingsSectionDesc", tt.sectionDesc);
-  set("ciLabel", tt.ciLabel);
-  set("euTargetLabel", tt.euLabel);
-  set("socialLabel", tt.socialLabel);
+  set("ciLabel", tt.ciLabel);  set("socialLabel", tt.socialLabel);
   set("metroLabel", tt.metroLabel);
   set("metroHint", tt.metroHint);
-  set("useCustom_ci", tt.useCustom);
-  set("useCustom_eu", tt.useCustom);
-  set("useCustom_social", tt.useCustom);
+  set("useCustom_ci", tt.useCustom);  set("useCustom_social", tt.useCustom);
   set("useCustom_metro", tt.useCustom);
   set("saveBtn", tt.save);
   set("resetBtn", tt.reset);
@@ -123,12 +119,6 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   const ciHint = document.getElementById("ciHint");
   if (ciHint) ciHint.textContent = (tt?.hintDefault ? tt.hintDefault(ciDef) : `Default: ${ciDef}`);
 
-  // EU target
-  const euDef = cfg?.euTarget_tCO2_per_year ?? 2.5;
-  const euOv = readOverride("euTarget_tCO2_per_year");
-  bindNumber("euTargetValue", euOv.enabled ? euOv.value : euDef);
-  bindCheck("euTargetEnable", euOv.enabled);
-
   // Social share
   const sDef = cfg?.socialShare_tCO2_per_year ?? 1.2;
   const sOv = readOverride("socialShare_tCO2_per_year");
@@ -146,11 +136,6 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     const ciE = getCheck("ciEnable");
     if (ciE && !Number.isFinite(ciV)) return alert(tt.errCI);
     setOverride("gridCI_kgCO2_per_kWh", ciE, ciV);
-
-    const euV = getNum("euTargetValue");
-    const euE = getCheck("euTargetEnable");
-    if (euE && !Number.isFinite(euV)) return alert(tt.errEU);
-    setOverride("euTarget_tCO2_per_year", euE, euV);
 
     const sV = getNum("socialValue");
     const sE = getCheck("socialEnable");

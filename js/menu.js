@@ -17,7 +17,6 @@ function isStandaloneMode() {
   }
 }
 
-// If common.js already defines these, keeping them here is harmless.
 function getLang() { return localStorage.getItem("lang") || "el"; }
 function setLang(l) { localStorage.setItem("lang", l); }
 
@@ -46,7 +45,6 @@ function pageName() {
   return p && p.length ? p : "index.html";
 }
 
-// Ensure drawer exists on pages that only provide a menu container
 function ensureDrawerSkeleton() {
   if (document.getElementById("drawer") && document.getElementById("drawerBackdrop")) return;
 
@@ -61,7 +59,6 @@ function ensureDrawerSkeleton() {
   nav.id = "drawer";
   nav.setAttribute("aria-hidden", "true");
 
-  // We keep nav FIRST and language LAST (as in your screenshot)
   nav.innerHTML = `
     <div class="drawerHeader">
       <div class="drawerTitle">CO2App</div>
@@ -77,12 +74,9 @@ function ensureDrawerSkeleton() {
 
 function normalizeDrawerOrder() {
   const drawer = document.getElementById("drawer");
-  const nav = document.getElementById("drawerNav");
   const lang = document.getElementById("drawerLang");
-  if (!drawer || !nav || !lang) return;
-
-  // Language toggle ALWAYS last
-  drawer.appendChild(lang);
+  if (!drawer || !lang) return;
+  drawer.appendChild(lang); // language toggle ALWAYS last
 }
 
 function docsHref(inPages) {
@@ -99,40 +93,30 @@ function buildNav() {
 
   const lang = getLang();
   const t = {
-    el: {
-      home: "Αρχική", quiz: "Quiz", foot: "Υπολογιστής CO₂",
-      docs: "Τεκμηρίωση", about: "Πληροφορίες",
-      install: "Εγκατάσταση σε κινητό", settings: "Ρυθμίσεις"
-    },
-    en: {
-      home: "Home", quiz: "Quiz", foot: "Footprint",
-      docs: "Documentation", about: "Info",
-      install: "Install on phone", settings: "Settings"
-    }
+    el: { home: "Αρχική", quiz: "Quiz", foot: "Υπολογιστής CO₂", docs: "Τεκμηρίωση", about: "Πληροφορίες", install: "Εγκατάσταση σε κινητό", settings: "Ρυθμίσεις" },
+    en: { home: "Home",   quiz: "Quiz", foot: "Footprint",        docs: "Documentation", about: "Info", install: "Install on phone", settings: "Settings" }
   }[lang];
 
   const here = pageName();
   const inPages = isPagesDir();
   const base = inPages ? "../" : "./";
 
-  // YOUR required mapping:
-  // footprint -> footprint.html
   const items = inPages ? [
-    { label: t.home,     href: base + "index.html",        icon: "home" },
-    { label: t.quiz,     href: "./quiz.html",              icon: "quiz" },
-    { label: t.foot,     href: "./footprint.html",         icon: "co2"  },
-    { label: t.docs,     href: docsHref(true),             icon: "docs" },
-    { label: t.about,    href: aboutHref(true),            icon: "about"},
-    { label: t.settings, href: "./settings.html",          icon: "settings" },
-    { label: t.install,  href: "./install.html",           icon: "install" },
+    { label: t.home,     href: base + "index.html",       icon: "home" },
+    { label: t.quiz,     href: "./quiz.html",             icon: "quiz" },
+    { label: t.foot,     href: "./footprint.html",        icon: "co2" },
+    { label: t.docs,     href: docsHref(true),            icon: "docs" },
+    { label: t.about,    href: aboutHref(true),           icon: "about" },
+    { label: t.settings, href: "./settings.html",        icon: "settings" },
+    { label: t.install,  href: "./install.html",         icon: "install" },
   ] : [
-    { label: t.home,     href: "./index.html",             icon: "home" },
-    { label: t.quiz,     href: "./pages/quiz.html",        icon: "quiz" },
-    { label: t.foot,     href: "./pages/footprint.html",   icon: "co2"  },
-    { label: t.docs,     href: docsHref(false),            icon: "docs" },
-    { label: t.about,    href: aboutHref(false),           icon: "about"},
-    { label: t.settings, href: "./pages/settings.html",    icon: "settings" },
-    { label: t.install,  href: "./pages/install.html",     icon: "install" },
+    { label: t.home,     href: "./index.html",            icon: "home" },
+    { label: t.quiz,     href: "./pages/quiz.html",       icon: "quiz" },
+    { label: t.foot,     href: "./pages/footprint.html",  icon: "co2" },
+    { label: t.docs,     href: docsHref(false),           icon: "docs" },
+    { label: t.about,    href: aboutHref(false),          icon: "about" },
+    { label: t.settings, href: "./pages/settings.html",  icon: "settings" },
+    { label: t.install,  href: "./pages/install.html",   icon: "install" },
   ];
 
   nav.innerHTML = "";
@@ -174,20 +158,6 @@ function buildNav() {
     tx.className = "drawerText";
     tx.textContent = it.label;
 
-    // quiz badge
-    if (it.icon === "quiz") {
-      try {
-        const qs = localStorage.getItem("quizScore");
-        const n = Number(qs);
-        if (qs !== null && !Number.isNaN(n)) {
-          const badge = document.createElement("span");
-          badge.className = "quizBadge";
-          badge.textContent = `${n}/100`;
-          tx.appendChild(badge);
-        }
-      } catch (e) {}
-    }
-
     div.appendChild(ic);
     div.appendChild(tx);
 
@@ -213,7 +183,6 @@ function buildLangToggle() {
 
   const div = document.createElement("div");
   div.className = "drawerItem";
-  div.setAttribute("data-lang-toggle", "1");
 
   const ic = document.createElement("span");
   ic.className = "drawerIcon";
@@ -237,41 +206,12 @@ function buildLangToggle() {
 
   div.addEventListener("click", () => {
     setLang(target);
-    // If current page supports dynamic switching, apply without reload:
     try { if (typeof applyLang === "function") { applyLang(); return; } } catch(e) {}
     location.reload();
   });
 
   wrap.appendChild(div);
 }
-
-// Optional: for pages that use <div id="menuContainer"></div>
-window.renderMenu = function(containerId){
-  const host = document.getElementById(containerId);
-  if (!host) return;
-
-  if (!document.getElementById("menuBtn")){
-    const btn = document.createElement("button");
-    btn.className = "hamburger";
-    btn.id = "menuBtn";
-    btn.setAttribute("aria-label","menu");
-    btn.textContent = "☰";
-    host.appendChild(btn);
-  }
-
-  ensureDrawerSkeleton();
-  normalizeDrawerOrder();
-  buildNav();
-  buildLangToggle();
-
-  const menuBtn = document.getElementById("menuBtn") || document.getElementById("openDrawer");
-  const closeBtn = document.getElementById("drawerClose") || document.getElementById("closeDrawer");
-  const backdrop = document.getElementById("drawerBackdrop");
-
-  if (menuBtn) menuBtn.addEventListener("click", openDrawer);
-  if (closeBtn) closeBtn.addEventListener("click", closeDrawer);
-  if (backdrop) backdrop.addEventListener("click", closeDrawer);
-};
 
 document.addEventListener("DOMContentLoaded", () => {
   ensureDrawerSkeleton();
