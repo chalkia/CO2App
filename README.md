@@ -1,8 +1,8 @@
+# CO2App
 ## v4.0 – 2026-01-09
 - Version bump to v4.0 to reset PWA cache and stabilise updates
 - Verified and updated service worker cache name and precache list
 - Verified menu.js integrity and navigation links (Footprint, Documentation, About)
-# CO2App
 
 ## v3.5.0 – 2026-01-09
 - Added full scientific documentation pages (EL & EN) and kept Model ↔ Values & References separation.
