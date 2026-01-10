@@ -177,6 +177,7 @@
     </div>
   </div>
 
+  <script src="../js/common.js"></script>
   <script src="../js/menu.js"></script>
   <script>
     function applyLang(){
@@ -188,5 +189,16 @@
     }
     document.addEventListener('DOMContentLoaded', applyLang);
   </script>
+
+  <div class="drawerBackdrop" id="drawerBackdrop" aria-hidden="true"></div>
+  <nav class="drawer" id="drawer" aria-hidden="true">
+    <div class="drawerHeader">
+      <div class="drawerTitle">CO2App</div>
+      <button class="drawerClose" id="drawerClose" aria-label="close">×</button>
+    </div>
+    <div class="drawerNav" id="drawerNav"></div>
+    <div class="drawerLang" id="drawerLang"></div>
+  </nav>
+
 </body>
 </html>
