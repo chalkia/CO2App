@@ -38,14 +38,14 @@ const PRECACHE = [
   "./assets/info/Info_gr.html",
   "./assets/info/InfoEn.html",
   "./assets/fonts/Comfortaa-SemiBold.ttf",
-  "./assets/fonts/Comfortaa-Bold.ttf"
-,
+  "./assets/fonts/Comfortaa-Bold.ttf",
   "./assets/ui/co2N.png",
   "./assets/ui/quizN.png",
   "./assets/ui/infoN.png",
   "./assets/ui/settingsN.png",
   "./assets/ui/lang_en.png",
-  "./assets/ui/lang_el.png"];
+  "./assets/ui/lang_el.png"
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(PRECACHE)));

@@ -1,93 +1,137 @@
 <!DOCTYPE html>
-
 <html lang="el">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>CO2-app</title>
-<link href="./manifest.webmanifest" rel="manifest"/>
-<meta content="#74a974" name="theme-color"/>
-<meta content="yes" name="apple-mobile-web-app-capable"/>
-<link href="./assets/icons/icon-192.png" rel="apple-touch-icon"/>
-<link href="./styles.css?v=20" rel="stylesheet"/>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>CO2-app</title>
+  <link href="./manifest.webmanifest" rel="manifest"/>
+  <meta content="#74a974" name="theme-color"/>
+  <meta content="yes" name="apple-mobile-web-app-capable"/>
+  <link href="./assets/icons/icon-192.png" rel="apple-touch-icon"/>
+  <link href="./styles.css?v=20" rel="stylesheet"/>
 </head>
 <body class="homeNoDrawer">
-<div class="container">
-<div class="panel" id="mainPanel"><div style="height:12px"></div></div>
-<div class="card homeCard centerCard"><div class="homeLogo"><img alt="CO2app" height="260" id="appLogo" src="./assets/logo.png" style="width:min(70vw,260px);max-width:260px;height:auto;display:block;margin:0 auto;" width="260"/></div><div class="homeDesc" id="homeDesc"></div><button class="homePrimary" id="btnQuiz"><div class="homePrimaryTitle"><span id="homeQuizTitle"></span><span class="badge orange" id="homeQuizBadge"></span></div><div class="homePrimarySub" id="homeQuizSub"></div></button><button class="homePrimary" id="btnFoot"><div class="homePrimaryTitle"><span id="homeFootTitle"></span><span class="badge blue" id="homeFootBadge"></span></div><div class="homePrimarySub" id="homeFootSub"></div></button><div class="homeChips"><button class="homeChip" id="chipDocs"><img alt="Docs" class="homeChipIconImg" height="22" src="./assets/ui/bookN.png" style="width:22px;height:22px;display:block;" width="22"/><span id="chipDocsText"></span></button><button class="homeChip" id="chipInstall"><span class="homeChipIcon">📱</span><span id="chipInstallText"></span></button><button class="homeChip" id="chipLang"><span class="homeChipIcon">🌐</span><span id="chipLangText"></span></button><button class="homeChip" id="chipAbout"><span class="homeChipIcon">i</span><span id="chipAboutText"></span></button></div></div>
-</div>
-<script src="./js/common.js?v=20"></script>
-<script src="./js/menu.js?v=20"></script>
-<script>
-  const lang = getLang();
+  <div class="container">
+    <div class="panel" id="mainPanel">
+      <div style="height:12px"></div>
+    </div>
+    
+    <div class="card homeCard centerCard">
+      <div class="homeLogo">
+        <img alt="CO2app" height="260" id="appLogo" src="./assets/logo.png" style="width:min(70vw,260px);max-width:260px;height:auto;display:block;margin:0 auto;" width="260"/>
+      </div>
+      <div class="homeDesc" id="homeDesc"></div>
+      
+      <button class="homePrimary" id="btnQuiz">
+        <div class="homePrimaryTitle">
+          <span id="homeQuizTitle"></span>
+          <span class="badge orange" id="homeQuizBadge"></span>
+        </div>
+        <div class="homePrimarySub" id="homeQuizSub"></div>
+      </button>
+      
+      <button class="homePrimary" id="btnFoot">
+        <div class="homePrimaryTitle">
+          <span id="homeFootTitle"></span>
+          <span class="badge blue" id="homeFootBadge"></span>
+        </div>
+        <div class="homePrimarySub" id="homeFootSub"></div>
+      </button>
+      
+      <div class="homeChips">
+        <button class="homeChip" id="chipDocs">
+          <img alt="Docs" class="homeChipIconImg" height="22" src="./assets/ui/bookN.png" style="width:22px;height:22px;display:block;" width="22"/>
+          <span id="chipDocsText"></span>
+        </button>
+        <button class="homeChip" id="chipInstall">
+          <span class="homeChipIcon">📱</span>
+          <span id="chipInstallText"></span>
+        </button>
+        <button class="homeChip" id="chipLang">
+          <span class="homeChipIcon">🌐</span>
+          <span id="chipLangText"></span>
+        </button>
+        <button class="homeChip" id="chipAbout">
+          <span class="homeChipIcon">i</span>
+          <span id="chipAboutText"></span>
+        </button>
+      </div>
+    </div>
+  </div>
 
-  const T = {
-    el: {
-      desc: "Μια εκπαιδευτική εφαρμογή για το CO2.",
-      quizTitle: "QUIZ",
-      quizSub: "Γνωρίζεις πραγματικά ποιοι παράγοντες αυξάνουν το CO2;",
-      quizBadge: "10 ερωτήσεις",
-      footTitle: "Υπολογισμός CO₂",
-      footSub: "Κάνε μια εκτίμηση για τη δική σου συμβολή στην αύξηση του CO₂ στην ατμόσφαιρα.",
-      footBadge: "4 κατηγορίες",
-      docs: "Τεκμηρίωση",
-      lang: "Αλλαγή γλώσσας",
-      about: "Πληροφορίες",
-      install: "Εγκατάσταση σε κινητό"
-    },
-    en: {
-      desc: "An educational app about CO₂ and climate, featuring a knowledge quiz and a carbon footprint calculator.",
-      quizTitle: "QUIZ",
-      quizSub: "Do you really know what rising CO₂ means and how it affects the climate?",
-      quizBadge: "10 questions",
-      footTitle: "CO₂ Calculator",
-      footSub: "Estimate your own contribution to the rise of CO₂ in the atmosphere.",
-      footBadge: "4 categories",
-      docs: "Documentation",
-      lang: "Switch language",
-      about: "About",
-      install: "Install on phone"
+  <script src="./js/common.js?v=20"></script>
+  <script src="./js/menu.js?v=20"></script>
+  <script>
+    const lang = getLang();
+
+    const T = {
+      el: {
+        desc: "Μια εκπαιδευτική εφαρμογή για το CO2.",
+        quizTitle: "QUIZ",
+        quizSub: "Γνωρίζεις πραγματικά ποιοι παράγοντες αυξάνουν το CO2;",
+        quizBadge: "10 ερωτήσεις",
+        footTitle: "Υπολογισμός CO₂",
+        footSub: "Κάνε μια εκτίμηση για τη δική σου συμβολή στην αύξηση του CO₂ στην ατμόσφαιρα.",
+        footBadge: "4 κατηγορίες",
+        docs: "Τεκμηρίωση",
+        lang: "Αλλαγή γλώσσας",
+        about: "Πληροφορίες",
+        install: "Εγκατάσταση σε κινητό"
+      },
+      en: {
+        desc: "An educational app about CO₂ and climate, featuring a knowledge quiz and a carbon footprint calculator.",
+        quizTitle: "QUIZ",
+        quizSub: "Do you really know what rising CO₂ means and how it affects the climate?",
+        quizBadge: "10 questions",
+        footTitle: "CO₂ Calculator",
+        footSub: "Estimate your own contribution to the rise of CO₂ in the atmosphere.",
+        footBadge: "4 categories",
+        docs: "Documentation",
+        lang: "Switch language",
+        about: "About",
+        install: "Install on phone"
+      }
+    }[lang];
+
+    document.getElementById("homeDesc").textContent = T.desc;
+    document.getElementById("homeQuizTitle").textContent = T.quizTitle;
+    document.getElementById("homeQuizSub").textContent = T.quizSub;
+    document.getElementById("homeQuizBadge").textContent = T.quizBadge;
+
+    document.getElementById("homeFootTitle").textContent = T.footTitle;
+    document.getElementById("homeFootSub").textContent = T.footSub;
+    document.getElementById("homeFootBadge").textContent = T.footBadge;
+
+    document.getElementById("chipDocsText").textContent = T.docs;
+    document.getElementById("chipInstallText").textContent = T.install;
+    document.getElementById("chipLangText").textContent = T.lang;
+    document.getElementById("chipAboutText").textContent = T.about;
+
+    document.getElementById("btnQuiz").addEventListener("click", ()=>go("./pages/quiz.html"));
+    document.getElementById("btnFoot").addEventListener("click", ()=>go("./pages/footprint.html"));
+
+    document.getElementById("chipDocs").addEventListener("click", ()=>go("./pages/info.html"));
+    document.getElementById("chipInstall").addEventListener("click", ()=>go("./pages/install.html"));
+    document.getElementById("chipAbout").addEventListener("click", ()=>go("./pages/about.html"));
+    document.getElementById("chipLang").addEventListener("click", ()=>{
+      const next = (lang === "el") ? "en" : "el";
+      setLang(next);
+      location.reload();
+    });
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => navigator.serviceWorker.register("./service-worker.js"));
     }
-  }[lang];
+  </script>
 
-  document.getElementById("homeDesc").textContent = T.desc;
-  document.getElementById("homeQuizTitle").textContent = T.quizTitle;
-  document.getElementById("homeQuizSub").textContent = T.quizSub;
-  document.getElementById("homeQuizBadge").textContent = T.quizBadge;
-
-  document.getElementById("homeFootTitle").textContent = T.footTitle;
-  document.getElementById("homeFootSub").textContent = T.footSub;
-  document.getElementById("homeFootBadge").textContent = T.footBadge;
-
-  document.getElementById("chipDocsText").textContent = T.docs;
-  document.getElementById("chipInstallText").textContent = T.install;
-  document.getElementById("chipLangText").textContent = T.lang;
-  document.getElementById("chipAboutText").textContent = T.about;
-
-  document.getElementById("btnQuiz").addEventListener("click", ()=>go("./pages/quiz.html"));
-  document.getElementById("btnFoot").addEventListener("click", ()=>go("./pages/footprint.html"));
-
-  document.getElementById("chipDocs").addEventListener("click", ()=>go("./pages/info.html"));
-  document.getElementById("chipInstall").addEventListener("click", ()=>go("./pages/install.html"));
-  document.getElementById("chipAbout").addEventListener("click", ()=>go("./pages/about.html"));
-  document.getElementById("chipLang").addEventListener("click", ()=>{
-    const next = (lang === "el") ? "en" : "el";
-    setLang(next);
-    location.reload();
-  });
-
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => navigator.serviceWorker.register("./service-worker.js"));
-  }
-</script>
-<div aria-hidden="true" class="drawerBackdrop" id="drawerBackdrop"></div>
-<nav aria-hidden="true" class="drawer" id="drawer">
-<div class="drawerHeader">
-<div class="drawerTitle">CO2app</div>
-<button aria-label="Close menu" class="iconBtn" id="drawerClose">×</button>
-</div>
-<div class="drawerSection" id="drawerNav"></div>
-<div class="drawerSection" id="drawerLang"></div>
-</nav>
+  <div aria-hidden="true" class="drawerBackdrop" id="drawerBackdrop"></div>
+  <nav aria-hidden="true" class="drawer" id="drawer">
+    <div class="drawerHeader">
+      <div class="drawerTitle">CO2app</div>
+      <button aria-label="Close menu" class="iconBtn" id="drawerClose">×</button>
+    </div>
+    <div class="drawerSection" id="drawerNav"></div>
+    <div class="drawerSection" id="drawerLang"></div>
+  </nav>
 </body>
 </html>
