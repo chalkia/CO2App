@@ -1,6 +1,9 @@
 let model = null;
 let appConfig = null;
 
+// Fallback fmt αν δεν υπάρχει στο common.js
+const fmt = (window.fmt) ? window.fmt : (n) => (n || 0).toFixed(2);
+
 function val(x){
   if (x === null || x === undefined) return 0;
   if (typeof x === "number") return x;
@@ -25,7 +28,7 @@ function getEffectiveNumber(key, fallback){
 }
 
 function T(){
-  const lang = getLang();
+  const lang = (window.getLang) ? window.getLang() : "el";
   return {
     el: {
       title: "Εκτίμηση Αποτυπώματος CO₂",
@@ -138,8 +141,7 @@ function compute(){
 
   // TRANSPORT
   const weeklyKm = Number(document.getElementById("weeklyKm").value) || 0;
-  const pubPct = Number(document.getElementById("publicPct").value) || 0; // range 0-weeklyKm
-  // Clamp public km to weekly km
+  const pubPct = Number(document.getElementById("publicPct").value) || 0; 
   const kmPublic = Math.min(weeklyKm, pubPct);
   const kmCar = Math.max(0, weeklyKm - kmPublic);
   
@@ -167,9 +169,8 @@ function compute(){
   const diet = document.getElementById("diet").value;
   const dietTons = (val(b.dietKgCO2PerYear_unit) * val(f.diet?.[diet])) / 1000;
 
-  const goodsLvl = Number(document.getElementById("goodsLevel").value); // 0-100
-  // Simplified linear interp for goods
-  const goodsFactor = 0.4 + (goodsLvl/100) * 1.8; // maps 0->0.4, 100->2.2 roughly
+  const goodsLvl = Number(document.getElementById("goodsLevel").value); 
+  const goodsFactor = 0.4 + (goodsLvl/100) * 1.8; 
   const goodsTons = (val(b.goodsKgCO2PerYear_unit) * goodsFactor) / 1000;
 
   const digLvl = Number(document.getElementById("digitalLevel").value);
@@ -198,7 +199,7 @@ function populateSelects(){
     (model.ui?.[key]?.order || []).forEach(k => {
       const opt = document.createElement("option");
       opt.value = k;
-      opt.textContent = model.ui?.[key]?.labels?.[getLang()]?.[k] || k;
+      opt.textContent = model.ui?.[key]?.labels?.[window.getLang ? window.getLang() : "el"]?.[k] || k;
       el.appendChild(opt);
     });
   };
@@ -221,8 +222,21 @@ function updateUI(){
   setTxt("lifeKpi", res.lifestyleTons);
   setTxt("totalVal", res.totalTons);
   
-  // ΔΙΟΡΘΩΣΗ ΕΔΩ: Αφαίρεση του .el ή .en γιατί το t είναι ήδη το αντικείμενο της γλώσσας
   setTxt("socialShareVal", fmt(getEffectiveNumber("socialShare_tCO2_per_year", 1.2)*1000, 0) + " " + t.units.socialShare);
+
+  // --- NEW CODE: Ενημέρωση των κουμπιών πλοήγησης (Pills) ---
+  const updateNavBtn = (id, val) => {
+    const el = document.getElementById(id);
+    if(el) {
+      // Βρίσκουμε το span με την κλάση navVal και το ενημερώνουμε
+      const valSpan = el.querySelector(".navVal");
+      if(valSpan) valSpan.textContent = fmt(val);
+    }
+  };
+  updateNavBtn("navHome", res.homeTons);
+  updateNavBtn("navTransport", res.transportTons);
+  updateNavBtn("navLifestyle", res.lifestyleTons);
+  // ---------------------------------------------------------
 
   // Update dynamic labels for sliders
   const updateLabel = (id, mapFn) => {
@@ -231,16 +245,13 @@ function updateUI(){
     if(el && lbl) lbl.textContent = mapFn(Number(el.value));
   };
 
-  // Digital label
   const digEl = document.getElementById("digitalLevel");
   const digLbl = document.getElementById("digitalLabel");
   if(digEl && digLbl) {
     const v = Number(digEl.value);
-    // ΔΙΟΡΘΩΣΗ ΕΔΩ: t.labels.* αντί για t.el.labels.*
     digLbl.textContent = (v<33)? t.labels.digitalMin : (v>66)? t.labels.digitalMax : t.labels.digitalMid;
   }
   
-  // Public transport km display
   const wkKm = Number(document.getElementById("weeklyKm").value) || 0;
   const pubR = document.getElementById("publicPct");
   if(pubR) {
@@ -252,9 +263,8 @@ function updateUI(){
 }
 
 document.addEventListener("DOMContentLoaded", async ()=>{
-  initLangButtons();
+  if(window.initLangButtons) initLangButtons();
   
-  // Load Config & Model
   try {
     const cReq = await fetch("../config.json?v="+Date.now());
     if(cReq.ok) appConfig = await cReq.json();
@@ -266,7 +276,6 @@ document.addEventListener("DOMContentLoaded", async ()=>{
       model = await mReq.json();
       populateSelects();
       
-      // Translate UI titles
       const t = T();
       const setText = (id, txt) => { const el = document.getElementById(id); if(el) el.textContent = txt; };
       setText("title", t.title);
@@ -274,6 +283,31 @@ document.addEventListener("DOMContentLoaded", async ()=>{
       setText("homeTitle", t.home);
       setText("trTitle", t.transport);
       setText("lifeTitle", t.lifestyle);
+
+      // --- NEW CODE: Αρχικοποίηση των κουμπιών πλοήγησης ---
+      // Φτιάχνουμε το HTML μέσα στα κουμπιά και προσθέτουμε click events
+      const setupNav = (btnId, label, targetCardId) => {
+        const btn = document.getElementById(btnId);
+        if(btn) {
+          // Δομή: Τίτλος πάνω, Τιμή κάτω (με μονάδα t)
+          btn.innerHTML = `
+            <div style="font-size:0.85em; opacity:0.9; line-height:1.2;">${label}</div>
+            <div style="font-weight:bold; font-size:1.1em; line-height:1.2;">
+              <span class="navVal">-</span> <span style="font-size:0.8em">t</span>
+            </div>
+          `;
+          // Όταν πατάμε το κουμπί, σκρολάρει στην αντίστοιχη κάρτα
+          btn.addEventListener("click", () => {
+             const card = document.getElementById(targetCardId);
+             if(card) card.scrollIntoView({behavior: "smooth", inline: "center", block: "nearest"});
+          });
+        }
+      };
+
+      setupNav("navHome", t.home, "cardHome");
+      setupNav("navTransport", t.transport, "cardTransport");
+      setupNav("navLifestyle", t.lifestyle, "cardLifestyle");
+      // -----------------------------------------------------
       
       setText("lblHomeType", t.labels.homeType);
       setText("lblHomeCond", t.labels.homeCond);
@@ -295,7 +329,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
       
       setText("btnCalc", t.labels.calc);
       setText("btnDash", t.labels.dash);
-      setText("lblTotal", "Σύνολο"); // Fallback label if needed
+      setText("lblTotal", (t.labels.total) ? t.labels.total : "Σύνολο");
 
       updateUI();
     } else {
@@ -303,7 +337,6 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     }
   } catch(e){ console.error(e); }
 
-  // Listeners
   document.querySelectorAll("input, select").forEach(el => {
     el.addEventListener("input", updateUI);
     el.addEventListener("change", updateUI);
@@ -316,6 +349,6 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     localStorage.setItem("CO2_HOME_VALUES", JSON.stringify(res.homeValues));
     localStorage.setItem("CO2_TRANSPORT_VALUES", JSON.stringify(res.transportValues));
     localStorage.setItem("CO2_LIFE_VALUES", JSON.stringify(res.lifestyleValues));
-    go("./dashboard.html");
+    location.href = "./dashboard.html";
   });
 });
