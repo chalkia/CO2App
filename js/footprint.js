@@ -220,12 +220,14 @@ function updateUI(){
   setTxt("trKpi", res.transportTons);
   setTxt("lifeKpi", res.lifestyleTons);
   setTxt("totalVal", res.totalTons);
-  setTxt("socialShareVal", fmt(getEffectiveNumber("socialShare_tCO2_per_year", 1.2)*1000, 0) + " " + t.el.units.socialShare);
+  
+  // ΔΙΟΡΘΩΣΗ ΕΔΩ: Αφαίρεση του .el ή .en γιατί το t είναι ήδη το αντικείμενο της γλώσσας
+  setTxt("socialShareVal", fmt(getEffectiveNumber("socialShare_tCO2_per_year", 1.2)*1000, 0) + " " + t.units.socialShare);
 
   // Update dynamic labels for sliders
   const updateLabel = (id, mapFn) => {
     const el = document.getElementById(id);
-    const lbl = document.getElementById(id+"Label") || document.getElementById(id.replace("Level","Label")); // hack for digital
+    const lbl = document.getElementById(id+"Label") || document.getElementById(id.replace("Level","Label"));
     if(el && lbl) lbl.textContent = mapFn(Number(el.value));
   };
 
@@ -234,14 +236,15 @@ function updateUI(){
   const digLbl = document.getElementById("digitalLabel");
   if(digEl && digLbl) {
     const v = Number(digEl.value);
-    digLbl.textContent = (v<33)? t.el.labels.digitalMin : (v>66)? t.el.labels.digitalMax : t.el.labels.digitalMid;
+    // ΔΙΟΡΘΩΣΗ ΕΔΩ: t.labels.* αντί για t.el.labels.*
+    digLbl.textContent = (v<33)? t.labels.digitalMin : (v>66)? t.labels.digitalMax : t.labels.digitalMid;
   }
   
   // Public transport km display
   const wkKm = Number(document.getElementById("weeklyKm").value) || 0;
   const pubR = document.getElementById("publicPct");
   if(pubR) {
-    pubR.max = wkKm; // Update max range dynamically
+    pubR.max = wkKm; 
     const km = Math.min(wkKm, Number(pubR.value));
     const valEl = document.getElementById("publicKmVal");
     if(valEl) valEl.textContent = `${Math.round(km)} km`;
@@ -258,15 +261,42 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   } catch(e){}
 
   try {
-    // Note: User specified filename
     const mReq = await fetch("../assets/footprintModel_final_draft.json?v="+Date.now());
     if(mReq.ok) {
       model = await mReq.json();
       populateSelects();
-      // Translate UI
+      
+      // Translate UI titles
       const t = T();
       const setText = (id, txt) => { const el = document.getElementById(id); if(el) el.textContent = txt; };
-      // ... Apply translations to titles/labels (omitted for brevity, assume similar to input)
+      setText("title", t.title);
+      setText("subtitle", t.subtitle);
+      setText("homeTitle", t.home);
+      setText("trTitle", t.transport);
+      setText("lifeTitle", t.lifestyle);
+      
+      setText("lblHomeType", t.labels.homeType);
+      setText("lblHomeCond", t.labels.homeCond);
+      setText("lblHeating", t.labels.heating);
+      setText("lblOccupants", t.labels.occupants);
+      setText("lblSolarDHW", t.labels.solarDHW);
+      setText("lblHomeUse", t.labels.homeUse);
+      setText("lblWeeklyKm", t.labels.weeklyKm);
+      setText("lblCarType", t.labels.carType);
+      setText("lblAlone", t.labels.alone);
+      setText("lblPublicTransport", t.labels.publicTransport);
+      setText("lblPublicPct", t.labels.publicPct);
+      setText("lblFlightsDomestic", t.labels.flightsDomestic);
+      setText("lblFlightsEurope", t.labels.flightsEurope);
+      setText("lblDiet", t.labels.diet);
+      setText("lblGoodsProfile", t.labels.goodsProfile);
+      setText("lblDigitalLevel", t.labels.digitalLevel);
+      setText("lblSocialShare", t.labels.socialShare);
+      
+      setText("btnCalc", t.labels.calc);
+      setText("btnDash", t.labels.dash);
+      setText("lblTotal", "Σύνολο"); // Fallback label if needed
+
       updateUI();
     } else {
       console.error("Model not found");
