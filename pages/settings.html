@@ -5,18 +5,64 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CO2App – Settings</title>
   <link rel="stylesheet" href="../styles.css">
+  <style>
+    /* Μικρό inline CSS για να φαίνονται όμορφα τα settings μέχρι να τα φτιάξεις στο styles.css */
+    .setting-row { margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
+    .setting-row label { display: block; margin-bottom: 5px; font-weight: bold; }
+    .setting-controls { display: flex; align-items: center; gap: 10px; }
+    .btn-group { margin-top: 20px; display: flex; gap: 10px; }
+    button { padding: 8px 16px; cursor: pointer; }
+    input[type="number"] { padding: 5px; width: 80px; }
+  </style>
 </head>
 <body>
   <div class="container">
     <div class="panel">
       <div class="topbar">
+        <button class="iconBtn" id="backBtn" aria-label="Back">←</button>
         <button class="iconBtn" id="menuBtn" aria-label="Menu"><span class="hamburger"><span></span></span></button>
         <div class="topbarSpacer"></div>
       </div>
+      
       <div class="card">
         <h1 style="margin-top:0;">Settings</h1>
-        <p>Scenario parameters.</p>
-        <div id="settingsContainer"></div> 
+        <p>Scenario parameters (Overrides)</p>
+        
+        <div id="settingsContainer">
+          
+          <div class="setting-row">
+            <label>Grid CI (kgCO2/kWh)</label>
+            <div class="setting-controls">
+              <input type="checkbox" id="ciEnable">
+              <label for="ciEnable" style="font-weight:normal; margin:0;">Enable Override</label>
+              <input type="number" id="ciValue" step="0.01" placeholder="0.25">
+            </div>
+          </div>
+
+          <div class="setting-row">
+            <label>Social Share Goal (tCO2/year)</label>
+            <div class="setting-controls">
+              <input type="checkbox" id="socialEnable">
+              <label for="socialEnable" style="font-weight:normal; margin:0;">Enable Override</label>
+              <input type="number" id="socialValue" step="0.1" placeholder="1.2">
+            </div>
+          </div>
+
+          <div class="setting-row">
+            <label>Metro/Tram Energy (kWh/pkm)</label>
+            <div class="setting-controls">
+              <input type="checkbox" id="metroEnergyEnable">
+              <label for="metroEnergyEnable" style="font-weight:normal; margin:0;">Enable Override</label>
+              <input type="number" id="metroEnergyValue" step="0.01" placeholder="0.05">
+            </div>
+          </div>
+
+          <div class="btn-group">
+            <button id="saveBtn" class="primaryBtn">Save</button>
+            <button id="resetBtn" class="secondaryBtn">Reset</button>
+          </div>
+
+        </div> 
       </div>
     </div>
   </div>
