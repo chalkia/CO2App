@@ -29,7 +29,17 @@ function getEffectiveNumber(key, fallback) {
   return fallback;
 }
 
-// --- 2. ΚΕΙΜΕΝΑ ΚΑΙ ΜΕΤΑΦΡΑΣΕΙΣ ---
+// Helper για ανάγνωση ετικετών από το UI του μοντέλου
+function getUILabel(dim) {
+  const lang = (window.getLang) ? window.getLang() : "el";
+  return (model && model.ui && model.ui[dim] && model.ui[dim].labels) ? model.ui[dim].labels[lang] : null;
+}
+
+function getUIOrder(dim) {
+  return (model && model.ui && model.ui[dim] && Array.isArray(model.ui[dim].order)) ? model.ui[dim].order : [];
+}
+
+// --- 2. ΚΕΙΜΕΝΑ ΚΑΙ ΜΕΤΑΦΡΑΣΕΙΣ (Πλήρεις Τίτλοι) ---
 
 function T() {
   const lang = (window.getLang) ? window.getLang() : "el";
@@ -39,27 +49,28 @@ function T() {
       subtitle: "Τα αποτελέσματα είναι προσεγγιστικά. Δες την Τεκμηρίωση για λεπτομέρειες.",
       home: "Κατοικία",
       transport: "Μεταφορές",
-      lifestyle: "Τρόπος Ζωής",
+      lifestyle: "Τρόπος Ζωής - Διατροφή",
       labels: {
         homeType: "Τύπος κατοικίας",
         homeCond: "Μόνωση / κατάσταση",
         heating: "Θέρμανση",
         occupants: "Άτομα στο σπίτι",
         solarDHW: "Ηλιακός θερμοσίφωνας",
-        homeUse: "Χρήση ηλεκτρικής ενέργειας",
+        homeUse: "Χρήση ηλεκτρικής ενέργειας (εκτός θέρμανσης)",
         weeklyKm: "Διανυόμενα χιλιόμετρα (εβδομαδιαίως)",
         carType: "Κύριο μέσο μετακίνησης",
         publicTransport: "Είδος δημόσιας συγκοινωνίας",
         publicPct: "Ποσοστό χρήσης δημόσιων μέσων",
         alone: "Μετακινούμαι μόνος",
-        flightsDomestic: "Πτήσεις εσωτερικού (έτος)",
-        flightsEurope: "Πτήσεις εξωτερικού (έτος)",
+        flightsDomestic: "Πτήσεις εντός Ελλάδας (ανά έτος)",
+        flightsEurope: "Πτήσεις εντός Ευρώπης (ανά έτος)",
         diet: "Διατροφή",
-        goodsProfile: "Κατανάλωση αγαθών",
-        digitalLevel: "Ψηφιακό αποτύπωμα",
+        goodsProfile: "Κατανάλωση προϊόντων (Ρούχα, ηλεκτρονικά, αγορές & lifestyle)",
+        digitalLevel: "Ψηφιακή κατανάλωση (internet/cloud)",
         socialShare: "Δημόσιες υποδομές",
         calc: "Υπολόγισε",
         dash: "Διαγράμματα",
+        total: "Σύνολο",
         digitalMin: "Χαμηλή (Email, Web)",
         digitalMid: "Μεσαία (Social, Cloud)",
         digitalMax: "Υψηλή (Streaming, AI)"
@@ -73,14 +84,14 @@ function T() {
       subtitle: "Results are approximate. See Documentation for details.",
       home: "Home",
       transport: "Transport",
-      lifestyle: "Lifestyle",
+      lifestyle: "Lifestyle & Diet",
       labels: {
         homeType: "Home type",
         homeCond: "Insulation / condition",
         heating: "Heating",
         occupants: "Occupants",
         solarDHW: "Solar water heater",
-        homeUse: "Electricity use",
+        homeUse: "Electricity use (excluding heating)",
         weeklyKm: "Weekly distance (km)",
         carType: "Main transport mode",
         publicTransport: "Public transport type",
@@ -89,11 +100,12 @@ function T() {
         flightsDomestic: "Domestic flights (year)",
         flightsEurope: "Intl flights (year)",
         diet: "Diet",
-        goodsProfile: "Goods consumption",
+        goodsProfile: "Goods consumption (Clothes, electronics, lifestyle)",
         digitalLevel: "Digital consumption",
         socialShare: "Public services",
         calc: "Calculate",
         dash: "Dashboard",
+        total: "Total",
         digitalMin: "Low (Email, Web)",
         digitalMid: "Medium (Social, Cloud)",
         digitalMax: "High (Streaming, AI)"
@@ -232,7 +244,7 @@ function compute() {
 
 function populateSelects() {
   if (!model) return;
-  const populate = (id, key, labels) => {
+  const populate = (id, key) => {
     const el = document.getElementById(id);
     if (!el) return;
     el.innerHTML = "";
@@ -254,12 +266,10 @@ function populateSelects() {
 function updateUI() {
   const res = compute();
   const t = T();
+  const lang = (window.getLang) ? window.getLang() : "el";
 
-  // Update KPI in card headers
-  const setTxt = (id, v) => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = safeFmt(v);
-  };
+  // KPI Headers
+  const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = safeFmt(v); };
   setTxt("homeKpi", res.homeTons);
   setTxt("trKpi", res.transportTons);
   setTxt("lifeKpi", res.lifestyleTons);
@@ -267,7 +277,7 @@ function updateUI() {
 
   setTxt("socialShareVal", safeFmt(getEffectiveNumber("socialShare_tCO2_per_year", 1.2) * 1000, 0) + " " + t.units.socialShare);
 
-  // Update Navigation Pills (κουμπιά πλοήγησης)
+  // Navigation Pills
   const updateNavBtn = (id, val) => {
     const el = document.getElementById(id);
     if (el) {
@@ -279,20 +289,58 @@ function updateUI() {
   updateNavBtn("navTransport", res.transportTons);
   updateNavBtn("navLifestyle", res.lifestyleTons);
 
-  // Update dynamic labels for sliders
-  const updateLabel = (id, mapFn) => {
-    const el = document.getElementById(id);
-    const lbl = document.getElementById(id + "Label") || document.getElementById(id.replace("Level", "Label"));
-    if (el && lbl) lbl.textContent = mapFn(Number(el.value));
-  };
+  // --- ΕΠΑΝΑΦΟΡΑ ΕΠΕΞΗΓΗΣΕΩΝ (LABELS) ---
 
-  const digEl = document.getElementById("digitalLevel");
-  const digLbl = document.getElementById("digitalLabel");
-  if (digEl && digLbl) {
-    const v = Number(digEl.value);
-    digLbl.textContent = (v < 33) ? t.labels.digitalMin : (v > 66) ? t.labels.digitalMax : t.labels.digitalMid;
+  // 1. Home Condition
+  const homeCondEl = document.getElementById("homeCond");
+  const homeCondLabel = document.getElementById("homeCondLabel");
+  if (homeCondEl && homeCondLabel) {
+    const order = getUIOrder("homeCondition");
+    const labels = getUILabel("homeCondition") || {};
+    const idx = Math.max(0, Math.min(order.length - 1, Math.round(Number(homeCondEl.value) || 0)));
+    const key = order[idx];
+    homeCondLabel.textContent = labels[key] ?? String(key);
   }
 
+  // 2. Home Electricity Use
+  const homeUseEl = document.getElementById("homeUseLevel");
+  const homeUseLabel = document.getElementById("homeUseLabel");
+  if (homeUseEl && homeUseLabel) {
+    const v = Number(homeUseEl.value);
+    const labels = getUILabel("homeUseLevel") || {};
+    const key = (v < 33) ? "min" : (v > 66) ? "max" : "typical";
+    homeUseLabel.textContent = labels[key] ?? "";
+  }
+
+  // 3. Goods Consumption
+  const goodsEl = document.getElementById("goodsLevel");
+  const goodsLabel = document.getElementById("goodsLabel");
+  if (goodsEl && goodsLabel) {
+    const v = Number(goodsEl.value);
+    const labels = getUILabel("goodsLevel4") || {};
+    const key = (v < 17) ? "lvl0" : (v < 50) ? "lvl1" : (v < 84) ? "lvl2" : "lvl3";
+    goodsLabel.textContent = labels[key] ?? "";
+  }
+
+  // 4. Digital Consumption
+  const digEl = document.getElementById("digitalLevel");
+  const digLabel = document.getElementById("digitalLabel");
+  if (digEl && digLabel) {
+    const v = Number(digEl.value);
+    // Προσπάθεια ανάγνωσης από το μοντέλο JSON
+    const labels = getUILabel("digitalLevel") || {};
+    let txt = "";
+    if (Object.keys(labels).length > 0) {
+       txt = (v < 33) ? labels.low : (v > 66) ? labels.high : labels.medium;
+    } 
+    // Fallback στις μεταφράσεις του T() αν δεν υπάρχουν στο JSON
+    if (!txt) {
+       txt = (v < 33) ? t.labels.digitalMin : (v > 66) ? t.labels.digitalMax : t.labels.digitalMid;
+    }
+    digLabel.textContent = txt;
+  }
+
+  // 5. Public Transport KM badge
   const wkKm = Number(document.getElementById("weeklyKm").value) || 0;
   const pubR = document.getElementById("publicPct");
   if (pubR) {
@@ -300,6 +348,24 @@ function updateUI() {
     const km = Math.min(wkKm, Number(pubR.value));
     const valEl = document.getElementById("publicKmVal");
     if (valEl) valEl.textContent = `${Math.round(km)} km`;
+  }
+
+  // --- ΕΠΑΝΑΦΟΡΑ ΣΤΟΧΟΥ Ε.Ε. ---
+  const target = getEffectiveNumber("euTarget_tCO2_per_year", (model && model.targets ? val(model.targets.euTargetTonsPerYear) : 2.5));
+  const rp = document.getElementById("reducePct");
+  if (rp) {
+    if (res.totalTons > target) {
+      const pct = Math.max(0, (1 - (target / res.totalTons)) * 100);
+      rp.textContent = (lang === "en")
+        ? `Needed reduction to reach EU target (${safeFmt(target)} t/yr): ${safeFmt(pct, 0)}%`
+        : `Απαιτούμενη μείωση για τον στόχο ΕΕ (${safeFmt(target)} t/έτος): ${safeFmt(pct, 0)}%`;
+      rp.style.color = "#d9534f"; // Κόκκινο
+    } else {
+      rp.textContent = (lang === "en")
+        ? `You are at or below the EU target (${safeFmt(target)} t/yr).`
+        : `Είσαι εντός στόχου ΕΕ (${safeFmt(target)} t/έτος).`;
+      rp.style.color = "#5cb85c"; // Πράσινο
+    }
   }
 }
 
