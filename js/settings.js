@@ -6,13 +6,59 @@ async function loadConfig(){
   }catch(e){ return null; }
 }
 
-document.addEventListener("DOMContentLoaded", async ()=>{
-  initLangButtons();
+// Λεξικό μεταφράσεων
+const texts = {
+  el: {
+    title: "Ρυθμίσεις",
+    subtitle: "Παράμετροι σεναρίου (παρακάμψεις)",
+    grid: "Ένταση Δικτύου (kgCO2/kWh)",
+    social: "Κοινωνικό Μερίδιο (tCO2/έτος)",
+    metro: "Ενέργεια Μετρό/Τραμ (kWh/pkm)",
+    enable: "Ενεργό",
+    save: "Αποθήκευση",
+    reset: "Επαναφορά",
+    savedMsg: "Οι ρυθμίσεις αποθηκεύτηκαν"
+  },
+  en: {
+    title: "Settings",
+    subtitle: "Scenario parameters (Overrides)",
+    grid: "Grid CI (kgCO2/kWh)",
+    social: "Social Share Goal (tCO2/year)",
+    metro: "Metro/Tram Energy (kWh/pkm)",
+    enable: "Enable",
+    save: "Save",
+    reset: "Reset",
+    savedMsg: "Settings saved"
+  }
+};
+
+function updatePageLanguage() {
+  const lang = (typeof getLang === 'function') ? getLang() : 'el';
+  const t = texts[lang === 'el' ? 'el' : 'en'];
+
+  // Ενημέρωση κειμένων
+  const setText = (id, txt) => { const el = document.getElementById(id); if(el) el.textContent = txt; };
   
-  // Bind UI text (Simulated)
-  const lang = getLang();
-  document.getElementById("saveBtn").textContent = (lang==="el") ? "Αποθήκευση" : "Save";
-  document.getElementById("resetBtn").textContent = (lang==="el") ? "Επαναφορά" : "Reset";
+  setText("pageTitle", t.title);
+  setText("pageSubtitle", t.subtitle);
+  
+  setText("lblGrid", t.grid);
+  setText("lblSocial", t.social);
+  setText("lblMetro", t.metro);
+  
+  setText("lblEn1", t.enable);
+  setText("lblEn2", t.enable);
+  setText("lblEn3", t.enable);
+  
+  setText("saveBtn", t.save);
+  setText("resetBtn", t.reset);
+}
+
+document.addEventListener("DOMContentLoaded", async ()=>{
+  if(typeof initLangButtons === 'function') initLangButtons();
+  
+  // Αρχική ρύθμιση γλώσσας
+  updatePageLanguage();
 
   // Helpers
   const setVal = (id, v) => { const el = document.getElementById(id); if(el) el.value = v; };
@@ -40,7 +86,7 @@ document.addEventListener("DOMContentLoaded", async ()=>{
   loadOv("socialShare_tCO2_per_year", "socialValue", "socialEnable", defaults.social);
   loadOv("metro_tram_kWh_per_pkm", "metroEnergyValue", "metroEnergyEnable", defaults.metro);
 
-  // Save
+  // Save Event
   document.getElementById("saveBtn").addEventListener("click", ()=>{
     const saveOv = (key, elVal, elChk) => {
       const en = getChk(elChk);
@@ -53,10 +99,12 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     saveOv("socialShare_tCO2_per_year", "socialValue", "socialEnable");
     saveOv("metro_tram_kWh_per_pkm", "metroEnergyValue", "metroEnergyEnable");
     
-    alert((lang==="el") ? "Αποθηκεύτηκαν" : "Saved");
+    const lang = (typeof getLang === 'function') ? getLang() : 'el';
+    const msg = texts[lang === 'el' ? 'el' : 'en'].savedMsg;
+    alert(msg);
   });
 
-  // Reset
+  // Reset Event
   document.getElementById("resetBtn").addEventListener("click", ()=>{
     ["gridCI_kgCO2_per_kWh", "socialShare_tCO2_per_year", "metro_tram_kWh_per_pkm"].forEach(k => {
         localStorage.removeItem(k+"_OVERRIDE_ENABLED");
@@ -65,5 +113,8 @@ document.addEventListener("DOMContentLoaded", async ()=>{
     location.reload();
   });
   
-  document.getElementById("backBtn").addEventListener("click", ()=>history.back());
+  // Παρακολούθηση αλλαγής γλώσσας (αν το common.js στέλνει event)
+  window.addEventListener("storage", (e)=>{
+    if (e.key === "lang") updatePageLanguage();
+  });
 });
