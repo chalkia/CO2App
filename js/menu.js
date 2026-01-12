@@ -38,15 +38,12 @@
   };
 
   const ensureDrawerSkeleton = () => {
-    // Check if drawer exists, if not create it dynamically (fallback)
     if (document.getElementById("drawer") && document.getElementById("drawerBackdrop")) {
-      // Re-bind close button just in case
       const closeBtn = document.getElementById("drawerClose");
       if(closeBtn) closeBtn.onclick = closeDrawer;
       return;
     }
 
-    // Create Backdrop
     let backdrop = document.getElementById("drawerBackdrop");
     if (!backdrop){
       backdrop = document.createElement("div");
@@ -57,7 +54,6 @@
     backdrop.setAttribute("aria-hidden","true");
     backdrop.style.display = "none";
 
-    // Create Drawer
     let drawer = document.getElementById("drawer");
     if (!drawer){
       drawer = document.createElement("nav");
@@ -67,7 +63,6 @@
     }
     drawer.setAttribute("aria-hidden","true");
 
-    // Build inner HTML if empty
     if (!drawer.innerHTML.trim()){
       drawer.innerHTML = `
         <div class="drawerHeader">
@@ -85,14 +80,32 @@
     if (!nav) return;
 
     const lang = getLangSafe();
+    // ΠΡΟΣΘΗΚΗ: Ξεχωριστές ετικέτες για Info και About
     const t = {
-      el: {home:"Αρχική", quiz:"Quiz", foot:"Υπολογιστής CO₂", docs:"Τεκμηρίωση", about:"Πληροφορίες", install:"Εγκατάσταση", settings:"Ρυθμίσεις"},
-      en: {home:"Home",   quiz:"Quiz", foot:"Footprint",       docs:"Documentation", about:"Info", install:"Install App", settings:"Settings"}
+      el: {
+        home: "Αρχική", 
+        quiz: "Quiz", 
+        foot: "Υπολογιστής CO₂", 
+        docs: "Τεκμηρίωση", 
+        info: "Πληροφορίες", // Για info.html
+        about: "Σχετικά",    // Για about.html
+        install: "Εγκατάσταση", 
+        settings: "Ρυθμίσεις"
+      },
+      en: {
+        home: "Home",   
+        quiz: "Quiz", 
+        foot: "Footprint",       
+        docs: "Documentation", 
+        info: "Info",        // For info.html
+        about: "About",      // For about.html
+        install: "Install App", 
+        settings: "Settings"
+      }
     }[lang];
 
     const here = pageName();
     const inPages = isPagesDir();
-    // Correct paths based on location
     const base = inPages ? "../" : "./";
     const pagesBase = inPages ? "./" : "./pages/";
 
@@ -100,15 +113,18 @@
       {label:t.home,     href: base + "index.html",      icon:"home"},
       {label:t.quiz,     href: pagesBase + "quiz.html",      icon:"quiz"},
       {label:t.foot,     href: pagesBase + "footprint.html", icon:"co2"},
-      {label:t.docs,     href: inPages ? "./CO2App_Model_v4.html" : "./pages/CO2App_Model_v4.html", icon:"docs"},
-      {label:t.about,    href: pagesBase + "about.html",     icon:"about"},
+      {label:t.docs,     href: pagesBase + "model.html",     icon:"docs"},
+      
+      // ΕΔΩ ΕΙΝΑΙ ΟΙ ΔΥΟ ΣΕΛΙΔΕΣ:
+      {label:t.info,     href: pagesBase + "info.html",      icon:"about"}, // info.html
+      {label:t.about,    href: pagesBase + "about.html",     icon:"about"}, // about.html
+      
       {label:t.settings, href: pagesBase + "settings.html",  icon:"settings"},
       {label:t.install,  href: pagesBase + "install.html",   icon:"install"},
     ];
 
     nav.innerHTML = "";
     const standalone = isStandaloneMode();
-    // Hide install button if already installed (standalone)
     const visibleItems = standalone ? items.filter(x => x.icon !== "install") : items;
 
     const iconBase = inPages ? "../assets/ui/" : "./assets/ui/";
@@ -121,7 +137,6 @@
       const div = document.createElement("div");
       div.className = "drawerItem";
       
-      // Highlight active
       const target = it.href.split("/").pop();
       if (here === target) div.classList.add("active");
 
@@ -136,7 +151,6 @@
       tx.className = "drawerText";
       tx.textContent = it.label;
 
-      // Quiz badge logic
       if (it.icon === "quiz"){
         const qs = localStorage.getItem("quizScore");
         if (qs){
