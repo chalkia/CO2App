@@ -1,3 +1,12 @@
+Πολύ σωστά. Εφόσον καταργήσαμε το `about.html` και ενοποιήσαμε τα πάντα στο `info.html`, πρέπει να ενημερώσουμε την αρχική σελίδα.
+
+Επίσης, παρατήρησα ότι στον κώδικα που έστειλες, το κουμπί της Τεκμηρίωσης (`chipDocs`) οδηγούσε λάθος στο info.html. Το διόρθωσα κι αυτό ώστε να οδηγεί στο **`model.html`**.
+
+Τέλος, πρόσθεσα διακριτικά την ένδειξη **v4.0** στο τέλος της κάρτας, όπως συζητήσαμε.
+
+Ορίστε το διορθωμένο `index.html`:
+
+```html
 <!DOCTYPE html>
 <html lang="el">
 <head>
@@ -56,6 +65,11 @@
           <span id="chipAboutText"></span>
         </button>
       </div>
+
+      <div style="text-align:center; font-size:0.85rem; color:#888; margin-top:1.5rem; opacity:0.7;">
+        v4.0
+      </div>
+
     </div>
   </div>
 
@@ -107,12 +121,18 @@
     document.getElementById("chipLangText").textContent = T.lang;
     document.getElementById("chipAboutText").textContent = T.about;
 
+    // Πλοήγηση
     document.getElementById("btnQuiz").addEventListener("click", ()=>go("./pages/quiz.html"));
     document.getElementById("btnFoot").addEventListener("click", ()=>go("./pages/footprint.html"));
 
-    document.getElementById("chipDocs").addEventListener("click", ()=>go("./pages/info.html"));
+    // ΔΙΟΡΘΩΣΗ: Το Docs πάει στο model.html
+    document.getElementById("chipDocs").addEventListener("click", ()=>go("./pages/model.html"));
+    
     document.getElementById("chipInstall").addEventListener("click", ()=>go("./pages/install.html"));
-    document.getElementById("chipAbout").addEventListener("click", ()=>go("./pages/about.html"));
+    
+    // ΔΙΟΡΘΩΣΗ: Το About πάει πλέον στο info.html
+    document.getElementById("chipAbout").addEventListener("click", ()=>go("./pages/info.html"));
+    
     document.getElementById("chipLang").addEventListener("click", ()=>{
       const next = (lang === "el") ? "en" : "el";
       setLang(next);
@@ -135,3 +155,5 @@
   </nav>
 </body>
 </html>
+
+```
