@@ -80,15 +80,13 @@
     if (!nav) return;
 
     const lang = getLangSafe();
-    // ΠΡΟΣΘΗΚΗ: Ξεχωριστές ετικέτες για Info και About
     const t = {
       el: {
         home: "Αρχική", 
         quiz: "Quiz", 
         foot: "Υπολογιστής CO₂", 
         docs: "Τεκμηρίωση", 
-        info: "Πληροφορίες", // Για info.html
-        about: "Σχετικά",    // Για about.html
+        info: "Πληροφορίες",
         install: "Εγκατάσταση", 
         settings: "Ρυθμίσεις"
       },
@@ -97,8 +95,7 @@
         quiz: "Quiz", 
         foot: "Footprint",       
         docs: "Documentation", 
-        info: "Info",        // For info.html
-        about: "About",      // For about.html
+        info: "Info",
         install: "Install App", 
         settings: "Settings"
       }
@@ -114,11 +111,7 @@
       {label:t.quiz,     href: pagesBase + "quiz.html",      icon:"quiz"},
       {label:t.foot,     href: pagesBase + "footprint.html", icon:"co2"},
       {label:t.docs,     href: pagesBase + "model.html",     icon:"docs"},
-      
-      // ΕΔΩ ΕΙΝΑΙ ΟΙ ΔΥΟ ΣΕΛΙΔΕΣ:
-      {label:t.info,     href: pagesBase + "info.html",      icon:"about"}, // info.html
-      {label:t.about,    href: pagesBase + "about.html",     icon:"about"}, // about.html
-      
+      {label:t.info,     href: pagesBase + "info.html",      icon:"about"},
       {label:t.settings, href: pagesBase + "settings.html",  icon:"settings"},
       {label:t.install,  href: pagesBase + "install.html",   icon:"install"},
     ];
