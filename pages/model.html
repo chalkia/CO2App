@@ -8,31 +8,41 @@
   <link rel="icon" href="../assets/icons/icon-192.png" />
   <link rel="stylesheet" href="../styles.css" />
   <style>
-    .docPage h1, .docPage h2, .docPage h3 { margin-top: 1.2rem; }
-    .docPage h1 { font-size: 1.6rem; }
-    .docPage h2 { font-size: 1.25rem; }
-    .docPage h3 { font-size: 1.05rem; }
-    .docPage p, .docPage li { line-height: 1.55; }
+    /* Styling ειδικά για την τεκμηρίωση ώστε να ταιριάζει με το V4 content */
+    .docPage h1 { font-size: 1.6rem; color: #2f4a31; margin-top: 1.2rem; margin-bottom: 0.5rem; }
+    .docPage h2 { font-size: 1.3rem; color: #2f4a31; margin-top: 2rem; border-bottom: 1px solid #d8ddd8; padding-bottom: 6px; }
+    .docPage h3 { font-size: 1.1rem; color: #2f4a31; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+    .docPage p, .docPage li { line-height: 1.6; color: #1f2a1f; margin-bottom: 10px; }
+    
+    .docPage .pill {
+      display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px;
+      background: rgba(49,78,78,0.08); margin-right: 0.35rem; font-size: 0.9rem; font-weight: bold;
+    }
+    .docPage .note {
+      background: rgba(116,169,116,0.10);
+      border-left: 4px solid #74a974;
+      border-radius: 4px; padding: 0.9rem 1rem; margin: 1.2rem 0; font-size: 0.95rem;
+    }
+    .docPage .warn {
+      background: rgba(255,159,64,0.12);
+      border-left: 4px solid #f56c6c;
+      border-radius: 4px; padding: 0.9rem 1rem; margin: 1.2rem 0; font-size: 0.95rem;
+    }
+    .docPage code { 
+      background: #f4f6f4; color: #d63384; padding: 0.1rem 0.3rem; border-radius: 4px; font-family: monospace; font-size: 0.95em; 
+    }
+    .docPage pre {
+      background: #2d2d2d; color: #f8f8f2; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: monospace; margin: 10px 0;
+    }
+    .docPage table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.9rem; }
+    .docPage th, .docPage td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    .docPage th { background-color: #f2f2f2; color: #333; }
+    
+    .docPage a.inline { text-decoration: none; color: #2f4a31; border-bottom: 1px dashed #2f4a31; }
+    .docPage a.inline:hover { border-bottom: 1px solid #2f4a31; }
 
-    .docPage .pill{
-      display:inline-block; padding:0.15rem 0.6rem; border-radius:999px;
-      background:rgba(49,78,78,0.08); margin-right:0.35rem; font-size:0.9rem;
-    }
-    .docPage .note{
-      background:rgba(116,169,116,0.10);
-      border:1px solid rgba(116,169,116,0.35);
-      border-radius:16px; padding:0.9rem 1rem; margin:0.9rem 0;
-    }
-    .docPage .warn{
-      background:rgba(255,159,64,0.12);
-      border:1px solid rgba(255,159,64,0.40);
-      border-radius:16px; padding:0.9rem 1rem; margin:0.9rem 0;
-    }
-    .docPage a.inline{ text-decoration:none; border-bottom:1px dashed rgba(49,78,78,0.55); }
-    .docPage code{ background:rgba(49,78,78,0.06); padding:0.1rem 0.3rem; border-radius:8px; font-size:0.95em; }
-
-    .langBlock{ display:none; }
-    .langBlock.active{ display:block; }
+    .langBlock { display: none; }
+    .langBlock.active { display: block; }
   </style>
 </head>
 <body>
@@ -47,140 +57,188 @@
         <div class="docPage">
 
           <div id="doc-el" class="langBlock">
-            <h1>Τεκμηρίωση Μοντέλου Υπολογισμού (v4)</h1>
+            <h1>Τεκμηρίωση Μοντέλου (v4)</h1>
 
             <div class="note">
-              <strong>Σκοπός:</strong> Η CO2App είναι εκπαιδευτικό εργαλείο που εκτιμά το ανθρακικό αποτύπωμα (kg ή t CO₂/έτος)
-              από καθημερινές δραστηριότητες ενός νοικοκυριού/ατόμου, με απλό αλλά αξιόπιστο τρόπο.
+              <strong>Σκοπός:</strong> Η CO2App είναι εκπαιδευτικό εργαλείο που εκτιμά το ανθρακικό αποτύπωμα (kg ή t CO₂/έτος) από καθημερινές δραστηριότητες, με απλό αλλά αξιόπιστο τρόπο.
             </div>
 
             <p>
-              Η τεκμηρίωση χωρίζεται σε δύο μέρη:
-              <span class="pill">Μοντέλο</span> (αυτή η σελίδα) και
-              <span class="pill">Σταθερές &amp; Βιβλιογραφία</span> (προχωρημένη επέκταση).
-            </p>
-
-            <p>
-              Για τον πλήρη πίνακα σταθερών και τις παραπομπές, δες:
+              Η τεκμηρίωση αφορά το μαθηματικό μοντέλο και τις παραδοχές. Για τον πλήρη πίνακα σταθερών και τις παραπομπές, δείτε τη σελίδα:
               <a class="inline" href="values.html">Σταθερές και Βιβλιογραφία</a>.
             </p>
 
-            <h2>1. Βασικές αρχές</h2>
+            <h2>1. Σκοπός και Φιλοσοφία</h2>
+            <p>Η εφαρμογή εκτιμά το <strong>ετήσιο ατομικό ανθρακικό αποτύπωμα</strong> με βάση επιλογές για την <strong>κατοικία</strong>, τις <strong>μεταφορές</strong> και τον <strong>τρόπο ζωής</strong>.</p>
+            <p>Σχεδιάστηκε ώστε:</p>
             <ul>
-              <li>Το αποτύπωμα υπολογίζεται ως άθροισμα επιμέρους κατηγοριών: <code>Housing + Transport + Food + Lifestyle + Digital + Social</code>.</li>
-              <li>Οι μονάδες είναι <strong>kg CO₂/έτος</strong> (και μετατροπή σε <strong>t CO₂/έτος</strong> όπου χρειάζεται).</li>
-              <li>Ο στόχος αναφοράς για βιώσιμο τρόπο ζωής είναι <strong>2.5 tCO₂ / άτομο / έτος</strong>.</li>
-              <li>Οι υπολογισμοί της εφαρμογής αναφέρονται <strong>κυρίως στην Ελλάδα του 2025</strong>, ιδιαίτερα ως προς την ένταση άνθρακα του ηλεκτρικού δικτύου (Carbon Intensity).</li>
-              <li>Για την κατηγορία <em>Κατοικία</em>, οι υπολογισμοί κανονικοποιούνται ως προς <strong>κατοικία αναφοράς 100 m²</strong>, ώστε να επιτρέπονται συγκρίσεις μεταξύ νοικοκυριών.</li>
+              <li>Να αποτυπώνει <strong>τάξεις μεγέθους</strong> και να επιτρέπει συγκρίσεις.</li>
+              <li>Να καθιστά ορατή τη <strong>σχετική βαρύτητα</strong> διαφορετικών επιλογών.</li>
+              <li>Να είναι <strong>διαφανής</strong> (ανοιχτές σταθερές).</li>
+              <li>Να υποστηρίζει <strong>σενάρια</strong> (what-if).</li>
             </ul>
 
-            <div class="warn">
-              <strong>Σημείωση:</strong> Η CO2App δεν επιχειρεί την πλήρη και λεπτομερή καταμέτρηση όλων των επιμέρους εκπομπών CO₂ του μαθητή-χρήστη.
-              <br><br>
-              Αντίθετα, η εφαρμογή επιδιώκει να <strong>κατατάξει τον χρήστη σε αντιπροσωπευτικές κατηγορίες συμπεριφοράς</strong>, οι οποίες αντιστοιχούν σε τυπικά επίπεδα εκπομπών.
-              <br><br>
-              Το μοντέλο βασίζεται σε <strong>τεκμηριωμένους μέσους όρους</strong>, αλλά περιλαμβάνει συνειδητές απλουστεύσεις με στόχο τη διδακτική σαφήνεια.
-            </div>
-
-            <div class="note">
-              <strong>Διερεύνηση σεναρίων:</strong> Η εφαρμογή παρέχει τη δυνατότητα τροποποίησης βασικών σταθερών του μοντέλου, ώστε οι χρήστες να μπορούν να <strong>διερευνήσουν εναλλακτικά σενάρια</strong>.
-            </div>
-
-            <h2>2. Μαθηματική μορφή</h2>
-            <p>Για κάθε δραστηριότητα εφαρμόζεται η γενική σχέση: <code>Εκπομπές = Δραστηριότητα × Συντελεστής</code>.</p>
-            <p><code>CO2_total = CO2_housing + CO2_transport + CO2_food + CO2_goods + CO2_digital + CO2_social</code></p>
+            <h2>2. Βασική Δομή Υπολογισμού</h2>
+            <p>Το συνολικό ετήσιο αποτύπωμα ορίζεται ως:</p>
+            <pre>CO2_total = CO2_housing + CO2_transport + CO2_lifestyle</pre>
+            <p>Οι τιμές υπολογίζονται σε kg CO₂/έτος και μετατρέπονται σε τόνους (t) για την τελική παρουσίαση.</p>
 
             <h2>3. Κατοικία (Housing)</h2>
-            <ul>
-              <li><strong>Θερμικές ανάγκες:</strong> <code>kWh/m²·έτος</code> (Νότια Ελλάδα).</li>
-              <li><strong>Ηλεκτρική κατανάλωση:</strong> Μέσες τιμές αναφοράς (ΕΛΣΤΑΤ/ΕΕ).</li>
-              <li><strong>Αντλία θερμότητας:</strong> Ενσωματωμένη στους συντελεστές απόδοσης.</li>
-            </ul>
+            <p>Αναφέρεται σε μέσο διαμέρισμα <strong>100 m²</strong> (τυπική αναφορά) και περιλαμβάνει:</p>
+
+            <h3>3.1 Θέρμανση χώρου</h3>
+            <p>Εξαρτάται από τις θερμικές ανάγκες (kWh/έτος), τον τύπο κατοικίας και το μέσο θέρμανσης.</p>
+            <pre>CO2_heating = (HeatingDemand_kWh × HomeTypeMultiplier / 1000) × HeatingIntensity</pre>
+            <div class="note">
+              <strong>Σημείωση:</strong> Η απόδοση (π.χ. SCOP αντλίας θερμότητας) είναι ενσωματωμένη στους συντελεστές έντασης, για απλούστευση προς τον χρήστη.
+            </div>
+
+            <h3>3.2 Ηλεκτρική κατανάλωση &amp; ΖΝΧ</h3>
+            <p>Η λοιπή ηλεκτρική κατανάλωση (φωτισμός, συσκευές) και το Ζεστό Νερό Χρήσης (DHW) υπολογίζονται ξεχωριστά:</p>
+            <pre>CO2_homeElec = HomeElec_kWh × Grid_Intensity / 1000</pre>
+            <pre>CO2_DHW = (DHW_kWh_per_person × Occupants) × Grid_Intensity / 1000</pre>
+
+            <h3>3.3 Κατανομή ανά ένοικο</h3>
+            <p>Το τελικό αποτύπωμα κατοικίας διαιρείται με τον αριθμό ενοίκων:</p>
+            <pre>CO2_housing = (CO2_heating + CO2_homeElec + CO2_DHW) / Occupants</pre>
 
             <h2>4. Μεταφορές (Transport)</h2>
+            
+            <h3>4.1 Χερσαίες μετακινήσεις</h3>
+            <p>Υπολογίζονται βάσει της εβδομαδιαίας απόστασης (km) και του μέσου μεταφοράς.</p>
+            <pre>CO2_road = (km_private × EF_private + km_public × EF_public) × 52 / 1000</pre>
             <ul>
-              <li><strong>ΙΧ:</strong> Συντελεστές <code>kg CO₂/km</code> (βενζίνη, diesel, EV).</li>
-              <li><strong>EV:</strong> Εξαρτώνται από το ενεργειακό μίγμα της χώρας.</li>
+              <li>Για τα <strong>ΙΧ</strong>, λαμβάνεται υπόψη αν ο χρήστης μετακινείται μόνος (διαίρεση δια 1) ή με άλλους (διαίρεση δια 2 κατά παραδοχή).</li>
+              <li>Για τα <strong>Ηλεκτρικά (EV)</strong> και το <strong>Μετρό</strong>, οι εκπομπές εξαρτώνται από το ενεργειακό μίγμα της χώρας (Grid Intensity).</li>
             </ul>
 
-            <h2>5. Διατροφή (Food)</h2>
-            <p>Πολλαπλασιαστές (βάση 1.0): Vegan (0.5), Vegetarian (0.65), Mediterranean (0.85), Beef-heavy (1.4).</p>
+            <h3>4.2 Αεροπορικά ταξίδια</h3>
+            <p>Βασίζονται σε τυπικές μέσες αποστάσεις για εσωτερικό (Domestic) και εξωτερικό (Europe):</p>
+            <pre>CO2_flights = (Trips_Dom × Dist_Dom × EF + Trips_EU × Dist_EU × EF) / 1000</pre>
 
-            <h2>6. Αγαθά &amp; Κατανάλωση</h2>
-            <p>Εκπαιδευτικός slider με τιμές αναφοράς: 0.4, 1.0, 2.2 tCO₂.</p>
+            <h2>5. Τρόπος Ζωής (Lifestyle)</h2>
 
-            <h2>7. Ψηφιακό &amp; Κοινωνικό Αποτύπωμα</h2>
-            <p>Συμπεριλαμβάνονται για εκπαιδευτικούς λόγους και για την ανάδειξη της δημοκρατικής ευθύνης.</p>
+            <h3>5.1 Διατροφή</h3>
+            <p>Η διατροφή προσεγγίζεται μέσω προφίλ που εφαρμόζουν συντελεστή σε μια "Τυπική" διατροφή αναφοράς (~2.0 tCO₂):</p>
+            <table>
+              <thead><tr><th>Προφίλ</th><th>Συντελεστής</th><th>Περιγραφή</th></tr></thead>
+              <tbody>
+                <tr><td>Vegan</td><td><strong>0.50</strong></td><td>Φυτική διατροφή</td></tr>
+                <tr><td>Vegetarian</td><td><strong>0.65</strong></td><td>Γαλακτοκομικά/αυγά, όχι κρέας</td></tr>
+                <tr><td>Mediterranean</td><td><strong>0.85</strong></td><td>Χαμηλή κατανάλωση κόκκινου κρέατος</td></tr>
+                <tr><td>Typical (Mixed)</td><td><strong>1.00</strong></td><td>Μέση τυπική διατροφή</td></tr>
+                <tr><td>Meat-heavy</td><td><strong>1.40</strong></td><td>Υψηλή κατανάλωση βοδινού</td></tr>
+              </tbody>
+            </table>
+
+            <h3>5.2 Αγαθά &amp; Ψηφιακό Αποτύπωμα</h3>
+            <p>Υπολογίζονται μέσω sliders που αυξομειώνουν μια τυπική τιμή βάσης:</p>
+            <pre>CO2_goods = Base_Goods_kg × Goods_Factor / 1000
+CO2_digital = Base_Digital_kg × Digital_Factor / 1000</pre>
+
+            <h2>6. Κοινωνικό Μερίδιο (Social Share)</h2>
+            <p>Εκφράζει τις εκπομπές από δημόσιες υπηρεσίες και υποδομές που αναλογούν σε κάθε πολίτη. Είναι σταθερό ποσό.</p>
+            <pre>CO2_social = SocialShare_kg / 1000</pre>
+
+            <h2>7. Στόχος ΕΕ (2030)</h2>
+            <p>Ως τιμή αναφοράς για βιώσιμο τρόπο ζωής τίθεται ο στόχος:</p>
+            <ul><li><strong>2.50 tCO₂ / άτομο / έτος</strong></li></ul>
 
             <div class="note">
-              <strong>Πηγές &amp; σταθερές:</strong> Δες τη σελίδα <a class="inline" href="values.html">Σταθερές και Βιβλιογραφία</a>.
+              Περισσότερες λεπτομέρειες για τις πηγές στο αρχείο <a class="inline" href="values.html">Σταθερές και Βιβλιογραφία</a>.
             </div>
           </div>
 
           <div id="doc-en" class="langBlock">
-            <h1>Calculation Model Documentation (v4)</h1>
+            <h1>Model Documentation (v4)</h1>
 
             <div class="note">
-              <strong>Purpose:</strong> CO2App is an educational tool that estimates the carbon footprint (kg or t CO₂/year)
-              from daily activities of a household/individual, in a simple yet reliable way.
+              <strong>Purpose:</strong> CO2App is an educational tool estimating the annual carbon footprint (kg or t CO₂/year) based on daily activities, in a simple yet reliable way.
             </div>
 
             <p>
-              This documentation is divided into two parts:
-              <span class="pill">Model</span> (this page) and
-              <span class="pill">Values &amp; References</span> (advanced extension).
-            </p>
-
-            <p>
-              For the complete table of constants and references, see:
+              This documentation covers the mathematical model and assumptions. For the full table of constants and references, please see:
               <a class="inline" href="values.html">Values &amp; References</a>.
             </p>
 
-            <h2>1. Core principles</h2>
+            <h2>1. Purpose &amp; Philosophy</h2>
+            <p>The app estimates <strong>individual annual carbon footprint</strong> based on choices regarding <strong>housing</strong>, <strong>transport</strong>, and <strong>lifestyle</strong>.</p>
+            <p>Designed to:</p>
             <ul>
-              <li>The carbon footprint is calculated as the sum of individual categories: <code>Housing + Transport + Food + Lifestyle + Digital + Social</code>.</li>
-              <li>Units are expressed in <strong>kg CO₂/year</strong> (convertible to <strong>t CO₂/year</strong> where appropriate).</li>
-              <li>Reference target for a sustainable lifestyle: <strong>2.5 tCO₂ / person / year</strong>.</li>
-              <li>Calculations mainly refer to <strong>Greece in 2025</strong>.</li>
-              <li>Housing calculations are normalized to a <strong>100 m² reference dwelling</strong>.</li>
+              <li>Illustrate <strong>orders of magnitude</strong> and allow comparisons.</li>
+              <li>Highlight the <strong>relative weight</strong> of different choices.</li>
+              <li>Be <strong>transparent</strong> (open constants).</li>
+              <li>Support <strong>what-if scenarios</strong>.</li>
             </ul>
 
-            <div class="warn">
-              <strong>Note:</strong> CO2App does not attempt a full and detailed accounting of all individual emissions. Instead, it classifies users into representative behavioral categories using documented averages and intentional simplifications for didactic clarity.
-            </div>
-
-            <div class="note">
-              <strong>Scenario exploration:</strong> The application allows the modification of basic model constants so that users can <strong>explore alternative scenarios</strong>.
-            </div>
-
-            <h2>2. Mathematical structure</h2>
-            <p><code>Emissions = Activity × Factor</code></p>
-            <p><code>CO2_total = CO2_housing + CO2_transport + CO2_food + CO2_goods + CO2_digital + CO2_social</code></p>
+            <h2>2. Calculation Structure</h2>
+            <p>Total annual footprint is defined as:</p>
+            <pre>CO2_total = CO2_housing + CO2_transport + CO2_lifestyle</pre>
+            <p>Values are calculated in kg CO₂/year and converted to tons (t) for display.</p>
 
             <h2>3. Housing</h2>
-            <ul>
-              <li><strong>Thermal needs:</strong> <code>kWh/m²·year</code> (Southern Greece).</li>
-              <li><strong>Electricity:</strong> Reference averages (ELSTAT/EU).</li>
-              <li><strong>Heat pump:</strong> Efficiency incorporated in factors.</li>
-            </ul>
+            <p>Refers to a standard <strong>100 m²</strong> apartment reference and includes:</p>
+
+            <h3>3.1 Space Heating</h3>
+            <p>Depends on thermal needs (kWh/year), home type, and heating source.</p>
+            <pre>CO2_heating = (HeatingDemand_kWh × HomeTypeMultiplier / 1000) × HeatingIntensity</pre>
+            <div class="note">
+              <strong>Note:</strong> Efficiency (e.g., Heat Pump SCOP) is integrated into the intensity factors for simplicity.
+            </div>
+
+            <h3>3.2 Electricity &amp; DHW</h3>
+            <p>Other electricity consumption (appliances, lighting) and Domestic Hot Water (DHW) are calculated separately:</p>
+            <pre>CO2_homeElec = HomeElec_kWh × Grid_Intensity / 1000</pre>
+            <pre>CO2_DHW = (DHW_kWh_per_person × Occupants) × Grid_Intensity / 1000</pre>
+
+            <h3>3.3 Allocation per occupant</h3>
+            <p>The final housing footprint is divided by the number of occupants:</p>
+            <pre>CO2_housing = (CO2_heating + CO2_homeElec + CO2_DHW) / Occupants</pre>
 
             <h2>4. Transport</h2>
+            
+            <h3>4.1 Land Transport</h3>
+            <p>Calculated based on weekly distance (km) and mode of transport.</p>
+            <pre>CO2_road = (km_private × EF_private + km_public × EF_public) × 52 / 1000</pre>
             <ul>
-              <li><strong>Car:</strong> Factors in <code>kg CO₂/km</code> (petrol, diesel, EV).</li>
-              <li><strong>EV:</strong> Depends on grid carbon intensity.</li>
+              <li>For <strong>Cars</strong>, we consider if the user travels alone (divide by 1) or carpools (divide by 2, assumption).</li>
+              <li>For <strong>EVs</strong> and <strong>Metro/Tram</strong>, emissions depend on the national Grid Intensity.</li>
             </ul>
 
-            <h2>5. Diet (Food)</h2>
-            <p>Multipliers (base 1.0): Vegan (0.5), Vegetarian (0.65), Mediterranean (0.85), Beef-heavy (1.4).</p>
+            <h3>4.2 Air Travel</h3>
+            <p>Based on typical average distances for Domestic and European flights:</p>
+            <pre>CO2_flights = (Trips_Dom × Dist_Dom × EF + Trips_EU × Dist_EU × EF) / 1000</pre>
 
-            <h2>6. Goods &amp; Consumption</h2>
-            <p>Educational slider reference values: 0.4, 1.0, 2.2 tCO₂.</p>
+            <h2>5. Lifestyle</h2>
 
-            <h2>7. Digital &amp; Social Footprint</h2>
-            <p>Included for educational purposes and to highlight civic responsibility.</p>
+            <h3>5.1 Diet</h3>
+            <p>Diet is approximated via profiles applying a factor to a "Typical" reference diet (~2.0 tCO₂):</p>
+            <table>
+              <thead><tr><th>Profile</th><th>Factor</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr><td>Vegan</td><td><strong>0.50</strong></td><td>Plant-based</td></tr>
+                <tr><td>Vegetarian</td><td><strong>0.65</strong></td><td>Dairy/eggs, no meat</td></tr>
+                <tr><td>Mediterranean</td><td><strong>0.85</strong></td><td>Low red meat consumption</td></tr>
+                <tr><td>Typical (Mixed)</td><td><strong>1.00</strong></td><td>Average mixed diet</td></tr>
+                <tr><td>Meat-heavy</td><td><strong>1.40</strong></td><td>High beef consumption</td></tr>
+              </tbody>
+            </table>
+
+            <h3>5.2 Goods &amp; Digital Footprint</h3>
+            <p>Calculated via sliders adjusting a base typical value:</p>
+            <pre>CO2_goods = Base_Goods_kg × Goods_Factor / 1000
+CO2_digital = Base_Digital_kg × Digital_Factor / 1000</pre>
+
+            <h2>6. Social Share</h2>
+            <p>Represents emissions from public services and infrastructure allocated to each citizen. It is a fixed amount.</p>
+            <pre>CO2_social = SocialShare_kg / 1000</pre>
+
+            <h2>7. EU Target (2030)</h2>
+            <p>The reference target for a sustainable lifestyle is set at:</p>
+            <ul><li><strong>2.50 tCO₂ / person / year</strong></li></ul>
 
             <div class="note">
-              <strong>Sources &amp; constants:</strong> See <a class="inline" href="values.html">Values &amp; References</a>.
+              More details on sources in <a class="inline" href="values.html">Values &amp; References</a>.
             </div>
           </div>
 
