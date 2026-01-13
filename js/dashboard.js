@@ -12,7 +12,7 @@
     const userTotal = Number(localStorage.getItem("USER_TOTAL")) || 0;
     const euTarget = Number(localStorage.getItem("EU_TARGET")) || 2.5;
 
-    // 2. Κείμενα UI
+    // 2. Κείμενα UI & PDF (Πλήρως Μεταφρασμένα)
     const lang = getLang();
     const T = {
       el: {
@@ -23,13 +23,16 @@
         transTitle: "Μεταφορές",
         lifeTitle: "Τρόπος Ζωής",
         back: "Επιστροφή",
-        downloadPdf: "Λήψη PDF (Αναφορά)",
+        downloadPdf: "Λήψη / Κοινοποίηση PDF",
         generating: "Δημιουργία...",
         reportHeader: "Αναφορά Ανθρακικού Αποτυπώματος",
         reportDate: "Ημερομηνία: ",
         totalSection: "Συνολικά Αποτελέσματα",
+        pdfUser: "Χρήστης",      // Διορθωμένο
+        pdfTarget: "Στόχος ΕΕ",  // Διορθωμένο
+        totalKw: "Σύνολο",       // Διορθωμένο
         chartLabels: {
-          home: ["Θέρμανση", "ΖΝΧ", "Συσκευές"], // Μίκρυνα λίγο τα κείμενα για να χωράνε
+          home: ["Θέρμανση", "ΖΝΧ", "Συσκευές"],
           trans: ["ΙΧ", "Δημόσια", "Πτήσεις Εσ.", "Πτήσεις Εξ."],
           life: ["Διατροφή", "Αγαθά", "Digital", "Υποδομές"]
         }
@@ -42,11 +45,14 @@
         transTitle: "Transport",
         lifeTitle: "Lifestyle",
         back: "Back",
-        downloadPdf: "Download PDF Report",
+        downloadPdf: "Download / Share PDF",
         generating: "Generating...",
         reportHeader: "Carbon Footprint Report",
         reportDate: "Date: ",
         totalSection: "Total Results",
+        pdfUser: "User",
+        pdfTarget: "EU Target",
+        totalKw: "Total",
         chartLabels: {
           home: ["Heating", "DHW", "Appliances"],
           trans: ["Car", "Public", "Dom. Flights", "Intl. Flights"],
@@ -71,32 +77,24 @@
     document.getElementById("kpiUserVal").textContent = fmt(userTotal);
     document.getElementById("kpiTargetVal").textContent = fmt(euTarget);
 
-    // 3. Διαγράμματα με ΕΜΦΑΝΕΙΣ ΕΤΙΚΕΤΕΣ
+    // 3. Διαγράμματα
     const pieOpt = (data, colorPalette) => ({
       tooltip: { trigger: 'item', formatter: '{b}: {c} t ({d}%)' },
       animation: false, 
       color: colorPalette,
       series: [{
         type: 'pie',
-        // Μειωμένη ακτίνα (35%-55%) για να αφήσει χώρο στις ετικέτες γύρω-γύρω
         radius: ['35%', '55%'], 
         avoidLabelOverlap: true,
         itemStyle: { borderRadius: 4, borderColor: '#fff', borderWidth: 2 },
-        
-        // Ρυθμίσεις Ετικετών (Labels)
         label: { 
-          show: true,            // Εμφάνιση ετικέτας
-          position: 'outside',   // Έξω από την πίτα
-          formatter: '{b}\n{d}%', // Εμφάνιση: Όνομα (αλλαγή γραμμής) Ποσοστό
-          color: '#333',         // Χρώμα κειμένου
-          fontSize: 11           // Μέγεθος γραμματοσειράς
-        },
-        labelLine: {
           show: true,
-          length: 10,
-          length2: 10
+          position: 'outside',
+          formatter: '{b}\n{d}%',
+          color: '#333',
+          fontSize: 11
         },
-        
+        labelLine: { show: true, length: 10, length2: 10 },
         data: data
       }]
     });
@@ -114,7 +112,6 @@
       window.addEventListener("resize", ()=>ch.resize());
     };
 
-    // Χρώματα
     const cHome = ['#e6a23c', '#f56c6c', '#409eff'];
     const cTrans = ['#409eff', '#67c23a', '#e6a23c', '#f56c6c'];
     const cLife = ['#67c23a', '#e6a23c', '#409eff', '#909399'];
@@ -123,7 +120,7 @@
     initChart("pieTransport", T.chartLabels.trans, transVals, cTrans);
     initChart("pieLife", T.chartLabels.life, lifeVals, cLife);
 
-    // --- ΛΕΙΤΟΥΡΓΙΑ PDF ---
+    // --- ΛΕΙΤΟΥΡΓΙΑ PDF ΜΕ SHARE & ΣΕΛΙΔΟΠΟΙΗΣΗ ---
     if(pdfBtn) {
       pdfBtn.onclick = async () => {
         if(!window.html2canvas || !window.jspdf) {
@@ -139,7 +136,8 @@
           const reportDiv = document.createElement("div");
           reportDiv.style.position = "absolute";
           reportDiv.style.left = "-9999px";
-          reportDiv.style.width = "700px";
+          // Σταθερό πλάτος A4
+          reportDiv.style.width = "700px"; 
           reportDiv.style.background = "#fff";
           reportDiv.style.color = "#000";
           reportDiv.style.padding = "40px";
@@ -147,11 +145,11 @@
           
           const listIt = (label, val) => `<li style="margin-bottom:4px;"><strong>${label}:</strong> ${fmt(val)} t CO₂</li>`;
           
-          // Λήψη εικόνων (τώρα θα έχουν και labels!)
           const imgHome = chartInstances["pieHome"] ? chartInstances["pieHome"].getDataURL({pixelRatio: 2, backgroundColor: '#fff'}) : "";
           const imgTrans = chartInstances["pieTransport"] ? chartInstances["pieTransport"].getDataURL({pixelRatio: 2, backgroundColor: '#fff'}) : "";
           const imgLife = chartInstances["pieLife"] ? chartInstances["pieLife"].getDataURL({pixelRatio: 2, backgroundColor: '#fff'}) : "";
 
+          // Δημιουργία HTML Αναφοράς
           reportDiv.innerHTML = `
             <h1 style="color:#2e8b57; border-bottom:2px solid #2e8b57; padding-bottom:10px;">${T.reportHeader}</h1>
             <p style="color:#666; margin-bottom:30px;">${T.reportDate} ${new Date().toLocaleDateString()}</p>
@@ -159,8 +157,8 @@
             <div style="background:#f0f9eb; padding:15px; border-radius:8px; margin-bottom:30px;">
               <h2 style="margin-top:0;">${T.totalSection}</h2>
               <p style="font-size:1.2em;">
-                User: <strong>${fmt(userTotal)}</strong> t CO₂/yr <br>
-                EU Target (2030): <strong>${fmt(euTarget)}</strong> t CO₂/yr
+                ${T.pdfUser}: <strong>${fmt(userTotal)}</strong> t CO₂/yr <br>
+                ${T.pdfTarget}: <strong>${fmt(euTarget)}</strong> t CO₂/yr
               </p>
             </div>
 
@@ -171,7 +169,7 @@
                 ${listIt(T.chartLabels.home[1], homeVals[1])}
                 ${listIt(T.chartLabels.home[2], homeVals[2])}
                 <br>
-                <li><strong>Total: ${fmt(homeVals.reduce((a,b)=>a+b,0))} t</strong></li>
+                <li><strong>${T.totalKw}: ${fmt(homeVals.reduce((a,b)=>a+b,0))} t</strong></li>
               </ul>
               <img src="${imgHome}" style="width:250px; height:auto;" />
             </div>
@@ -184,7 +182,7 @@
                 ${listIt(T.chartLabels.trans[2], transVals[2])}
                 ${listIt(T.chartLabels.trans[3], transVals[3])}
                 <br>
-                <li><strong>Total: ${fmt(transVals.reduce((a,b)=>a+b,0))} t</strong></li>
+                <li><strong>${T.totalKw}: ${fmt(transVals.reduce((a,b)=>a+b,0))} t</strong></li>
               </ul>
               <img src="${imgTrans}" style="width:250px; height:auto;" />
             </div>
@@ -197,7 +195,7 @@
                 ${listIt(T.chartLabels.life[2], lifeVals[2])}
                 ${listIt(T.chartLabels.life[3], lifeVals[3])}
                 <br>
-                <li><strong>Total: ${fmt(lifeVals.reduce((a,b)=>a+b,0))} t</strong></li>
+                <li><strong>${T.totalKw}: ${fmt(lifeVals.reduce((a,b)=>a+b,0))} t</strong></li>
               </ul>
               <img src="${imgLife}" style="width:250px; height:auto;" />
             </div>
@@ -209,18 +207,54 @@
 
           document.body.appendChild(reportDiv);
 
+          // 1. Δημιουργία Εικόνας
           const canvas = await html2canvas(reportDiv, { scale: 2 });
           document.body.removeChild(reportDiv); 
 
+          // 2. Δημιουργία PDF
           const { jsPDF } = window.jspdf;
           const pdf = new jsPDF('p', 'mm', 'a4');
           
-          const imgData = canvas.toDataURL('image/png');
-          const pdfWidth = 210; 
-          const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+          const imgWidth = 210; 
+          const pageHeight = 297; 
+          const imgHeight = (canvas.height * imgWidth) / canvas.width;
+          let heightLeft = imgHeight;
+          let position = 0;
 
-          pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-          pdf.save('CO2_Report.pdf');
+          const imgData = canvas.toDataURL('image/png');
+
+          // Πρώτη σελίδα
+          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+
+          // Προσθήκη επόμενων σελίδων (αν υπάρχει σημαντικό υπόλοιπο > 1mm)
+          while (heightLeft >= 1) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+          }
+
+          // --- ΔΙΑΜΟΙΡΑΣΜΟΣ (SHARE) ---
+          const pdfBlob = pdf.output('blob');
+          const file = new File([pdfBlob], "CO2_Report.pdf", { type: "application/pdf" });
+
+          // Έλεγχος αν η συσκευή υποστηρίζει Share
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({
+                files: [file],
+                title: T.reportHeader,
+                text: "Here is my CO2 footprint report."
+              });
+            } catch (error) {
+              // Αν αποτύχει ή ακυρωθεί, δοκιμάζουμε λήψη (fallback)
+              if (error.name !== 'AbortError') pdf.save('CO2_Report.pdf');
+            }
+          } else {
+            // Αν δεν υποστηρίζεται Share (π.χ. PC), κάνε λήψη
+            pdf.save('CO2_Report.pdf');
+          }
 
         } catch(err) {
           console.error(err);
