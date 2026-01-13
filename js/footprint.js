@@ -3,7 +3,6 @@ let appConfig = null;
 
 // --- 1. ΒΟΗΘΗΤΙΚΕΣ ΣΥΝΑΡΤΗΣΕΙΣ ---
 
-// Χρησιμοποιούμε safeFmt για να μην συγκρούεται με το fmt του common.js
 const safeFmt = (typeof fmt !== 'undefined') ? fmt : (n) => (n || 0).toFixed(2);
 
 function val(x) {
@@ -13,7 +12,6 @@ function val(x) {
   return Number(x) || 0;
 }
 
-// Helper για ανάγνωση overrides από τα settings
 function getEffectiveNumber(key, fallback) {
   try {
     const enabled = localStorage.getItem(key + "_OVERRIDE_ENABLED") === "1";
@@ -29,7 +27,6 @@ function getEffectiveNumber(key, fallback) {
   return fallback;
 }
 
-// Helper για ανάγνωση ετικετών από το UI του μοντέλου
 function getUILabel(dim) {
   const lang = (window.getLang) ? window.getLang() : "el";
   return (model && model.ui && model.ui[dim] && model.ui[dim].labels) ? model.ui[dim].labels[lang] : null;
@@ -39,7 +36,7 @@ function getUIOrder(dim) {
   return (model && model.ui && model.ui[dim] && Array.isArray(model.ui[dim].order)) ? model.ui[dim].order : [];
 }
 
-// --- 2. ΚΕΙΜΕΝΑ ΚΑΙ ΜΕΤΑΦΡΑΣΕΙΣ (Πλήρεις Τίτλοι) ---
+// --- 2. ΚΕΙΜΕΝΑ ΚΑΙ ΜΕΤΑΦΡΑΣΕΙΣ ---
 
 function T() {
   const lang = (window.getLang) ? window.getLang() : "el";
@@ -129,6 +126,7 @@ function piecewiseSliderToAnchor(sliderVal, anchors) {
 }
 
 function compute() {
+  // Αν δεν έχει φορτώσει το μοντέλο, επιστρέφουμε μηδενικά
   if (!model) return {
     totalTons: 0,
     homeValues: [],
@@ -163,11 +161,7 @@ function compute() {
   const dhwTons = (occ * dhwPerPerson * gridCI) / 1000;
 
   const homeUseVal = Number(document.getElementById("homeUseLevel").value);
-  const elecAnchors = b.homeOtherElectricityAnchorsKWhPerYear?.value || {
-    min: 0,
-    typical: 0,
-    max: 0
-  };
+  const elecAnchors = b.homeOtherElectricityAnchorsKWhPerYear?.value || { min: 0, typical: 0, max: 0 };
   const otherTons = (piecewiseSliderToAnchor(homeUseVal, elecAnchors) * gridCI) / 1000;
 
   const homeTons = heatingTons + dhwTons + otherTons;
@@ -220,7 +214,10 @@ function compute() {
   };
   const digTons = (val(b.digitalKgCO2PerYear_unit) * piecewiseSliderToAnchor(digLvl, digAnchors)) / 1000;
 
-  const socialTons = getEffectiveNumber("socialShare_tCO2_per_year", val(b.socialShareKgCO2PerYear) / 1000);
+  // ΔΙΟΡΘΩΣΗ: Αν η τιμή από το JSON είναι 0, χρησιμοποιούμε fallback 1.2 τόνους
+  let socialBase = val(b.socialShareKgCO2PerYear) / 1000;
+  if (socialBase === 0) socialBase = 1.2; // Fallback 1.2 τόνοι αν λείπει
+  const socialTons = getEffectiveNumber("socialShare_tCO2_per_year", socialBase);
 
   const lifestyleTons = dietTons + goodsTons + digTons + socialTons;
 
@@ -275,7 +272,9 @@ function updateUI() {
   setTxt("lifeKpi", res.lifestyleTons);
   setTxt("totalVal", res.totalTons);
 
-  setTxt("socialShareVal", safeFmt(getEffectiveNumber("socialShare_tCO2_per_year", 1.2) * 1000, 0) + " " + t.units.socialShare);
+  // ΔΙΟΡΘΩΣΗ: Εμφάνιση τιμής social share με το ίδιο fallback
+  const socVal = res.lifestyleValues[3]; // Παίρνουμε την τιμή που υπολογίστηκε στο compute
+  setTxt("socialShareVal", safeFmt(socVal * 1000, 0) + " " + t.units.socialShare);
 
   // Navigation Pills
   const updateNavBtn = (id, val) => {
@@ -289,8 +288,8 @@ function updateUI() {
   updateNavBtn("navTransport", res.transportTons);
   updateNavBtn("navLifestyle", res.lifestyleTons);
 
-  // --- ΕΠΑΝΑΦΟΡΑ ΕΠΕΞΗΓΗΣΕΩΝ (LABELS) ---
-
+  // --- DYNAMIC SLIDER LABELS ---
+  
   // 1. Home Condition
   const homeCondEl = document.getElementById("homeCond");
   const homeCondLabel = document.getElementById("homeCondLabel");
@@ -327,13 +326,11 @@ function updateUI() {
   const digLabel = document.getElementById("digitalLabel");
   if (digEl && digLabel) {
     const v = Number(digEl.value);
-    // Προσπάθεια ανάγνωσης από το μοντέλο JSON
     const labels = getUILabel("digitalLevel") || {};
     let txt = "";
     if (Object.keys(labels).length > 0) {
        txt = (v < 33) ? labels.low : (v > 66) ? labels.high : labels.medium;
     } 
-    // Fallback στις μεταφράσεις του T() αν δεν υπάρχουν στο JSON
     if (!txt) {
        txt = (v < 33) ? t.labels.digitalMin : (v > 66) ? t.labels.digitalMax : t.labels.digitalMid;
     }
@@ -350,7 +347,7 @@ function updateUI() {
     if (valEl) valEl.textContent = `${Math.round(km)} km`;
   }
 
-  // --- ΕΠΑΝΑΦΟΡΑ ΣΤΟΧΟΥ Ε.Ε. ---
+  // --- EU TARGET ---
   const target = getEffectiveNumber("euTarget_tCO2_per_year", (model && model.targets ? val(model.targets.euTargetTonsPerYear) : 2.5));
   const rp = document.getElementById("reducePct");
   if (rp) {
