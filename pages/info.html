@@ -20,10 +20,19 @@
         document.write('<script src="' + path + '?v=' + v + '"><\/script>');
       }
     }
-    
-    // Φόρτωση CSS δυναμικά
     loadAsset('css', '../styles.css');
   </script>
+
+  <style>
+    .info-box { display: none; } /* Κρύβουμε τα κείμενα αρχικά */
+    .info-box.active { display: block; } /* Εμφανίζουμε μόνο το ενεργό */
+
+    .meta-block { font-size: 0.9em; color: #666; background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 20px; }
+    .funding-block { background: #e8f5e9; padding: 15px; border-radius: 8px; border-left: 5px solid #2e8b57; margin-bottom: 20px; }
+    .funding-text { margin: 0; color: #333; }
+    .section-header { color: #2e8b57; border-bottom: 1px solid #eee; padding-bottom: 6px; margin-top: 20px; font-size: 1.1rem; font-weight: bold; }
+    .credits-note { font-size: 0.9em; color: #666; margin-top: 10px; }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -32,9 +41,82 @@
         <button aria-label="Menu" class="iconBtn" id="menuBtn"><span class="hamburger"><span></span></span></button>
         <div class="topbarSpacer"></div>
       </div>
+      
       <div class="card">
-        <h2 id="title" style="margin:0 0 10px 0;"></h2>
-        <div id="content" style="line-height:1.35;"></div>
+        <h2 id="pageTitle" style="margin:0 0 15px 0;"></h2>
+
+        <div id="info-el" class="info-box">
+          <div class="meta-block">
+            <strong>Έκδοση Εφαρμογής:</strong> <span class="dynVer">-</span><br>
+            <strong>Τελευταία Ενημέρωση:</strong> <span class="dynDate">-</span>
+          </div>
+
+          <div class="funding-block">
+            <p class="funding-text">
+              Η εφαρμογή χρηματοδοτήθηκε από τον <strong>Δήμο Αγίου Νικολάου</strong> για τον <strong>Περιβαλλοντικό Σταθμό Φινοκαλιά</strong>, που λειτουργεί υπό το Τμήμα Χημείας του Πανεπιστημίου Κρήτης.
+            </p>
+          </div>
+
+          <div class="section-header">Σχετικά με την Εφαρμογή</div>
+          <p>
+            Η <strong>CO₂App</strong> είναι ένα εκπαιδευτικό εργαλείο σχεδιασμένο να βοηθήσει στην κατανόηση του πώς οι ανθρώπινες δραστηριότητες συμβάλλουν στην αύξηση του ατμοσφαιρικού CO₂.
+          </p>
+          <ul>
+            <li><strong>Quiz:</strong> Ελέγξτε τις γνώσεις σας για τις πηγές της κλιματικής αλλαγής.</li>
+            <li><strong>Υπολογιστής Αποτυπώματος:</strong> Εκτιμήστε τις εκπομπές από την κατοικία, τις μεταφορές και τον τρόπο ζωής με απλό αλλά αξιόπιστο τρόπο.</li>
+          </ul>
+
+          <div class="section-header">Πολιτική Απορρήτου</div>
+          <p>
+            <strong>Σεβόμαστε τα δεδομένα σας.</strong> Η εφαρμογή λειτουργεί αποκλειστικά στη συσκευή σας (offline-first). 
+            Δεν συλλέγουμε προσωπικά δεδομένα, δεν τα αποθηκεύουμε σε εξωτερικούς διακομιστές και δεν τα κοινοποιούμε σε τρίτους.
+          </p>
+
+          <div class="section-header">Συντελεστές</div>
+          <p>
+            Σχεδιασμός, επιλογή περιεχομένου και προγραμματισμός: <strong>Κωστής Χαλκιαδάκης</strong>, Υπεύθυνος ΕΚΦΕ Ρεθύμνου.
+          </p>
+          <p class="credits-note">
+            <em>Λεπτομέρειες για το μοντέλο και τη βιβλιογραφία υπάρχουν στη σελίδα "Τεκμηρίωση".</em>
+          </p>
+        </div>
+
+        <div id="info-en" class="info-box">
+          <div class="meta-block">
+            <strong>App Version:</strong> <span class="dynVer">-</span><br>
+            <strong>Last Update:</strong> <span class="dynDate">-</span>
+          </div>
+
+          <div class="funding-block">
+            <p class="funding-text">
+              This application was funded by the <strong>Municipality of Agios Nikolaos</strong> for the <strong>Finokalia Environmental Station</strong>, operated by the Department of Chemistry, University of Crete.
+            </p>
+          </div>
+
+          <div class="section-header">About the App</div>
+          <p>
+            <strong>CO₂App</strong> is an educational tool designed to help users understand how human activities contribute to increasing atmospheric CO₂.
+          </p>
+          <ul>
+            <li><strong>Quiz:</strong> Test your knowledge on climate change sources.</li>
+            <li><strong>Footprint Calculator:</strong> Estimate emissions from housing, transport, and lifestyle in a simple yet reliable way.</li>
+          </ul>
+
+          <div class="section-header">Privacy Policy</div>
+          <p>
+            <strong>We respect your privacy.</strong> This application functions entirely on your device (offline-first). 
+            No personal data is collected, stored on external servers, or shared with third parties.
+          </p>
+
+          <div class="section-header">Credits</div>
+          <p>
+            Design, content selection, and programming by <strong>Kostis Chalkiadakis</strong>, Head of the Rethymno Science Education Center (EKFE Rethymno).
+          </p>
+          <p class="credits-note">
+            <em>Full model details and references are available on the "Documentation" page.</em>
+          </p>
+        </div>
+
       </div>
     </div>
   </div>
@@ -45,35 +127,27 @@
   </script>
 
   <script>
-    const lang = getLang();
-    document.getElementById("title").textContent = (lang === "el") ? "Πληροφορίες" : "Info";
-    // Χρησιμοποιούμε cache: "no-store" για να παίρνει πάντα το φρέσκο κείμενο
-    const url = (lang === "el") ? "../assets/info/Info_gr.html" : "../assets/info/InfoEn.html";
+    document.addEventListener('DOMContentLoaded', () => {
+      const lang = getLang(); // Παίρνει 'el' ή 'en' από το common.js
+      
+      // 1. Ρύθμιση Τίτλου
+      document.getElementById("pageTitle").textContent = (lang === "el") ? "Πληροφορίες" : "Info";
 
-    async function loadInfo(){
-      try {
-        // Προσθέτουμε και εδώ το version number για σιγουριά στο fetch
-        const v = (typeof APP_BUILD !== 'undefined') ? APP_BUILD : Date.now();
-        const resp = await fetch(url + '?v=' + v, {cache:"no-store"});
-        
-        if(resp.ok){
-          const txt = await resp.text();
-          const bodyMatch = txt.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-          document.getElementById("content").innerHTML = bodyMatch ? bodyMatch[1] : txt;
-        }
-      } catch(e) {
-        console.error(e);
+      // 2. Εμφάνιση σωστού div
+      if (lang === 'en') {
+        document.getElementById('info-en').classList.add('active');
+      } else {
+        document.getElementById('info-el').classList.add('active');
       }
-    }
-    loadInfo();
-  </script>
 
-  <div id="versionDisplay" style="text-align:center; font-size:0.85rem; color:#888; margin-top:2rem; margin-bottom:1rem; opacity:0.7;"></div>
-
-  <script>
-    if (document.getElementById('versionDisplay') && typeof APP_VER !== 'undefined') {
-      document.getElementById('versionDisplay').innerText = 'v' + APP_VER;
-    }
+      // 3. Ενημέρωση Έκδοσης και Ημερομηνίας παντού
+      if (typeof APP_VER !== 'undefined') {
+        document.querySelectorAll('.dynVer').forEach(el => el.textContent = 'v' + APP_VER);
+      }
+      if (typeof APP_DATE !== 'undefined') {
+        document.querySelectorAll('.dynDate').forEach(el => el.textContent = APP_DATE);
+      }
+    });
   </script>
 
   <div aria-hidden="true" class="drawerBackdrop" id="drawerBackdrop"></div>
