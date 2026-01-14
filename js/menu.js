@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
+  console.log("Menu script loaded."); // Επιβεβαίωση ότι τρέχει
+
   const menuBtn = document.getElementById('menuBtn');
   const closeBtn = document.getElementById('drawerClose');
   const drawer = document.getElementById('drawer');
@@ -6,20 +8,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const navContainer = document.getElementById('drawerNav');
   const langContainer = document.getElementById('drawerLang');
 
+  // Αν δεν βρει το drawer (π.χ. είμαστε στην Αρχική), σταματάει χωρίς λάθος
+  if (!drawer) return;
+
   // 1. Υπολογισμός Διαδρομής (Root Path)
-  // Αν το URL περιέχει "/pages/", σημαίνει ότι είμαστε σε υποφάκελο.
-  // Άρα για να βρούμε τα assets πρέπει να πάμε πίσω (../).
-  // Αν είμαστε στο index.html, το path είναι τρέχον (./).
   const isPages = window.location.pathname.includes('/pages/');
   const rootPath = isPages ? '../' : './';
   
-  // 2. Λίστα Επιλογών Μενού (Με τα δικά σου εικονίδια)
-  // isImg: true -> Χρησιμοποιεί εικόνα από το assets/ui/
-  // isImg: false -> Χρησιμοποιεί Emoji (για όσα δεν έχεις εικόνα)
+  // 2. Λίστα Επιλογών Μενού
   const menuItems = [
     { label: { el: 'Αρχική', en: 'Home' }, path: 'index.html', icon: 'homeN.png', isImg: true },
     { label: { el: 'Υπολογισμός', en: 'Calculator' }, path: 'pages/footprint.html', icon: 'co2N.png', isImg: true },
-    { label: { el: 'Αποτελέσματα', en: 'Dashboard' }, path: 'pages/dashboard.html', icon: '📊', isImg: false }, // Δεν βρήκα dashboardN.png στη λίστα σου, άφησα emoji
+    { label: { el: 'Αποτελέσματα', en: 'Dashboard' }, path: 'pages/dashboard.html', icon: '📊', isImg: false },
     { label: { el: 'Quiz', en: 'Quiz' }, path: 'pages/quiz.html', icon: 'quizN.png', isImg: true },
     { label: { el: 'Τεκμηρίωση', en: 'Documentation' }, path: 'pages/model.html', icon: 'bookN.png', isImg: true },
     { label: { el: 'Σταθερές', en: 'Constants' }, path: 'pages/values.html', icon: '⚙️', isImg: false },
@@ -37,30 +37,21 @@ document.addEventListener('DOMContentLoaded', () => {
       const btn = document.createElement('button');
       btn.className = 'drawerLink';
       
-      // Διαχείριση Εικόνας vs Emoji
       let iconHtml = '';
       if(item.isImg) {
-        // Σχηματισμός σωστού path: ../assets/ui/onoma.png
         const iconSrc = rootPath + 'assets/ui/' + item.icon;
-        
-        // Προσθέτουμε class="menuIcon" για να τις στυλάρεις αν θες
-        iconHtml = `<img src="${iconSrc}" alt="icon" style="width:24px; height:24px; margin-right:12px; object-fit:contain;">`;
+        iconHtml = `<img src="${iconSrc}" alt="" style="width:24px; height:24px; margin-right:12px; object-fit:contain;">`;
       } else {
-        // Emoji fallback
         iconHtml = `<span style="margin-right:12px; width:24px; text-align:center; font-size:1.2rem;">${item.icon}</span>`;
       }
 
       btn.innerHTML = iconHtml + item.label[lang];
 
-      // Λογική Κλικ (Πλοήγηση)
       btn.onclick = () => {
         let target = rootPath + item.path;
-        
-        // Διόρθωση αν είμαστε ήδη στο pages/ και ο στόχος είναι επίσης στο pages/
         if (isPages && item.path.startsWith('pages/')) {
            target = item.path.replace('pages/', ''); 
         }
-
         window.location.href = target;
       };
       
@@ -71,8 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // 4. Κουμπί Αλλαγής Γλώσσας
   if (langContainer) {
     langContainer.innerHTML = '';
-    
-    // Χρήση εικόνων σημαίας αν υπάρχουν
     const elFlag = rootPath + 'assets/ui/lang_el.png';
     const enFlag = rootPath + 'assets/ui/lang_en.png';
     
@@ -82,7 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
     langBtn.style.marginTop = '10px';
     langBtn.style.borderTop = '1px solid #eee';
     
-    // Δοκιμάζουμε να δείξουμε σημαίες, αλλιώς κείμενο
     langBtn.innerHTML = `
       <img src="${elFlag}" style="width:24px; margin-right:8px;" onerror="this.style.display='none'"> 
       / 
@@ -100,23 +88,39 @@ document.addEventListener('DOMContentLoaded', () => {
     langContainer.appendChild(langBtn);
   }
 
-  // 5. Open/Close Logic
+  // 5. Open/Close Logic (Με console logs για έλεγχο)
   function openDrawer() {
+    console.log("Opening drawer...");
     drawer.classList.add('open');
-    backdrop.classList.add('open');
+    if(backdrop) {
+      backdrop.style.display = 'block'; // Force display block πρώτα
+      setTimeout(() => backdrop.classList.add('open'), 10); // Μετά opacity
+      backdrop.setAttribute('aria-hidden', 'false');
+    }
     drawer.setAttribute('aria-hidden', 'false');
-    backdrop.setAttribute('aria-hidden', 'false');
   }
 
   function closeDrawer() {
+    console.log("Closing drawer...");
     drawer.classList.remove('open');
-    backdrop.classList.remove('open');
+    if(backdrop) {
+      backdrop.classList.remove('open');
+      setTimeout(() => backdrop.style.display = 'none', 300); // Περιμένουμε το animation
+      backdrop.setAttribute('aria-hidden', 'true');
+    }
     drawer.setAttribute('aria-hidden', 'true');
-    backdrop.setAttribute('aria-hidden', 'true');
   }
 
-  if (menuBtn) menuBtn.addEventListener('click', openDrawer);
+  // Σύνδεση Event Listeners
+  if (menuBtn) {
+    menuBtn.addEventListener('click', (e) => {
+      e.stopPropagation(); // Σταματάμε τυχόν conflict
+      openDrawer();
+    });
+  } else {
+    console.log("Menu button not found on this page (ok for index).");
+  }
+
   if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
   if (backdrop) backdrop.addEventListener('click', closeDrawer);
-});
 });
