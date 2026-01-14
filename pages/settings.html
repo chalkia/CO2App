@@ -4,7 +4,27 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CO2App – Settings</title>
-  <link rel="stylesheet" href="../styles.css">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <meta name="theme-color" content="#74a974">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="apple-touch-icon" href="../assets/icons/icon-192.png">
+
+  <script src="../js/version.js"></script>
+
+  <script>
+    function loadAsset(type, path) {
+      var v = (typeof APP_BUILD !== 'undefined') ? APP_BUILD : Date.now();
+      if (type === 'css') {
+        document.write('<link rel="stylesheet" href="' + path + '?v=' + v + '">');
+      } else if (type === 'js') {
+        document.write('<script src="' + path + '?v=' + v + '"><\/script>');
+      }
+    }
+    
+    // Φόρτωση CSS δυναμικά
+    loadAsset('css', '../styles.css');
+  </script>
+
   <style>
     /* Διατηρούμε το layout, αλλά αφαιρούμε τα στυλ των κουμπιών για να πάρουν αυτά του styles.css */
     .setting-row { margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
@@ -76,8 +96,18 @@
     <div class="drawerSection" id="drawerLang"></div>
   </nav>
 
-  <script src="../js/common.js"></script>
-  <script src="../js/menu.js"></script>
-  <script src="../js/settings.js"></script>
+  <script>
+    loadAsset('js', '../js/common.js');
+    loadAsset('js', '../js/menu.js');
+    loadAsset('js', '../js/settings.js');
+  </script>
+
+  <div id="versionDisplay" style="text-align:center; font-size:0.85rem; color:#888; margin-top:2rem; margin-bottom:1rem; opacity:0.7;"></div>
+
+  <script>
+    if (document.getElementById('versionDisplay') && typeof APP_VER !== 'undefined') {
+      document.getElementById('versionDisplay').innerText = 'v' + APP_VER;
+    }
+  </script>
 </body>
 </html>
