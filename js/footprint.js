@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
   // 1. ΔΙΑΔΡΟΜΕΣ & ΜΕΤΑΒΛΗΤΕΣ
-  // ΔΙΟΡΘΩΣΗ: Σωστό path για το vendor
+  // ΔΙΟΡΘΩΣΗ: Το αρχείο είναι στο φάκελο vendor
   const MODEL_URL = '../assets/vendor/footprintModel_final_draft.json'; 
   
   let modelData = null;
@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const stepNext = document.getElementById('stepNext');
   const stepTitle = document.getElementById('stepTitle');
   
-  const cards = [cardHome, cardTransport, cardLifestyle];
   const navs = [navHome, navTransport, navLifestyle];
   let currentCardIndex = 0;
 
@@ -28,7 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       const v = (typeof APP_BUILD !== 'undefined') ? APP_BUILD : Date.now();
       const resp = await fetch(MODEL_URL + '?v=' + v);
-      if (!resp.ok) throw new Error('Model not found in ' + MODEL_URL);
+      if (!resp.ok) throw new Error('Model not found');
       
       modelData = await resp.json();
       
@@ -40,7 +39,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (err) {
       console.error('Init Error:', err);
       const sub = document.getElementById('subtitle');
-      if(sub) sub.textContent = 'Error: Data file not found. Check assets/vendor folder.';
+      if(sub) sub.textContent = 'Error: Data file not found inside assets/vendor/';
     }
   }
 
@@ -142,7 +141,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const typeMult = typeObj ? typeObj.factor : 1;
     const fuelEF = heatObj ? heatObj.ef : 0; 
 
-    // Επιμέρους τιμές (kg)
     let val_heat = (heatNeed * typeMult * fuelEF); 
     
     const eMin = modelData.constants.elec_min;
@@ -151,16 +149,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     let val_elec = eKwh * modelData.constants.gridCI;
 
     let dhwKwh = hasSolar ? modelData.constants.dhw_solar : modelData.constants.dhw_elec;
-    let val_dhw = (dhwKwh * occ) * modelData.constants.gridCI; // Συνολικό σπιτιού
+    let val_dhw = (dhwKwh * occ) * modelData.constants.gridCI;
 
-    // Επιμερισμός ανά άτομο για τα KPI
     const co2_heat_per = val_heat / occ;
     const co2_elec_per = val_elec / occ;
-    const co2_dhw_per  = val_dhw / occ; // Το ΖΝΧ ήταν ήδη *occ, οπότε τώρα το διαιρούμε για να βγει το προσωπικό μερίδιο αν χρειάζεται; 
-    // ΣΗΜΕΙΩΣΗ: Στο model, το dhw_elec είναι kWh/person? Όχι συνήθως είναι ανά νοικοκυριό στο Tabula.
-    // Ας υποθέσουμε ότι οι σταθερές είναι ανά άτομο όπως λέει το label "dhw_kwh_per_person" στο JSON? 
-    // Στο JSON λέει "dhw_elec: 650". Αν αυτό είναι ανά άτομο, τότε το (650*occ) είναι όλο το σπίτι. 
-    // Διαιρώντας με occ παίρνουμε πάλι το 650. Σωστά.
+    const co2_dhw_per  = val_dhw / occ; 
     
     const totalHousingKg = co2_heat_per + co2_elec_per + co2_dhw_per;
 
@@ -214,12 +207,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const totalLifeKg = val_food + val_goods + val_dig + val_social;
 
-    // --- Totals (Tons) ---
+    // --- Totals ---
     const grandTotalKg = totalHousingKg + totalTransportKg + totalLifeKg;
     const grandTotalTons = grandTotalKg / 1000;
 
-    // --- ΑΠΟΘΗΚΕΥΣΗ ΓΙΑ DASHBOARD (ΑΝΑΛΥΤΙΚΑ) ---
-    // Μετατροπή σε τόνους (t) για τα γραφήματα
+    // --- DASHBOARD DATA SAVING ---
     const homeArr = [co2_heat_per/1000, co2_dhw_per/1000, co2_elec_per/1000];
     const transArr = [val_car/1000, val_pub/1000, val_flyDom/1000, val_flyEu/1000];
     const lifeArr = [val_food/1000, val_goods/1000, val_dig/1000, val_social/1000];
@@ -230,7 +222,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     localStorage.setItem("USER_TOTAL", grandTotalTons.toFixed(2));
     localStorage.setItem("EU_TARGET", modelData.constants.EU2030_TARGET);
 
-    saveToStorage(); // Αποθήκευση επιλογών UI
+    saveToStorage();
 
     // --- UI Updates ---
     updateKpi('homeKpi', totalHousingKg);
