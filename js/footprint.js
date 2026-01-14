@@ -1,12 +1,11 @@
 document.addEventListener('DOMContentLoaded', async () => {
   // 1. ΔΙΑΔΡΟΜΕΣ & ΜΕΤΑΒΛΗΤΕΣ
-  // Επειδή είμαστε στο pages/footprint.html, πάμε ένα πίσω (..) για τα assets
-  const MODEL_URL = '../assets/footprintModel_final_draft.json'; 
+  // ΔΙΟΡΘΩΣΗ: Σωστό path για το vendor
+  const MODEL_URL = '../assets/vendor/footprintModel_final_draft.json'; 
   
   let modelData = null;
-  let userValues = {};
   
-  // DOM Elements - Navigation
+  // DOM Elements
   const navHome = document.getElementById('navHome');
   const navTransport = document.getElementById('navTransport');
   const navLifestyle = document.getElementById('navLifestyle');
@@ -20,46 +19,36 @@ document.addEventListener('DOMContentLoaded', async () => {
   const stepNext = document.getElementById('stepNext');
   const stepTitle = document.getElementById('stepTitle');
   
-  // Καρτέλες (Tabs)
   const cards = [cardHome, cardTransport, cardLifestyle];
   const navs = [navHome, navTransport, navLifestyle];
   let currentCardIndex = 0;
 
-  // 2. ΦΟΡΤΩΣΗ ΔΕΔΟΜΕΝΩΝ (Με Versioning για να μη κολλάει η cache)
+  // 2. INIT
   async function init() {
     try {
-      // Παίρνουμε το version από το version.js ή βάζουμε τυχαίο αριθμό
       const v = (typeof APP_BUILD !== 'undefined') ? APP_BUILD : Date.now();
-      
       const resp = await fetch(MODEL_URL + '?v=' + v);
-      if (!resp.ok) throw new Error('Model not found');
+      if (!resp.ok) throw new Error('Model not found in ' + MODEL_URL);
       
       modelData = await resp.json();
       
-      // Γέμισμα Selects και Labels από το JSON
       populateUI();
-      
-      // Φόρτωση αποθηκευμένων τιμών (αν υπάρχουν)
       loadFromStorage();
-      
-      // Αρχικός Υπολογισμός
       calculateAll();
-      
-      // Ενημέρωση UI
       updateActiveCard(0);
 
     } catch (err) {
       console.error('Init Error:', err);
-      document.getElementById('subtitle').textContent = 'Error loading data. Check console.';
+      const sub = document.getElementById('subtitle');
+      if(sub) sub.textContent = 'Error: Data file not found. Check assets/vendor folder.';
     }
   }
 
-  // 3. UI POPULATION (Γέμισμα λιστών)
+  // 3. UI POPULATION
   function populateUI() {
-    const lang = getLang(); // Από common.js
+    const lang = getLang();
     const T = modelData.translations[lang];
 
-    // Τίτλοι
     document.getElementById('title').textContent = T.appTitle;
     document.getElementById('subtitle').textContent = T.appSubtitle;
     
@@ -71,11 +60,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('navTransport').textContent = T.catTransport;
     document.getElementById('navLifestyle').textContent = T.catLifestyle;
 
-    // --- HOUSING ---
     fillSelect('homeType', modelData.housing.types, lang);
     fillSelect('heatingType', modelData.housing.heating, lang);
     
-    // Occupants (1-10)
     const occSel = document.getElementById('occupants');
     occSel.innerHTML = '';
     for(let i=1; i<=6; i++) {
@@ -92,7 +79,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('lblSolarDHW').textContent = T.lblSolar;
     setLabel('lblHomeUse', T.lblElectricity);
 
-    // --- TRANSPORT ---
     fillSelect('carType', modelData.transport.carTypes, lang);
     fillSelect('publicType', modelData.transport.publicTypes, lang);
     
@@ -104,7 +90,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     setLabel('lblFlightsDomestic', T.lblFlightDom);
     setLabel('lblFlightsEurope', T.lblFlightEu);
 
-    // --- LIFESTYLE ---
     fillSelect('diet', modelData.lifestyle.diets, lang);
     
     setLabel('lblDiet', T.lblDiet);
@@ -113,7 +98,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('lblSocialShare').textContent = T.lblSocial + ': ';
     document.getElementById('socialShareVal').textContent = (modelData.constants.socialShare / 1000).toFixed(2) + ' t';
 
-    // Labels Κουμπιών
     document.getElementById('lblTotal').textContent = T.lblTotal || "TOTAL";
     document.getElementById('btnCalc').textContent = T.btnRecalc || "Reset";
     document.getElementById('btnDash').textContent = T.btnDetails || "Dashboard";
@@ -135,62 +119,54 @@ document.addEventListener('DOMContentLoaded', async () => {
     if(el) el.textContent = text;
   }
 
-  // 4. ΥΠΟΛΟΓΙΣΜΟΙ (CORE LOGIC)
+  // 4. ΥΠΟΛΟΓΙΣΜΟΙ
   function calculateAll() {
     if(!modelData) return;
 
-    // A. Housing
+    // --- Housing ---
     const ht = getVal('homeType'); 
-    const hc = parseInt(document.getElementById('homeCond').value); // 0=bad, 1=medium, 2=good
+    const hc = parseInt(document.getElementById('homeCond').value);
     const heatId = getVal('heatingType');
     const occ = parseInt(getVal('occupants'));
     const hasSolar = document.getElementById('solarDHW').checked;
-    const elecLvl = parseInt(document.getElementById('homeUseLevel').value); // 0-100
+    const elecLvl = parseInt(document.getElementById('homeUseLevel').value);
 
-    // Βρίσκουμε συντελεστές
     const typeObj = modelData.housing.types.find(x => x.id === ht);
     const heatObj = modelData.housing.heating.find(x => x.id === heatId);
     
-    // Θέρμανση: Base needs * SizeFactor * InsulationFactor * FuelFactor
-    // Απλοποιημένο μοντέλο βάσει JSON
     let heatNeed = 0;
     if(hc === 0) heatNeed = modelData.constants.heat_none;
     else if(hc === 1) heatNeed = modelData.constants.heat_partial;
     else heatNeed = modelData.constants.heat_modern;
 
-    // Home Type Multiplier (π.χ. Μονοκατοικία vs Διαμέρισμα)
     const typeMult = typeObj ? typeObj.factor : 1;
-    
-    // Fuel Emission Factor
     const fuelEF = heatObj ? heatObj.ef : 0; 
 
-    let co2_heat = (heatNeed * typeMult * fuelEF); // kgCO2
-
-    // Ηλεκτρισμός (Lights/Appliances)
-    // Map slider 0-100 to range [elec_min, elec_max]
+    // Επιμέρους τιμές (kg)
+    let val_heat = (heatNeed * typeMult * fuelEF); 
+    
     const eMin = modelData.constants.elec_min;
     const eMax = modelData.constants.elec_max;
     const eKwh = eMin + (eMax - eMin) * (elecLvl / 100);
-    const co2_elec = eKwh * modelData.constants.gridCI;
+    let val_elec = eKwh * modelData.constants.gridCI;
 
-    // ΖΝΧ (Hot Water)
     let dhwKwh = hasSolar ? modelData.constants.dhw_solar : modelData.constants.dhw_elec;
-    // Ανά άτομο * άτομα
-    const co2_dhw = (dhwKwh * occ) * modelData.constants.gridCI;
+    let val_dhw = (dhwKwh * occ) * modelData.constants.gridCI; // Συνολικό σπιτιού
 
-    // Σύνολο Κατοικίας (Διαιρούμενο δια κατοίκους για ατομικό)
-    const totalHousingKg = (co2_heat + co2_elec + co2_dhw) / occ;
-
-
-    // B. Transport
-    const wkKm = parseFloat(getVal('weeklyKm')) || 0;
-    const pubPct = parseInt(document.getElementById('publicPct').value); // 0-200% relative to car
-    // Εδώ η λογική στο JSON μπορεί να είναι: pubPct% of weeklyKm is public? 
-    // Ας υποθέσουμε απλά: wkKm είναι ΙΧ, και public είναι extra βάσει slider.
-    // Ή πιο σωστά: Ο χρήστης βάζει "km με αυτοκίνητο" και "km με ΜΜΜ".
+    // Επιμερισμός ανά άτομο για τα KPI
+    const co2_heat_per = val_heat / occ;
+    const co2_elec_per = val_elec / occ;
+    const co2_dhw_per  = val_dhw / occ; // Το ΖΝΧ ήταν ήδη *occ, οπότε τώρα το διαιρούμε για να βγει το προσωπικό μερίδιο αν χρειάζεται; 
+    // ΣΗΜΕΙΩΣΗ: Στο model, το dhw_elec είναι kWh/person? Όχι συνήθως είναι ανά νοικοκυριό στο Tabula.
+    // Ας υποθέσουμε ότι οι σταθερές είναι ανά άτομο όπως λέει το label "dhw_kwh_per_person" στο JSON? 
+    // Στο JSON λέει "dhw_elec: 650". Αν αυτό είναι ανά άτομο, τότε το (650*occ) είναι όλο το σπίτι. 
+    // Διαιρώντας με occ παίρνουμε πάλι το 650. Σωστά.
     
-    // Για απλότητα UI: Slider Public Transport (km/week)
-    const pubKm = parseInt(document.getElementById('publicPct').value); // Slider is actually absolute km here for simplicity in UI setup
+    const totalHousingKg = co2_heat_per + co2_elec_per + co2_dhw_per;
+
+    // --- Transport ---
+    const wkKm = parseFloat(getVal('weeklyKm')) || 0;
+    const pubKm = parseInt(document.getElementById('publicPct').value);
     document.getElementById('publicKmVal').textContent = pubKm + ' km/week';
 
     const carId = getVal('carType');
@@ -203,79 +179,68 @@ document.addEventListener('DOMContentLoaded', async () => {
     const carObj = modelData.transport.carTypes.find(x => x.id === carId);
     const pubObj = modelData.transport.publicTypes.find(x => x.id === pubId);
 
-    // Car calc
     let carEf = carObj ? carObj.ef : 0;
-    // Αν ΔΕΝ είναι μόνος, διαιρούμε δια 2 (carpooling assumption)
     if (!alone) carEf = carEf * modelData.constants.carPool; 
     
-    const co2_car = wkKm * carEf * 52; // ετήσια
+    const val_car = wkKm * carEf * 52;
+    const val_pub = pubKm * (pubObj ? pubObj.ef : 0) * 52;
 
-    // Public calc
-    const pubEf = pubObj ? pubObj.ef : 0;
-    const co2_pub = pubKm * pubEf * 52;
-
-    // Flights
     const distDom = modelData.constants.flight_dom_km;
     const distEu = modelData.constants.flight_eu_km;
-    const efDom = modelData.constants.EF_flight_dom; // ανά km
+    const efDom = modelData.constants.EF_flight_dom;
     const efEu = modelData.constants.EF_flight_eu;
 
-    const co2_fly = (flightDom * distDom * efDom) + (flightEu * distEu * efEu);
+    const val_flyDom = flightDom * distDom * efDom;
+    const val_flyEu = flightEu * distEu * efEu;
 
-    const totalTransportKg = co2_car + co2_pub + co2_fly;
+    const totalTransportKg = val_car + val_pub + val_flyDom + val_flyEu;
 
-
-    // C. Lifestyle
+    // --- Lifestyle ---
     const dietId = getVal('diet');
-    const goodsLvl = parseInt(document.getElementById('goodsLevel').value); // 0-100
-    const digLvl = parseInt(document.getElementById('digitalLevel').value); // 0-100
+    const goodsLvl = parseInt(document.getElementById('goodsLevel').value);
+    const digLvl = parseInt(document.getElementById('digitalLevel').value);
 
     const dietObj = modelData.lifestyle.diets.find(x => x.id === dietId);
     const dietFactor = dietObj ? dietObj.factor : 1;
-    const co2_food = modelData.constants.food_base * dietFactor;
+    const val_food = modelData.constants.food_base * dietFactor;
 
-    // Goods (Clothes, gadgets, waste)
-    // Base * factor (0.5 to 1.5 based on slider)
     const goodsFactor = 0.5 + (goodsLvl / 100); 
-    const co2_goods = modelData.constants.goods_unit * goodsFactor;
+    const val_goods = modelData.constants.goods_unit * goodsFactor;
 
-    // Digital
     const digFactor = 0.5 + (digLvl / 100);
-    const co2_dig = modelData.constants.digital_unit * digFactor;
+    const val_dig = modelData.constants.digital_unit * digFactor;
 
-    const co2_social = modelData.constants.social_share;
+    const val_social = modelData.constants.social_share;
 
-    const totalLifeKg = co2_food + co2_goods + co2_dig + co2_social;
+    const totalLifeKg = val_food + val_goods + val_dig + val_social;
 
-    // FINAL TOTAL
+    // --- Totals (Tons) ---
     const grandTotalKg = totalHousingKg + totalTransportKg + totalLifeKg;
     const grandTotalTons = grandTotalKg / 1000;
 
-    // ΑΠΟΘΗΚΕΥΣΗ ΣΤΟ ΠΑΓΚΟΣΜΙΟ STATE (για το Dashboard)
-    const results = {
-      housing: totalHousingKg / 1000,
-      transport: totalTransportKg / 1000,
-      lifestyle: totalLifeKg / 1000,
-      total: grandTotalTons,
-      timestamp: Date.now()
-    };
-    localStorage.setItem('co2_results', JSON.stringify(results));
-    saveToStorage(); // Αποθήκευση input values
+    // --- ΑΠΟΘΗΚΕΥΣΗ ΓΙΑ DASHBOARD (ΑΝΑΛΥΤΙΚΑ) ---
+    // Μετατροπή σε τόνους (t) για τα γραφήματα
+    const homeArr = [co2_heat_per/1000, co2_dhw_per/1000, co2_elec_per/1000];
+    const transArr = [val_car/1000, val_pub/1000, val_flyDom/1000, val_flyEu/1000];
+    const lifeArr = [val_food/1000, val_goods/1000, val_dig/1000, val_social/1000];
 
-    // UPDATE UI KPIs
+    localStorage.setItem("CO2_HOME_VALUES", JSON.stringify(homeArr));
+    localStorage.setItem("CO2_TRANSPORT_VALUES", JSON.stringify(transArr));
+    localStorage.setItem("CO2_LIFE_VALUES", JSON.stringify(lifeArr));
+    localStorage.setItem("USER_TOTAL", grandTotalTons.toFixed(2));
+    localStorage.setItem("EU_TARGET", modelData.constants.EU2030_TARGET);
+
+    saveToStorage(); // Αποθήκευση επιλογών UI
+
+    // --- UI Updates ---
     updateKpi('homeKpi', totalHousingKg);
     updateKpi('trKpi', totalTransportKg);
     updateKpi('lifeKpi', totalLifeKg);
     
     document.getElementById('totalVal').textContent = grandTotalTons.toFixed(2);
-    
-    // Update labels for sliders
     updateRangeLabels(hc, elecLvl, goodsLvl, digLvl);
-    
-    // Update current step KPI
     updateStepKpi(grandTotalTons);
 
-    // Σύγκριση με στόχο 2030 (2.5t)
     const target = modelData.constants.EU2030_TARGET;
     const diff = grandTotalTons - target;
     const elPct = document.getElementById('reducePct');
@@ -294,26 +259,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function updateStepKpi(total) {
-    // Εμφανίζει το τρέχον σύνολο στο step bar
     const el = document.getElementById('stepKpi');
     if(el) el.textContent = total.toFixed(1) + ' t';
   }
 
   function updateRangeLabels(hc, elec, goods, dig) {
-    // Housing Condition
     const conds = ["Κακή Μόνωση", "Μέτρια Μόνωση", "Άριστη (ΚΕΝΑΚ)"];
     if(getLang() === 'en') {
        conds[0]="Bad Insulation"; conds[1]="Medium"; conds[2]="Excellent";
     }
     document.getElementById('homeCondLabel').textContent = conds[hc];
-    
-    // Electricity
     document.getElementById('homeUseLabel').textContent = (elec > 70 ? "High" : (elec < 30 ? "Low" : "Average"));
-
-    // Goods
     document.getElementById('goodsLabel').textContent = (goods > 70 ? "High Consumer" : (goods < 30 ? "Eco Conscious" : "Average"));
-
-    // Digital
     document.getElementById('digitalVal').textContent = (dig > 70 ? "High" : (dig < 30 ? "Low" : "Avg"));
   }
 
@@ -321,7 +278,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     return document.getElementById(id).value;
   }
 
-  // 5. NAVIGATION & EVENTS
+  // EVENTS
   navs.forEach((btn, idx) => {
     btn.addEventListener('click', () => updateActiveCard(idx));
   });
@@ -332,27 +289,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   stepNext.addEventListener('click', () => {
     if(currentCardIndex < cards.length - 1) updateActiveCard(currentCardIndex + 1);
-    else {
-      // Αν είναι στο τελευταίο βήμα, scroll στο summary
-      cardSummary.scrollIntoView({behavior: 'smooth'});
-    }
+    else cardSummary.scrollIntoView({behavior: 'smooth'});
   });
 
   function updateActiveCard(idx) {
     currentCardIndex = idx;
-    
-    // Update Tabs
     navs.forEach((n, i) => n.classList.toggle('active', i === idx));
-    
-    // Scroll Carousel
-    // Το πλάτος της κάρτας είναι περίπου το πλάτος του carousel
     const w = document.getElementById('cardsCarousel').offsetWidth;
     document.getElementById('cardsCarousel').scrollTo({
       left: w * idx,
       behavior: 'smooth'
     });
-
-    // Update Mobile Stepper Text
     const titles = [
       document.getElementById('homeTitle').textContent,
       document.getElementById('trTitle').textContent,
@@ -361,14 +308,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     stepTitle.textContent = titles[idx];
   }
 
-  // Listeners για όλα τα Inputs -> Recalculate
   const inputs = document.querySelectorAll('select, input');
   inputs.forEach(inp => {
     inp.addEventListener('change', calculateAll);
-    inp.addEventListener('input', calculateAll); // Για sliders σε real-time
+    inp.addEventListener('input', calculateAll);
   });
 
-  // Κουμπιά στο Summary
   document.getElementById('btnCalc').addEventListener('click', () => {
     if(confirm('Reset all values to default?')) {
       localStorage.removeItem('co2_inputs');
@@ -380,7 +325,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.location.href = 'dashboard.html';
   });
 
-  // 6. LOCAL STORAGE (Save inputs)
   function saveToStorage() {
     const data = {};
     inputs.forEach(inp => {
@@ -405,6 +349,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch(e) { console.error('Load error', e); }
   }
 
-  // Start
   init();
 });
