@@ -1,3 +1,19 @@
+Ορίστε το **τελικό, διορθωμένο `index.html**`.
+
+Εδώ έχουν γίνει οι περισσότερες αλλαγές σε σχέση με τα άλλα αρχεία, καθώς εδώ φιλοξενείται η λογική του **"Update Notification"**.
+
+Συγκεκριμένα:
+
+1. **Head:** Πρόσθεσα το `version.js` και τη `loadAsset` (με `./` επειδή είναι στο root).
+2. **Scripts:** Αντικατέστησα τα στατικά scripts με `loadAsset`.
+3. **Service Worker:** Αντικατέστησα την απλή εγγραφή με τον πλήρη κώδικα ελέγχου ενημερώσεων (`updatefound`, `skipWaiting`).
+4. **UI:** Πρόσθεσα το κρυφό κουμπί (`updateToast`) που εμφανίζεται όταν υπάρχει νέα έκδοση.
+
+Αντικατέστησε όλο το αρχείο με αυτό:
+
+### Αρχείο: `index.html`
+
+```html
 <!DOCTYPE html>
 <html lang="el">
 <head>
@@ -8,7 +24,22 @@
   <meta content="#74a974" name="theme-color"/>
   <meta content="yes" name="apple-mobile-web-app-capable"/>
   <link href="./assets/icons/icon-192.png" rel="apple-touch-icon"/>
-  <link href="./styles.css?v=20" rel="stylesheet"/>
+  
+  <script src="./js/version.js"></script>
+
+  <script>
+    function loadAsset(type, path) {
+      var v = (typeof APP_BUILD !== 'undefined') ? APP_BUILD : Date.now();
+      if (type === 'css') {
+        document.write('<link rel="stylesheet" href="' + path + '?v=' + v + '">');
+      } else if (type === 'js') {
+        document.write('<script src="' + path + '?v=' + v + '"><\/script>');
+      }
+    }
+    
+    // Φόρτωση CSS (με ./ καθώς είμαστε στο root)
+    loadAsset('css', './styles.css');
+  </script>
 </head>
 <body class="homeNoDrawer">
   <div class="container">
@@ -57,15 +88,28 @@
         </button>
       </div>
 
-      <div style="text-align:center; font-size:0.85rem; color:#888; margin-top:1.5rem; opacity:0.7;">
-        v4.0
-      </div>
+      <div id="versionDisplay" style="text-align:center; font-size:0.85rem; color:#888; margin-top:1.5rem; opacity:0.7;"></div>
+      <script>
+        if (document.getElementById('versionDisplay') && typeof APP_VER !== 'undefined') {
+          document.getElementById('versionDisplay').innerText = 'v' + APP_VER;
+        }
+      </script>
 
     </div>
   </div>
 
-  <script src="./js/common.js?v=20"></script>
-  <script src="./js/menu.js?v=20"></script>
+  <div id="updateToast" style="display:none; position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#2d2d2d; color:white; padding:12px 24px; border-radius:50px; z-index:9999; box-shadow:0 6px 16px rgba(0,0,0,0.4); width:max-content; max-width:90%; text-align:center; align-items:center; gap:12px;">
+    <span style="font-size:0.95rem; font-weight:500;">Νέα έκδοση διαθέσιμη</span>
+    <button id="refreshBtn" style="background:#74a974; color:white; border:none; padding:6px 16px; border-radius:20px; font-size:0.9rem; font-weight:bold; cursor:pointer; margin-left:10px;">
+      Ανανέωση
+    </button>
+  </div>
+
+  <script>
+    loadAsset('js', './js/common.js');
+    loadAsset('js', './js/menu.js');
+  </script>
+
   <script>
     const lang = getLang();
 
@@ -116,12 +160,8 @@
     document.getElementById("btnQuiz").addEventListener("click", ()=>go("./pages/quiz.html"));
     document.getElementById("btnFoot").addEventListener("click", ()=>go("./pages/footprint.html"));
 
-    // ΔΙΟΡΘΩΣΗ: Το Docs πάει στο model.html
     document.getElementById("chipDocs").addEventListener("click", ()=>go("./pages/model.html"));
-    
     document.getElementById("chipInstall").addEventListener("click", ()=>go("./pages/install.html"));
-    
-    // ΔΙΟΡΘΩΣΗ: Το About πάει πλέον στο info.html
     document.getElementById("chipAbout").addEventListener("click", ()=>go("./pages/info.html"));
     
     document.getElementById("chipLang").addEventListener("click", ()=>{
@@ -130,8 +170,49 @@
       location.reload();
     });
 
+    // --- SERVICE WORKER UPDATE LOGIC ---
     if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => navigator.serviceWorker.register("./service-worker.js"));
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js").then(reg => {
+          
+          // 1. Έλεγχος αν υπάρχει ήδη update που περιμένει
+          if (reg.waiting) {
+            showUpdateNotification(reg.waiting);
+            return;
+          }
+
+          // 2. Παρακολούθηση για νέο update
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                showUpdateNotification(newWorker);
+              }
+            });
+          });
+        });
+
+        // 3. Αυτόματο reload όταν ενεργοποιηθεί ο νέος SW
+        let refreshing;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (refreshing) return;
+          window.location.reload();
+          refreshing = true;
+        });
+      });
+    }
+
+    function showUpdateNotification(worker) {
+      const toast = document.getElementById('updateToast');
+      const btn = document.getElementById('refreshBtn');
+      if(toast && btn) {
+        toast.style.display = 'flex'; 
+        btn.onclick = () => {
+          worker.postMessage({ action: 'skipWaiting' });
+          btn.textContent = "...";
+          btn.disabled = true;
+        };
+      }
     }
   </script>
 
@@ -148,4 +229,3 @@
 </html>
 
 ```
-
