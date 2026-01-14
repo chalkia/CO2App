@@ -1,467 +1,410 @@
-let model = null;
-let appConfig = null;
-
-// --- 1. ΒΟΗΘΗΤΙΚΕΣ ΣΥΝΑΡΤΗΣΕΙΣ ---
-
-const safeFmt = (typeof fmt !== 'undefined') ? fmt : (n) => (n || 0).toFixed(2);
-
-function val(x) {
-  if (x === null || x === undefined) return 0;
-  if (typeof x === "number") return x;
-  if (typeof x === "object" && "value" in x) return Number(x.value) || 0;
-  return Number(x) || 0;
-}
-
-function getEffectiveNumber(key, fallback) {
-  try {
-    const enabled = localStorage.getItem(key + "_OVERRIDE_ENABLED") === "1";
-    if (enabled) {
-      const v = Number(localStorage.getItem(key + "_OVERRIDE_VALUE"));
-      if (Number.isFinite(v)) return v;
-    }
-    if (appConfig && typeof appConfig[key] !== "undefined") {
-      const v = Number(appConfig[key]);
-      if (Number.isFinite(v)) return v;
-    }
-  } catch (e) {}
-  return fallback;
-}
-
-function getUILabel(dim) {
-  const lang = (window.getLang) ? window.getLang() : "el";
-  return (model && model.ui && model.ui[dim] && model.ui[dim].labels) ? model.ui[dim].labels[lang] : null;
-}
-
-function getUIOrder(dim) {
-  return (model && model.ui && model.ui[dim] && Array.isArray(model.ui[dim].order)) ? model.ui[dim].order : [];
-}
-
-// --- 2. ΚΕΙΜΕΝΑ ΚΑΙ ΜΕΤΑΦΡΑΣΕΙΣ ---
-
-function T() {
-  const lang = (window.getLang) ? window.getLang() : "el";
-  return {
-    el: {
-      title: "Εκτίμηση Αποτυπώματος CO₂",
-      subtitle: "Τα αποτελέσματα είναι προσεγγιστικά. Δες την Τεκμηρίωση για λεπτομέρειες.",
-      home: "Κατοικία",
-      transport: "Μεταφορές",
-      lifestyle: "Τρόπος Ζωής - Διατροφή",
-      labels: {
-        homeType: "Τύπος κατοικίας",
-        homeCond: "Μόνωση / κατάσταση",
-        heating: "Θέρμανση",
-        occupants: "Άτομα στο σπίτι",
-        solarDHW: "Ηλιακός θερμοσίφωνας",
-        homeUse: "Χρήση ηλεκτρικής ενέργειας (εκτός θέρμανσης)",
-        weeklyKm: "Διανυόμενα χιλιόμετρα (εβδομαδιαίως)",
-        carType: "Κύριο μέσο μετακίνησης",
-        publicTransport: "Είδος δημόσιας συγκοινωνίας",
-        publicPct: "Ποσοστό χρήσης δημόσιων μέσων",
-        alone: "Μετακινούμαι μόνος",
-        flightsDomestic: "Πτήσεις εντός Ελλάδας (ανά έτος)",
-        flightsEurope: "Πτήσεις εντός Ευρώπης (ανά έτος)",
-        diet: "Διατροφή",
-        goodsProfile: "Κατανάλωση προϊόντων (Ρούχα, ηλεκτρονικά, αγορές & lifestyle)",
-        digitalLevel: "Ψηφιακή κατανάλωση (internet/cloud)",
-        socialShare: "Δημόσιες υποδομές",
-        calc: "Υπολόγισε",
-        dash: "Διαγράμματα",
-        total: "Σύνολο",
-        digitalMin: "Χαμηλή (Email, Web)",
-        digitalMid: "Μεσαία (Social, Cloud)",
-        digitalMax: "Υψηλή (Streaming, AI)"
-      },
-      units: {
-        socialShare: "kg CO₂/έτος"
-      }
-    },
-    en: {
-      title: "Carbon Footprint Calculator",
-      subtitle: "Results are approximate. See Documentation for details.",
-      home: "Home",
-      transport: "Transport",
-      lifestyle: "Lifestyle & Diet",
-      labels: {
-        homeType: "Home type",
-        homeCond: "Insulation / condition",
-        heating: "Heating",
-        occupants: "Occupants",
-        solarDHW: "Solar water heater",
-        homeUse: "Electricity use (excluding heating)",
-        weeklyKm: "Weekly distance (km)",
-        carType: "Main transport mode",
-        publicTransport: "Public transport type",
-        publicPct: "Share of public transport",
-        alone: "I travel alone",
-        flightsDomestic: "Domestic flights (year)",
-        flightsEurope: "Intl flights (year)",
-        diet: "Diet",
-        goodsProfile: "Goods consumption (Clothes, electronics, lifestyle)",
-        digitalLevel: "Digital consumption",
-        socialShare: "Public services",
-        calc: "Calculate",
-        dash: "Dashboard",
-        total: "Total",
-        digitalMin: "Low (Email, Web)",
-        digitalMid: "Medium (Social, Cloud)",
-        digitalMax: "High (Streaming, AI)"
-      },
-      units: {
-        socialShare: "kg CO₂/year"
-      }
-    }
-  } [lang];
-}
-
-// --- 3. LOGIC & CALCULATIONS ---
-
-function piecewiseSliderToAnchor(sliderVal, anchors) {
-  const x = Math.max(0, Math.min(100, Number(sliderVal)));
-  const a0 = anchors.min ?? anchors.low ?? 0;
-  const a1 = anchors.typical ?? anchors.medium ?? 0;
-  const a2 = anchors.max ?? anchors.high ?? 0;
-  if (x <= 50) return a0 + (a1 - a0) * (x / 50);
-  return a1 + (a2 - a1) * ((x - 50) / 50);
-}
-
-function compute() {
-  // Αν δεν έχει φορτώσει το μοντέλο, επιστρέφουμε μηδενικά
-  if (!model) return {
-    totalTons: 0,
-    homeValues: [],
-    transportValues: [],
-    lifestyleValues: [],
-    homeTons: 0,
-    transportTons: 0,
-    lifestyleTons: 0
-  };
-
-  const b = model.base || {};
-  const f = model.factors || {};
-  const c = model.constants || {};
-  const p = model.parameters || {};
-
-  const gridCI = getEffectiveNumber("gridCI_kgCO2_per_kWh", val(p.gridCI_kgCO2_per_kWh));
-
-  // --- HOME CALCULATION ---
-  const homeCondEl = document.getElementById("homeCond");
-  const homeCondIdx = homeCondEl ? Number(homeCondEl.value) : 1;
-  const condKeys = model.ui?.homeCondition?.order || ["modern", "partial", "none"];
-  const homeCond = condKeys[homeCondIdx] || "partial";
-
-  const aptKWh = Number(b.heatingDemandKWhApartment?.value?.[homeCond] ?? 0);
-  const homeTypeMult = val(f.homeType?.[document.getElementById("homeType").value] ?? 1);
-  const heatIntensity = val(f.heatingType?.[document.getElementById("heatingType").value] ?? 0);
-  const heatingTons = ((aptKWh * homeTypeMult) / 1000) * heatIntensity;
-
-  const occ = Number(document.getElementById("occupants").value) || 1;
-  const solar = document.getElementById("solarDHW").checked;
-  const dhwPerPerson = solar ? val(b.dhwBackupKWhPerPersonPerYear) : val(b.dhwKWhPerPersonPerYear);
-  const dhwTons = (occ * dhwPerPerson * gridCI) / 1000;
-
-  const homeUseVal = Number(document.getElementById("homeUseLevel").value);
-  const elecAnchors = b.homeOtherElectricityAnchorsKWhPerYear?.value || { min: 0, typical: 0, max: 0 };
-  const otherTons = (piecewiseSliderToAnchor(homeUseVal, elecAnchors) * gridCI) / 1000;
-
-  const homeTons = heatingTons + dhwTons + otherTons;
-
-  // --- TRANSPORT CALCULATION ---
-  const weeklyKm = Number(document.getElementById("weeklyKm").value) || 0;
-  const pubPct = Number(document.getElementById("publicPct").value) || 0;
-  const kmPublic = Math.min(weeklyKm, pubPct);
-  const kmCar = Math.max(0, weeklyKm - kmPublic);
-
-  const alone = document.getElementById("alone").checked;
-  const carType = document.getElementById("carType").value;
-  let carEf = val(f.carType?.[carType]);
+document.addEventListener('DOMContentLoaded', async () => {
+  // 1. ΔΙΑΔΡΟΜΕΣ & ΜΕΤΑΒΛΗΤΕΣ
+  // Επειδή είμαστε στο pages/footprint.html, πάμε ένα πίσω (..) για τα assets
+  const MODEL_URL = '../assets/footprintModel_final_draft.json'; 
   
-  if (carType === "electric") {
-    carEf = gridCI * val(p.evConsumption_kWh_per_km);
-  }
-
-  let carTons = (kmCar * val(c.weeklyToTonsFactor) * carEf);
-  if (!alone) carTons /= 2;
-
-  const pubType = document.getElementById("publicType").value;
-  let pubEf = val(f.publicTransport?.[pubType]);
+  let modelData = null;
+  let userValues = {};
   
-  if (pubType === "metro") {
-    pubEf = gridCI * getEffectiveNumber("metro_tram_kWh_per_pkm", val(p.metro_tram_kWh_per_pkm));
-  }
-  const pubTons = (kmPublic * val(c.weeklyToTonsFactor) * pubEf);
-
-  const flDom = Number(document.getElementById("flightTripsDomestic").value) || 0;
-  const flEu = Number(document.getElementById("flightTripsEurope").value) || 0;
-  const flTons = ((flDom * val(c.flightTripDistanceKmDomestic) * val(c.flightKgPerKmPerPassenger)) +
-    (flEu * val(c.flightTripDistanceKmEurope) * val(c.flightKgPerKmPerPassenger))) / 1000;
-
-  const transportTons = carTons + pubTons + flTons;
-
-  // --- LIFESTYLE CALCULATION ---
-  const diet = document.getElementById("diet").value;
-  const dietTons = (val(b.dietKgCO2PerYear_unit) * val(f.diet?.[diet])) / 1000;
-
-  const goodsLvl = Number(document.getElementById("goodsLevel").value);
-  const goodsFactor = 0.4 + (goodsLvl / 100) * 1.8;
-  const goodsTons = (val(b.goodsKgCO2PerYear_unit) * goodsFactor) / 1000;
-
-  const digLvl = Number(document.getElementById("digitalLevel").value);
-  const digAnchors = {
-    low: val(f.digitalLevel?.low),
-    medium: val(f.digitalLevel?.medium),
-    high: val(f.digitalLevel?.high)
-  };
-  const digTons = (val(b.digitalKgCO2PerYear_unit) * piecewiseSliderToAnchor(digLvl, digAnchors)) / 1000;
-
-  // ΔΙΟΡΘΩΣΗ: Αν η τιμή από το JSON είναι 0, χρησιμοποιούμε fallback 1.2 τόνους
-  let socialBase = val(b.socialShareKgCO2PerYear) / 1000;
-  if (socialBase === 0) socialBase = 1.2; // Fallback 1.2 τόνοι αν λείπει
-  const socialTons = getEffectiveNumber("socialShare_tCO2_per_year", socialBase);
-
-  const lifestyleTons = dietTons + goodsTons + digTons + socialTons;
-
-  return {
-    totalTons: homeTons + transportTons + lifestyleTons,
-    homeTons,
-    transportTons,
-    lifestyleTons,
-    homeValues: [heatingTons, dhwTons, otherTons],
-    transportValues: [
-        carTons, 
-        pubTons, 
-        (flDom * val(c.flightTripDistanceKmDomestic) * val(c.flightKgPerKmPerPassenger)) / 1000, 
-        (flEu * val(c.flightTripDistanceKmEurope) * val(c.flightKgPerKmPerPassenger)) / 1000
-    ],
-    lifestyleValues: [dietTons, goodsTons, digTons, socialTons]
-  };
-}
-
-// --- 4. UI UPDATE & INITIALIZATION ---
-
-function populateSelects() {
-  if (!model) return;
-  const populate = (id, key) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.innerHTML = "";
-    (model.ui?.[key]?.order || []).forEach(k => {
-      const opt = document.createElement("option");
-      opt.value = k;
-      opt.textContent = model.ui?.[key]?.labels?.[window.getLang ? window.getLang() : "el"]?.[k] || k;
-      el.appendChild(opt);
-    });
-  };
-  populate("homeType", "homeType");
-  populate("heatingType", "heatingType");
-  populate("occupants", "occupants");
-  populate("carType", "carType");
-  populate("publicType", "publicTransport");
-  populate("diet", "diet");
-}
-
-function updateUI() {
-  const res = compute();
-  const t = T();
-  const lang = (window.getLang) ? window.getLang() : "el";
-
-  // KPI Headers
-  const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = safeFmt(v); };
-  setTxt("homeKpi", res.homeTons);
-  setTxt("trKpi", res.transportTons);
-  setTxt("lifeKpi", res.lifestyleTons);
-  setTxt("totalVal", res.totalTons);
-
-  // ΔΙΟΡΘΩΣΗ: Εμφάνιση τιμής social share με το ίδιο fallback
-  const socVal = res.lifestyleValues[3]; // Παίρνουμε την τιμή που υπολογίστηκε στο compute
-  setTxt("socialShareVal", safeFmt(socVal * 1000, 0) + " " + t.units.socialShare);
-
-  // Navigation Pills
-  const updateNavBtn = (id, val) => {
-    const el = document.getElementById(id);
-    if (el) {
-      const valSpan = el.querySelector(".navVal");
-      if (valSpan) valSpan.textContent = safeFmt(val);
-    }
-  };
-  updateNavBtn("navHome", res.homeTons);
-  updateNavBtn("navTransport", res.transportTons);
-  updateNavBtn("navLifestyle", res.lifestyleTons);
-
-  // --- DYNAMIC SLIDER LABELS ---
+  // DOM Elements - Navigation
+  const navHome = document.getElementById('navHome');
+  const navTransport = document.getElementById('navTransport');
+  const navLifestyle = document.getElementById('navLifestyle');
   
-  // 1. Home Condition
-  const homeCondEl = document.getElementById("homeCond");
-  const homeCondLabel = document.getElementById("homeCondLabel");
-  if (homeCondEl && homeCondLabel) {
-    const order = getUIOrder("homeCondition");
-    const labels = getUILabel("homeCondition") || {};
-    const idx = Math.max(0, Math.min(order.length - 1, Math.round(Number(homeCondEl.value) || 0)));
-    const key = order[idx];
-    homeCondLabel.textContent = labels[key] ?? String(key);
-  }
+  const cardHome = document.getElementById('cardHome');
+  const cardTransport = document.getElementById('cardTransport');
+  const cardLifestyle = document.getElementById('cardLifestyle');
+  const cardSummary = document.getElementById('cardSummary');
+  
+  const stepPrev = document.getElementById('stepPrev');
+  const stepNext = document.getElementById('stepNext');
+  const stepTitle = document.getElementById('stepTitle');
+  
+  // Καρτέλες (Tabs)
+  const cards = [cardHome, cardTransport, cardLifestyle];
+  const navs = [navHome, navTransport, navLifestyle];
+  let currentCardIndex = 0;
 
-  // 2. Home Electricity Use
-  const homeUseEl = document.getElementById("homeUseLevel");
-  const homeUseLabel = document.getElementById("homeUseLabel");
-  if (homeUseEl && homeUseLabel) {
-    const v = Number(homeUseEl.value);
-    const labels = getUILabel("homeUseLevel") || {};
-    const key = (v < 33) ? "min" : (v > 66) ? "max" : "typical";
-    homeUseLabel.textContent = labels[key] ?? "";
-  }
-
-  // 3. Goods Consumption
-  const goodsEl = document.getElementById("goodsLevel");
-  const goodsLabel = document.getElementById("goodsLabel");
-  if (goodsEl && goodsLabel) {
-    const v = Number(goodsEl.value);
-    const labels = getUILabel("goodsLevel4") || {};
-    const key = (v < 17) ? "lvl0" : (v < 50) ? "lvl1" : (v < 84) ? "lvl2" : "lvl3";
-    goodsLabel.textContent = labels[key] ?? "";
-  }
-
-  // 4. Digital Consumption
-  const digEl = document.getElementById("digitalLevel");
-  const digLabel = document.getElementById("digitalLabel");
-  if (digEl && digLabel) {
-    const v = Number(digEl.value);
-    const labels = getUILabel("digitalLevel") || {};
-    let txt = "";
-    if (Object.keys(labels).length > 0) {
-       txt = (v < 33) ? labels.low : (v > 66) ? labels.high : labels.medium;
-    } 
-    if (!txt) {
-       txt = (v < 33) ? t.labels.digitalMin : (v > 66) ? t.labels.digitalMax : t.labels.digitalMid;
-    }
-    digLabel.textContent = txt;
-  }
-
-  // 5. Public Transport KM badge
-  const wkKm = Number(document.getElementById("weeklyKm").value) || 0;
-  const pubR = document.getElementById("publicPct");
-  if (pubR) {
-    pubR.max = wkKm;
-    const km = Math.min(wkKm, Number(pubR.value));
-    const valEl = document.getElementById("publicKmVal");
-    if (valEl) valEl.textContent = `${Math.round(km)} km`;
-  }
-
-  // --- EU TARGET ---
-  const target = getEffectiveNumber("euTarget_tCO2_per_year", (model && model.targets ? val(model.targets.euTargetTonsPerYear) : 2.5));
-  const rp = document.getElementById("reducePct");
-  if (rp) {
-    if (res.totalTons > target) {
-      const pct = Math.max(0, (1 - (target / res.totalTons)) * 100);
-      rp.textContent = (lang === "en")
-        ? `Needed reduction to reach EU target (${safeFmt(target)} t/yr): ${safeFmt(pct, 0)}%`
-        : `Απαιτούμενη μείωση για τον στόχο ΕΕ (${safeFmt(target)} t/έτος): ${safeFmt(pct, 0)}%`;
-      rp.style.color = "#d9534f"; // Κόκκινο
-    } else {
-      rp.textContent = (lang === "en")
-        ? `You are at or below the EU target (${safeFmt(target)} t/yr).`
-        : `Είσαι εντός στόχου ΕΕ (${safeFmt(target)} t/έτος).`;
-      rp.style.color = "#5cb85c"; // Πράσινο
-    }
-  }
-}
-
-// --- MAIN EVENT LISTENER ---
-
-document.addEventListener("DOMContentLoaded", async () => {
-  if (window.initLangButtons) initLangButtons();
-
-  // Load Config
-  try {
-    const cReq = await fetch("../config.json?v=" + Date.now());
-    if (cReq.ok) appConfig = await cReq.json();
-  } catch (e) {}
-
-  // Load Model
-  try {
-    const mReq = await fetch("../assets/footprintModel_final_draft.json?v=" + Date.now());
-    if (mReq.ok) {
-      model = await mReq.json();
-      populateSelects();
-
-      const t = T();
-      const setText = (id, txt) => {
-        const el = document.getElementById(id);
-        if (el) el.textContent = txt;
-      };
+  // 2. ΦΟΡΤΩΣΗ ΔΕΔΟΜΕΝΩΝ (Με Versioning για να μη κολλάει η cache)
+  async function init() {
+    try {
+      // Παίρνουμε το version από το version.js ή βάζουμε τυχαίο αριθμό
+      const v = (typeof APP_BUILD !== 'undefined') ? APP_BUILD : Date.now();
       
-      // Set Labels
-      setText("title", t.title);
-      setText("subtitle", t.subtitle);
-      setText("homeTitle", t.home);
-      setText("trTitle", t.transport);
-      setText("lifeTitle", t.lifestyle);
+      const resp = await fetch(MODEL_URL + '?v=' + v);
+      if (!resp.ok) throw new Error('Model not found');
+      
+      modelData = await resp.json();
+      
+      // Γέμισμα Selects και Labels από το JSON
+      populateUI();
+      
+      // Φόρτωση αποθηκευμένων τιμών (αν υπάρχουν)
+      loadFromStorage();
+      
+      // Αρχικός Υπολογισμός
+      calculateAll();
+      
+      // Ενημέρωση UI
+      updateActiveCard(0);
 
-      // Setup Navigation Buttons
-      const setupNav = (btnId, label, targetCardId) => {
-        const btn = document.getElementById(btnId);
-        if (btn) {
-          btn.innerHTML = `
-            <div style="font-size:0.85em; opacity:0.9; line-height:1.2;">${label}</div>
-            <div style="font-weight:bold; font-size:1.1em; line-height:1.2;">
-              <span class="navVal">-</span> <span style="font-size:0.8em">t</span>
-            </div>
-          `;
-          btn.addEventListener("click", () => {
-            const card = document.getElementById(targetCardId);
-            if (card) card.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-          });
-        }
-      };
-
-      setupNav("navHome", t.home, "cardHome");
-      setupNav("navTransport", t.transport, "cardTransport");
-      setupNav("navLifestyle", t.lifestyle, "cardLifestyle");
-
-      // Set Input Labels
-      setText("lblHomeType", t.labels.homeType);
-      setText("lblHomeCond", t.labels.homeCond);
-      setText("lblHeating", t.labels.heating);
-      setText("lblOccupants", t.labels.occupants);
-      setText("lblSolarDHW", t.labels.solarDHW);
-      setText("lblHomeUse", t.labels.homeUse);
-      setText("lblWeeklyKm", t.labels.weeklyKm);
-      setText("lblCarType", t.labels.carType);
-      setText("lblAlone", t.labels.alone);
-      setText("lblPublicTransport", t.labels.publicTransport);
-      setText("lblPublicPct", t.labels.publicPct);
-      setText("lblFlightsDomestic", t.labels.flightsDomestic);
-      setText("lblFlightsEurope", t.labels.flightsEurope);
-      setText("lblDiet", t.labels.diet);
-      setText("lblGoodsProfile", t.labels.goodsProfile);
-      setText("lblDigitalLevel", t.labels.digitalLevel);
-      setText("lblSocialShare", t.labels.socialShare);
-
-      setText("btnCalc", t.labels.calc);
-      setText("btnDash", t.labels.dash);
-      setText("lblTotal", (t.labels.total) ? t.labels.total : "Σύνολο");
-
-      updateUI();
-    } else {
-      console.error("Model not found");
+    } catch (err) {
+      console.error('Init Error:', err);
+      document.getElementById('subtitle').textContent = 'Error loading data. Check console.';
     }
-  } catch (e) {
-    console.error(e);
   }
 
-  // Bind Events
-  document.querySelectorAll("input, select").forEach(el => {
-    el.addEventListener("input", updateUI);
-    el.addEventListener("change", updateUI);
+  // 3. UI POPULATION (Γέμισμα λιστών)
+  function populateUI() {
+    const lang = getLang(); // Από common.js
+    const T = modelData.translations[lang];
+
+    // Τίτλοι
+    document.getElementById('title').textContent = T.appTitle;
+    document.getElementById('subtitle').textContent = T.appSubtitle;
+    
+    document.getElementById('homeTitle').textContent = T.catHousing;
+    document.getElementById('trTitle').textContent = T.catTransport;
+    document.getElementById('lifeTitle').textContent = T.catLifestyle;
+
+    document.getElementById('navHome').textContent = T.catHousing;
+    document.getElementById('navTransport').textContent = T.catTransport;
+    document.getElementById('navLifestyle').textContent = T.catLifestyle;
+
+    // --- HOUSING ---
+    fillSelect('homeType', modelData.housing.types, lang);
+    fillSelect('heatingType', modelData.housing.heating, lang);
+    
+    // Occupants (1-10)
+    const occSel = document.getElementById('occupants');
+    occSel.innerHTML = '';
+    for(let i=1; i<=6; i++) {
+      let opt = document.createElement('option');
+      opt.value = i;
+      opt.text = i + (i===6 ? '+' : '');
+      occSel.add(opt);
+    }
+    
+    setLabel('lblHomeType', T.lblHomeType);
+    setLabel('lblHomeCond', T.lblHomeCond);
+    setLabel('lblHeating', T.lblHeating);
+    setLabel('lblOccupants', T.lblOccupants);
+    document.getElementById('lblSolarDHW').textContent = T.lblSolar;
+    setLabel('lblHomeUse', T.lblElectricity);
+
+    // --- TRANSPORT ---
+    fillSelect('carType', modelData.transport.carTypes, lang);
+    fillSelect('publicType', modelData.transport.publicTypes, lang);
+    
+    setLabel('lblWeeklyKm', T.lblWeeklyKm);
+    setLabel('lblPublicPct', T.lblPublicUse);
+    setLabel('lblCarType', T.lblCarType);
+    document.getElementById('lblAlone').textContent = T.lblAlone;
+    setLabel('lblPublicTransport', T.lblPublicMode);
+    setLabel('lblFlightsDomestic', T.lblFlightDom);
+    setLabel('lblFlightsEurope', T.lblFlightEu);
+
+    // --- LIFESTYLE ---
+    fillSelect('diet', modelData.lifestyle.diets, lang);
+    
+    setLabel('lblDiet', T.lblDiet);
+    setLabel('lblGoodsProfile', T.lblGoods);
+    setLabel('lblDigitalLevel', T.lblDigital);
+    document.getElementById('lblSocialShare').textContent = T.lblSocial + ': ';
+    document.getElementById('socialShareVal').textContent = (modelData.constants.socialShare / 1000).toFixed(2) + ' t';
+
+    // Labels Κουμπιών
+    document.getElementById('lblTotal').textContent = T.lblTotal || "TOTAL";
+    document.getElementById('btnCalc').textContent = T.btnRecalc || "Reset";
+    document.getElementById('btnDash').textContent = T.btnDetails || "Dashboard";
+  }
+
+  function fillSelect(id, items, lang) {
+    const el = document.getElementById(id);
+    el.innerHTML = '';
+    items.forEach(item => {
+      let opt = document.createElement('option');
+      opt.value = item.id;
+      opt.text = item.label[lang];
+      el.add(opt);
+    });
+  }
+
+  function setLabel(id, text) {
+    const el = document.getElementById(id);
+    if(el) el.textContent = text;
+  }
+
+  // 4. ΥΠΟΛΟΓΙΣΜΟΙ (CORE LOGIC)
+  function calculateAll() {
+    if(!modelData) return;
+
+    // A. Housing
+    const ht = getVal('homeType'); 
+    const hc = parseInt(document.getElementById('homeCond').value); // 0=bad, 1=medium, 2=good
+    const heatId = getVal('heatingType');
+    const occ = parseInt(getVal('occupants'));
+    const hasSolar = document.getElementById('solarDHW').checked;
+    const elecLvl = parseInt(document.getElementById('homeUseLevel').value); // 0-100
+
+    // Βρίσκουμε συντελεστές
+    const typeObj = modelData.housing.types.find(x => x.id === ht);
+    const heatObj = modelData.housing.heating.find(x => x.id === heatId);
+    
+    // Θέρμανση: Base needs * SizeFactor * InsulationFactor * FuelFactor
+    // Απλοποιημένο μοντέλο βάσει JSON
+    let heatNeed = 0;
+    if(hc === 0) heatNeed = modelData.constants.heat_none;
+    else if(hc === 1) heatNeed = modelData.constants.heat_partial;
+    else heatNeed = modelData.constants.heat_modern;
+
+    // Home Type Multiplier (π.χ. Μονοκατοικία vs Διαμέρισμα)
+    const typeMult = typeObj ? typeObj.factor : 1;
+    
+    // Fuel Emission Factor
+    const fuelEF = heatObj ? heatObj.ef : 0; 
+
+    let co2_heat = (heatNeed * typeMult * fuelEF); // kgCO2
+
+    // Ηλεκτρισμός (Lights/Appliances)
+    // Map slider 0-100 to range [elec_min, elec_max]
+    const eMin = modelData.constants.elec_min;
+    const eMax = modelData.constants.elec_max;
+    const eKwh = eMin + (eMax - eMin) * (elecLvl / 100);
+    const co2_elec = eKwh * modelData.constants.gridCI;
+
+    // ΖΝΧ (Hot Water)
+    let dhwKwh = hasSolar ? modelData.constants.dhw_solar : modelData.constants.dhw_elec;
+    // Ανά άτομο * άτομα
+    const co2_dhw = (dhwKwh * occ) * modelData.constants.gridCI;
+
+    // Σύνολο Κατοικίας (Διαιρούμενο δια κατοίκους για ατομικό)
+    const totalHousingKg = (co2_heat + co2_elec + co2_dhw) / occ;
+
+
+    // B. Transport
+    const wkKm = parseFloat(getVal('weeklyKm')) || 0;
+    const pubPct = parseInt(document.getElementById('publicPct').value); // 0-200% relative to car
+    // Εδώ η λογική στο JSON μπορεί να είναι: pubPct% of weeklyKm is public? 
+    // Ας υποθέσουμε απλά: wkKm είναι ΙΧ, και public είναι extra βάσει slider.
+    // Ή πιο σωστά: Ο χρήστης βάζει "km με αυτοκίνητο" και "km με ΜΜΜ".
+    
+    // Για απλότητα UI: Slider Public Transport (km/week)
+    const pubKm = parseInt(document.getElementById('publicPct').value); // Slider is actually absolute km here for simplicity in UI setup
+    document.getElementById('publicKmVal').textContent = pubKm + ' km/week';
+
+    const carId = getVal('carType');
+    const alone = document.getElementById('alone').checked;
+    const pubId = getVal('publicType');
+    
+    const flightDom = parseFloat(getVal('flightTripsDomestic')) || 0;
+    const flightEu = parseFloat(getVal('flightTripsEurope')) || 0;
+
+    const carObj = modelData.transport.carTypes.find(x => x.id === carId);
+    const pubObj = modelData.transport.publicTypes.find(x => x.id === pubId);
+
+    // Car calc
+    let carEf = carObj ? carObj.ef : 0;
+    // Αν ΔΕΝ είναι μόνος, διαιρούμε δια 2 (carpooling assumption)
+    if (!alone) carEf = carEf * modelData.constants.carPool; 
+    
+    const co2_car = wkKm * carEf * 52; // ετήσια
+
+    // Public calc
+    const pubEf = pubObj ? pubObj.ef : 0;
+    const co2_pub = pubKm * pubEf * 52;
+
+    // Flights
+    const distDom = modelData.constants.flight_dom_km;
+    const distEu = modelData.constants.flight_eu_km;
+    const efDom = modelData.constants.EF_flight_dom; // ανά km
+    const efEu = modelData.constants.EF_flight_eu;
+
+    const co2_fly = (flightDom * distDom * efDom) + (flightEu * distEu * efEu);
+
+    const totalTransportKg = co2_car + co2_pub + co2_fly;
+
+
+    // C. Lifestyle
+    const dietId = getVal('diet');
+    const goodsLvl = parseInt(document.getElementById('goodsLevel').value); // 0-100
+    const digLvl = parseInt(document.getElementById('digitalLevel').value); // 0-100
+
+    const dietObj = modelData.lifestyle.diets.find(x => x.id === dietId);
+    const dietFactor = dietObj ? dietObj.factor : 1;
+    const co2_food = modelData.constants.food_base * dietFactor;
+
+    // Goods (Clothes, gadgets, waste)
+    // Base * factor (0.5 to 1.5 based on slider)
+    const goodsFactor = 0.5 + (goodsLvl / 100); 
+    const co2_goods = modelData.constants.goods_unit * goodsFactor;
+
+    // Digital
+    const digFactor = 0.5 + (digLvl / 100);
+    const co2_dig = modelData.constants.digital_unit * digFactor;
+
+    const co2_social = modelData.constants.social_share;
+
+    const totalLifeKg = co2_food + co2_goods + co2_dig + co2_social;
+
+    // FINAL TOTAL
+    const grandTotalKg = totalHousingKg + totalTransportKg + totalLifeKg;
+    const grandTotalTons = grandTotalKg / 1000;
+
+    // ΑΠΟΘΗΚΕΥΣΗ ΣΤΟ ΠΑΓΚΟΣΜΙΟ STATE (για το Dashboard)
+    const results = {
+      housing: totalHousingKg / 1000,
+      transport: totalTransportKg / 1000,
+      lifestyle: totalLifeKg / 1000,
+      total: grandTotalTons,
+      timestamp: Date.now()
+    };
+    localStorage.setItem('co2_results', JSON.stringify(results));
+    saveToStorage(); // Αποθήκευση input values
+
+    // UPDATE UI KPIs
+    updateKpi('homeKpi', totalHousingKg);
+    updateKpi('trKpi', totalTransportKg);
+    updateKpi('lifeKpi', totalLifeKg);
+    
+    document.getElementById('totalVal').textContent = grandTotalTons.toFixed(2);
+    
+    // Update labels for sliders
+    updateRangeLabels(hc, elecLvl, goodsLvl, digLvl);
+    
+    // Update current step KPI
+    updateStepKpi(grandTotalTons);
+
+    // Σύγκριση με στόχο 2030 (2.5t)
+    const target = modelData.constants.EU2030_TARGET;
+    const diff = grandTotalTons - target;
+    const elPct = document.getElementById('reducePct');
+    if(diff > 0) {
+      elPct.innerHTML = `Στόχος 2030: <b>${target}t</b>. Είσαι <b>+${diff.toFixed(1)}t</b> πάνω.`;
+      elPct.style.color = "#d32f2f";
+    } else {
+      elPct.innerHTML = `Στόχος 2030: <b>${target}t</b>. Μπράβο! Είσαι εντός στόχου.`;
+      elPct.style.color = "#388e3c";
+    }
+  }
+
+  function updateKpi(id, kg) {
+    const t = kg / 1000;
+    document.getElementById(id).textContent = t.toFixed(2);
+  }
+
+  function updateStepKpi(total) {
+    // Εμφανίζει το τρέχον σύνολο στο step bar
+    const el = document.getElementById('stepKpi');
+    if(el) el.textContent = total.toFixed(1) + ' t';
+  }
+
+  function updateRangeLabels(hc, elec, goods, dig) {
+    // Housing Condition
+    const conds = ["Κακή Μόνωση", "Μέτρια Μόνωση", "Άριστη (ΚΕΝΑΚ)"];
+    if(getLang() === 'en') {
+       conds[0]="Bad Insulation"; conds[1]="Medium"; conds[2]="Excellent";
+    }
+    document.getElementById('homeCondLabel').textContent = conds[hc];
+    
+    // Electricity
+    document.getElementById('homeUseLabel').textContent = (elec > 70 ? "High" : (elec < 30 ? "Low" : "Average"));
+
+    // Goods
+    document.getElementById('goodsLabel').textContent = (goods > 70 ? "High Consumer" : (goods < 30 ? "Eco Conscious" : "Average"));
+
+    // Digital
+    document.getElementById('digitalVal').textContent = (dig > 70 ? "High" : (dig < 30 ? "Low" : "Avg"));
+  }
+
+  function getVal(id) {
+    return document.getElementById(id).value;
+  }
+
+  // 5. NAVIGATION & EVENTS
+  navs.forEach((btn, idx) => {
+    btn.addEventListener('click', () => updateActiveCard(idx));
   });
 
-  const btnDash = document.getElementById("btnDash");
-  if (btnDash) btnDash.addEventListener("click", () => {
-    const res = compute();
-    localStorage.setItem("USER_TOTAL", res.totalTons);
-    localStorage.setItem("CO2_HOME_VALUES", JSON.stringify(res.homeValues));
-    localStorage.setItem("CO2_TRANSPORT_VALUES", JSON.stringify(res.transportValues));
-    localStorage.setItem("CO2_LIFE_VALUES", JSON.stringify(res.lifestyleValues));
-    location.href = "./dashboard.html";
+  stepPrev.addEventListener('click', () => {
+    if(currentCardIndex > 0) updateActiveCard(currentCardIndex - 1);
   });
+  
+  stepNext.addEventListener('click', () => {
+    if(currentCardIndex < cards.length - 1) updateActiveCard(currentCardIndex + 1);
+    else {
+      // Αν είναι στο τελευταίο βήμα, scroll στο summary
+      cardSummary.scrollIntoView({behavior: 'smooth'});
+    }
+  });
+
+  function updateActiveCard(idx) {
+    currentCardIndex = idx;
+    
+    // Update Tabs
+    navs.forEach((n, i) => n.classList.toggle('active', i === idx));
+    
+    // Scroll Carousel
+    // Το πλάτος της κάρτας είναι περίπου το πλάτος του carousel
+    const w = document.getElementById('cardsCarousel').offsetWidth;
+    document.getElementById('cardsCarousel').scrollTo({
+      left: w * idx,
+      behavior: 'smooth'
+    });
+
+    // Update Mobile Stepper Text
+    const titles = [
+      document.getElementById('homeTitle').textContent,
+      document.getElementById('trTitle').textContent,
+      document.getElementById('lifeTitle').textContent
+    ];
+    stepTitle.textContent = titles[idx];
+  }
+
+  // Listeners για όλα τα Inputs -> Recalculate
+  const inputs = document.querySelectorAll('select, input');
+  inputs.forEach(inp => {
+    inp.addEventListener('change', calculateAll);
+    inp.addEventListener('input', calculateAll); // Για sliders σε real-time
+  });
+
+  // Κουμπιά στο Summary
+  document.getElementById('btnCalc').addEventListener('click', () => {
+    if(confirm('Reset all values to default?')) {
+      localStorage.removeItem('co2_inputs');
+      location.reload();
+    }
+  });
+  
+  document.getElementById('btnDash').addEventListener('click', () => {
+    window.location.href = 'dashboard.html';
+  });
+
+  // 6. LOCAL STORAGE (Save inputs)
+  function saveToStorage() {
+    const data = {};
+    inputs.forEach(inp => {
+      if(inp.type === 'checkbox') data[inp.id] = inp.checked;
+      else data[inp.id] = inp.value;
+    });
+    localStorage.setItem('co2_inputs', JSON.stringify(data));
+  }
+
+  function loadFromStorage() {
+    const raw = localStorage.getItem('co2_inputs');
+    if(!raw) return;
+    try {
+      const data = JSON.parse(raw);
+      for (const [key, val] of Object.entries(data)) {
+        const el = document.getElementById(key);
+        if(el) {
+          if(el.type === 'checkbox') el.checked = val;
+          else el.value = val;
+        }
+      }
+    } catch(e) { console.error('Load error', e); }
+  }
+
+  // Start
+  init();
 });
