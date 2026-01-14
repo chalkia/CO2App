@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  console.log("Menu script loaded (v4 layout).");
+  console.log("Menu script loaded.");
 
   const menuBtn = document.getElementById('menuBtn');
   const closeBtn = document.getElementById('drawerClose');
@@ -45,34 +45,29 @@ document.addEventListener('DOMContentLoaded', () => {
     { 
       label: { el: 'Ρυθμίσεις', en: 'Settings' }, 
       path: 'pages/settings.html', 
-      icon: 'settingsN.png' // Βεβαιώσου ότι υπάρχει αυτό το αρχείο
+      icon: 'settingsN.png' 
     },
     { 
       label: { el: 'Εγκατάσταση', en: 'Install App' }, 
       path: 'pages/install.html', 
-      icon: 'installN.png'  // Βεβαιώσου ότι υπάρχει αυτό το αρχείο
+      icon: 'installN.png'
     }
   ];
 
-  // 3. Δημιουργία Μενού (Render)
+  // 3. Δημιουργία Μενού
   if (navContainer) {
     navContainer.innerHTML = '';
     const lang = (typeof getLang === 'function') ? getLang() : 'el';
-    
-    // Βρίσκουμε το τρέχον αρχείο για να βάλουμε το active class
     const currentPath = window.location.pathname.split('/').pop();
 
     menuItems.forEach(item => {
-      // Δημιουργία κουμπιού με την κλάση drawerItem (για το στυλ του screenshot)
-      const btn = document.createElement('div'); 
+      const btn = document.createElement('div');
       btn.className = 'drawerItem';
       
-      // Έλεγχος αν είναι η ενεργή σελίδα
       if (item.path.endsWith(currentPath)) {
         btn.classList.add('active');
       }
 
-      // Εικονίδιο
       const iconSrc = rootPath + 'assets/ui/' + item.icon;
       
       btn.innerHTML = `
@@ -82,10 +77,8 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="drawerText">${item.label[lang]}</div>
       `;
 
-      // Event Click για πλοήγηση
       btn.onclick = () => {
         let target = rootPath + item.path;
-        // Διόρθωση path αν είμαστε ήδη μέσα στο pages/
         if (isPages && item.path.startsWith('pages/')) {
            target = item.path.replace('pages/', ''); 
         }
@@ -96,23 +89,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 4. Κουμπί Αλλαγής Γλώσσας (Στο ίδιο στυλ)
+  // 4. Κουμπί Αλλαγής Γλώσσας
   if (langContainer) {
     langContainer.innerHTML = '';
     const lang = (typeof getLang === 'function') ? getLang() : 'el';
-    
-    // Εικονίδιο Σημαίας ανάλογα με τη γλώσσα που θα πάμε
-    // Αν είμαστε EL δείχνουμε EN (για να το πατήσει) και το αντίστροφο, 
-    // ή δείχνουμε την τρέχουσα; Συνήθως δείχνουμε τι θα γίνει. 
-    // Στο screenshot δείχνει "English", άρα είμαστε σε Greek mode.
-    
     const targetLang = (lang === 'el') ? 'en' : 'el';
+    
+    // Εμφάνιση της τρέχουσας γλώσσας ή της γλώσσας στόχου;
+    // Συνήθως στο μενού δείχνουμε την επιλογή που θα κάνουμε ή την τρέχουσα με σημαία.
+    // Εδώ θα δείξουμε τη γλώσσα στην οποία θα ΑΛΛΑΞΕΙ (όπως το κουμπί toggle).
     const flagIcon = rootPath + 'assets/ui/' + (targetLang === 'en' ? 'lang_en.png' : 'lang_el.png');
     const labelText = (targetLang === 'en') ? 'English' : 'Ελληνικά';
 
     const langBtn = document.createElement('div');
     langBtn.className = 'drawerItem';
-    langBtn.style.marginTop = '10px'; // Λίγο κενό από τα πάνω
+    langBtn.style.marginTop = '10px';
 
     langBtn.innerHTML = `
       <div class="drawerIcon">
