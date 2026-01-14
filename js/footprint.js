@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
   // 1. ΔΙΑΔΡΟΜΕΣ & ΜΕΤΑΒΛΗΤΕΣ
-  // ΔΙΟΡΘΩΣΗ: Το αρχείο είναι στο φάκελο vendor
+  // ΔΙΟΡΘΩΣΗ: Σωστό path για το αρχείο δεδομένων στο vendor
   const MODEL_URL = '../assets/vendor/footprintModel_final_draft.json'; 
   
   let modelData = null;
@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const stepNext = document.getElementById('stepNext');
   const stepTitle = document.getElementById('stepTitle');
   
+  const cards = [cardHome, cardTransport, cardLifestyle];
   const navs = [navHome, navTransport, navLifestyle];
   let currentCardIndex = 0;
 
@@ -27,7 +28,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       const v = (typeof APP_BUILD !== 'undefined') ? APP_BUILD : Date.now();
       const resp = await fetch(MODEL_URL + '?v=' + v);
-      if (!resp.ok) throw new Error('Model not found');
+      if (!resp.ok) throw new Error('Model not found at ' + MODEL_URL);
       
       modelData = await resp.json();
       
@@ -38,8 +39,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     } catch (err) {
       console.error('Init Error:', err);
+      // Εμφάνιση μηνύματος λάθους στον χρήστη
       const sub = document.getElementById('subtitle');
-      if(sub) sub.textContent = 'Error: Data file not found inside assets/vendor/';
+      if(sub) sub.textContent = 'Error: Data file not found. Check assets/vendor folder.';
     }
   }
 
@@ -151,6 +153,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let dhwKwh = hasSolar ? modelData.constants.dhw_solar : modelData.constants.dhw_elec;
     let val_dhw = (dhwKwh * occ) * modelData.constants.gridCI;
 
+    // Επιμερισμός ανά άτομο
     const co2_heat_per = val_heat / occ;
     const co2_elec_per = val_elec / occ;
     const co2_dhw_per  = val_dhw / occ; 
@@ -211,7 +214,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const grandTotalKg = totalHousingKg + totalTransportKg + totalLifeKg;
     const grandTotalTons = grandTotalKg / 1000;
 
-    // --- DASHBOARD DATA SAVING ---
+    // --- ΑΠΟΘΗΚΕΥΣΗ ΓΙΑ DASHBOARD ---
     const homeArr = [co2_heat_per/1000, co2_dhw_per/1000, co2_elec_per/1000];
     const transArr = [val_car/1000, val_pub/1000, val_flyDom/1000, val_flyEu/1000];
     const lifeArr = [val_food/1000, val_goods/1000, val_dig/1000, val_social/1000];
