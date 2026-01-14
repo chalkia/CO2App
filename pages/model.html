@@ -6,7 +6,23 @@
   <title>CO2App – Τεκμηρίωση / Documentation</title>
   <link rel="apple-touch-icon" href="../assets/icons/icon-192.png" />
   <link rel="icon" href="../assets/icons/icon-192.png" />
-  <link rel="stylesheet" href="../styles.css" />
+  
+  <script src="../js/version.js"></script>
+
+  <script>
+    function loadAsset(type, path) {
+      var v = (typeof APP_BUILD !== 'undefined') ? APP_BUILD : Date.now();
+      if (type === 'css') {
+        document.write('<link rel="stylesheet" href="' + path + '?v=' + v + '">');
+      } else if (type === 'js') {
+        document.write('<script src="' + path + '?v=' + v + '"><\/script>');
+      }
+    }
+    
+    // Φόρτωση CSS
+    loadAsset('css', '../styles.css');
+  </script>
+
   <style>
     /* Styling ειδικά για την τεκμηρίωση ώστε να ταιριάζει με το V4 content */
     .docPage h1 { font-size: 1.6rem; color: #2f4a31; margin-top: 1.2rem; margin-bottom: 0.5rem; }
@@ -257,8 +273,19 @@ CO2_digital = Base_Digital_kg × Digital_Factor / 1000</pre>
     <div class="drawerLang" id="drawerLang"></div>
   </nav>
 
-  <script src="../js/common.js"></script>
-  <script src="../js/menu.js"></script>
+  <script>
+    loadAsset('js', '../js/common.js');
+    loadAsset('js', '../js/menu.js');
+  </script>
+
+  <div id="versionDisplay" style="text-align:center; font-size:0.85rem; color:#888; margin-top:2rem; margin-bottom:1rem; opacity:0.7;"></div>
+
+  <script>
+    if (document.getElementById('versionDisplay') && typeof APP_VER !== 'undefined') {
+      document.getElementById('versionDisplay').innerText = 'v' + APP_VER;
+    }
+  </script>
+
   <script>
     function applyLang(){
       const lang = (localStorage.getItem('lang') || 'el');
