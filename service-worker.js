@@ -46,6 +46,8 @@ const PRECACHE = [
   "./assets/ui/co2N.png",
   "./assets/ui/quizN.png",
   "./assets/ui/infoN.png",
+  "./assets/ui/settingsN.png", // <--- ΠΡΟΣΘΗΚΗ
+  "./assets/ui/installN.png",  // <--- ΠΡΟΣΘΗΚΗ
   "./assets/ui/lang_en.png",
   "./assets/ui/lang_el.png",
 
@@ -124,3 +126,4 @@ self.addEventListener("fetch", (event) => {
     })
   );
 });
+
