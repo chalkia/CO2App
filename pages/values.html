@@ -8,7 +8,23 @@
   <meta name="theme-color" content="#74a974"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <link href="../assets/icons/icon-192.png" rel="apple-touch-icon"/>
-  <link href="../styles.css" rel="stylesheet">
+  
+  <script src="../js/version.js"></script>
+
+  <script>
+    function loadAsset(type, path) {
+      var v = (typeof APP_BUILD !== 'undefined') ? APP_BUILD : Date.now();
+      if (type === 'css') {
+        document.write('<link rel="stylesheet" href="' + path + '?v=' + v + '">');
+      } else if (type === 'js') {
+        document.write('<script src="' + path + '?v=' + v + '"><\/script>');
+      }
+    }
+    
+    // Φόρτωση CSS
+    loadAsset('css', '../styles.css');
+  </script>
+
   <style>
     /* Small page-specific tweaks, keep app feel */
     .doc-card { max-width: 980px; margin: 0 auto; }
@@ -431,30 +447,31 @@
       <button aria-label="Close" class="drawerClose" id="drawerClose">×</button>
     </div>
     <div class="drawerNav" id="drawerNav"></div>
+    <div class="drawerLang" id="drawerLang"></div>
   </nav>
 
-  <script src="../js/common.js"></script>
-  <script src="../js/menu.js"></script>
   <script>
-    // Simple bilingual toggle (keeps references as-is)
-    (function() {
-      const langBtn = document.getElementById('langBtn');
-      const KEY = "lang";
-      function apply(lang) {
-        document.documentElement.lang = lang;
-        document.querySelectorAll('[data-el][data-en]').forEach(el => {
-          el.textContent = (lang === 'en') ? el.getAttribute('data-en') : el.getAttribute('data-el');
-        });
-        langBtn.textContent = (lang === 'en') ? 'EL' : 'EN';
-      }
-      const saved = localStorage.getItem(KEY) || 'el';
-      apply(saved);
-      langBtn.addEventListener('click', () => {
-        const next = (document.documentElement.lang === 'en') ? 'el' : 'en';
-        localStorage.setItem(KEY, next);
-        apply(next);
+    loadAsset('js', '../js/common.js');
+    loadAsset('js', '../js/menu.js');
+  </script>
+
+  <div id="versionDisplay" style="text-align:center; font-size:0.85rem; color:#888; margin-top:2rem; margin-bottom:1rem; opacity:0.7;"></div>
+
+  <script>
+    if (document.getElementById('versionDisplay') && typeof APP_VER !== 'undefined') {
+      document.getElementById('versionDisplay').innerText = 'v' + APP_VER;
+    }
+  </script>
+
+  <script>
+    // Εφαρμογή γλώσσας κατά τη φόρτωση (χωρίς button listener που δεν υπάρχει)
+    document.addEventListener('DOMContentLoaded', () => {
+      const saved = localStorage.getItem('lang') || 'el';
+      document.documentElement.lang = saved;
+      document.querySelectorAll('[data-el][data-en]').forEach(el => {
+        el.textContent = (saved === 'en') ? el.getAttribute('data-en') : el.getAttribute('data-el');
       });
-    })();
+    });
   </script>
 </body>
 </html>
