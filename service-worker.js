@@ -1,11 +1,10 @@
 // 1. Εισαγωγή της μεταβλητής έκδοσης (APP_BUILD)
 importScripts('./js/version.js');
 
-// Δημιουργία ονόματος Cache
 const CACHE_KEY = (typeof APP_BUILD !== 'undefined') ? APP_BUILD : 'v_init';
 const CACHE_NAME = 'co2app-cache-' + CACHE_KEY;
 
-// 2. Precache List (ΔΙΟΡΘΩΜΕΝΗ)
+// 2. Precache List
 const PRECACHE = [
   "./",
   "./index.html",
@@ -31,7 +30,7 @@ const PRECACHE = [
   "./pages/settings.html",
   "./pages/values.html",
   
-  // Config & Data (ΔΙΟΡΘΩΣΗ PATH)
+  // Config & Data (ΔΙΟΡΘΩΜΕΝΟ PATH)
   "./config.json",
   "./assets/vendor/footprintModel_final_draft.json",
 
@@ -40,14 +39,12 @@ const PRECACHE = [
   "./assets/icons/icon-192.png",
   "./assets/icons/icon-512.png",
   "./assets/ui/homeN.png",
-  "./assets/ui/busN.png",
-  "./assets/ui/bookN.png",
-  "./assets/ui/FoodLifestyleN.png",
   "./assets/ui/co2N.png",
   "./assets/ui/quizN.png",
+  "./assets/ui/bookN.png",
   "./assets/ui/infoN.png",
-  "./assets/ui/settingsN.png", // <--- ΠΡΟΣΘΗΚΗ
-  "./assets/ui/installN.png",  // <--- ΠΡΟΣΘΗΚΗ
+  "./assets/ui/settingsN.png", // Νέο εικονίδιο
+  "./assets/ui/installN.png",  // Νέο εικονίδιο
   "./assets/ui/lang_en.png",
   "./assets/ui/lang_el.png",
 
@@ -61,18 +58,16 @@ const PRECACHE = [
   "./assets/vendor/jspdf.umd.min.js"
 ];
 
-// 3. Install
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(PRECACHE).catch(err => {
-        console.error("CRITICAL: Failed to cache some files. Check paths.", err);
+        console.error("CRITICAL: Failed to cache some files.", err);
       });
     })
   );
 });
 
-// 4. Activate
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) => Promise.all(
@@ -86,14 +81,12 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// 5. Message
 self.addEventListener('message', (event) => {
   if (event.data && event.data.action === 'skipWaiting') {
     self.skipWaiting();
   }
 });
 
-// 6. Fetch
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== 'GET' || !req.url.startsWith('http')) return;
@@ -126,4 +119,3 @@ self.addEventListener("fetch", (event) => {
     })
   );
 });
-
