@@ -8,7 +8,22 @@
   <meta content="#74a974" name="theme-color"/>
   <meta content="yes" name="apple-mobile-web-app-capable"/>
   <link href="../assets/icons/icon-192.png" rel="apple-touch-icon"/>
-  <link href="../styles.css" rel="stylesheet">
+  
+  <script src="../js/version.js"></script>
+
+  <script>
+    function loadAsset(type, path) {
+      var v = (typeof APP_BUILD !== 'undefined') ? APP_BUILD : Date.now();
+      if (type === 'css') {
+        document.write('<link rel="stylesheet" href="' + path + '?v=' + v + '">');
+      } else if (type === 'js') {
+        document.write('<script src="' + path + '?v=' + v + '"><\/script>');
+      }
+    }
+    
+    // Φόρτωση CSS δυναμικά
+    loadAsset('css', '../styles.css');
+  </script>
 </head>
 <body>
   <div class="container">
@@ -24,26 +39,23 @@
     </div>
   </div>
 
-  <div aria-hidden="true" class="drawerBackdrop" id="drawerBackdrop"></div>
-  <nav aria-hidden="true" class="drawer" id="drawer">
-    <div class="drawerHeader">
-      <div class="drawerTitle">CO2app</div>
-      <button aria-label="Close menu" class="iconBtn" id="drawerClose">×</button>
-    </div>
-    <div class="drawerSection" id="drawerNav"></div>
-    <div class="drawerSection" id="drawerLang"></div>
-  </nav>
+  <script>
+    loadAsset('js', '../js/common.js');
+    loadAsset('js', '../js/menu.js');
+  </script>
 
-  <script src="../js/common.js"></script>
-  <script src="../js/menu.js"></script>
   <script>
     const lang = getLang();
     document.getElementById("title").textContent = (lang === "el") ? "Πληροφορίες" : "Info";
+    // Χρησιμοποιούμε cache: "no-store" για να παίρνει πάντα το φρέσκο κείμενο
     const url = (lang === "el") ? "../assets/info/Info_gr.html" : "../assets/info/InfoEn.html";
 
     async function loadInfo(){
       try {
-        const resp = await fetch(url, {cache:"no-store"});
+        // Προσθέτουμε και εδώ το version number για σιγουριά στο fetch
+        const v = (typeof APP_BUILD !== 'undefined') ? APP_BUILD : Date.now();
+        const resp = await fetch(url + '?v=' + v, {cache:"no-store"});
+        
         if(resp.ok){
           const txt = await resp.text();
           const bodyMatch = txt.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
@@ -55,5 +67,23 @@
     }
     loadInfo();
   </script>
+
+  <div id="versionDisplay" style="text-align:center; font-size:0.85rem; color:#888; margin-top:2rem; margin-bottom:1rem; opacity:0.7;"></div>
+
+  <script>
+    if (document.getElementById('versionDisplay') && typeof APP_VER !== 'undefined') {
+      document.getElementById('versionDisplay').innerText = 'v' + APP_VER;
+    }
+  </script>
+
+  <div aria-hidden="true" class="drawerBackdrop" id="drawerBackdrop"></div>
+  <nav aria-hidden="true" class="drawer" id="drawer">
+    <div class="drawerHeader">
+      <div class="drawerTitle">CO2app</div>
+      <button aria-label="Close menu" class="iconBtn" id="drawerClose">×</button>
+    </div>
+    <div class="drawerSection" id="drawerNav"></div>
+    <div class="drawerSection" id="drawerLang"></div>
+  </nav>
 </body>
 </html>
