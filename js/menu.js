@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  console.log("Menu script loaded."); // Επιβεβαίωση ότι τρέχει
+  console.log("Menu script loaded (v4 layout).");
 
   const menuBtn = document.getElementById('menuBtn');
   const closeBtn = document.getElementById('drawerClose');
@@ -8,47 +8,84 @@ document.addEventListener('DOMContentLoaded', () => {
   const navContainer = document.getElementById('drawerNav');
   const langContainer = document.getElementById('drawerLang');
 
-  // Αν δεν βρει το drawer (π.χ. είμαστε στην Αρχική), σταματάει χωρίς λάθος
+  // Αν δεν υπάρχει drawer, σταματάμε.
   if (!drawer) return;
 
   // 1. Υπολογισμός Διαδρομής (Root Path)
   const isPages = window.location.pathname.includes('/pages/');
   const rootPath = isPages ? '../' : './';
   
-  // 2. Λίστα Επιλογών Μενού
+  // 2. Λίστα Επιλογών Μενού (Ακριβώς όπως η εικόνα)
   const menuItems = [
-    { label: { el: 'Αρχική', en: 'Home' }, path: 'index.html', icon: 'homeN.png', isImg: true },
-    { label: { el: 'Υπολογισμός', en: 'Calculator' }, path: 'pages/footprint.html', icon: 'co2N.png', isImg: true },
-    { label: { el: 'Αποτελέσματα', en: 'Dashboard' }, path: 'pages/dashboard.html', icon: '📊', isImg: false },
-    { label: { el: 'Quiz', en: 'Quiz' }, path: 'pages/quiz.html', icon: 'quizN.png', isImg: true },
-    { label: { el: 'Τεκμηρίωση', en: 'Documentation' }, path: 'pages/model.html', icon: 'bookN.png', isImg: true },
-    { label: { el: 'Σταθερές', en: 'Constants' }, path: 'pages/values.html', icon: '⚙️', isImg: false },
-    { label: { el: 'Ρυθμίσεις', en: 'Settings' }, path: 'pages/settings.html', icon: '🔧', isImg: false },
-    { label: { el: 'Εγκατάσταση', en: 'Install App' }, path: 'pages/install.html', icon: '📱', isImg: false },
-    { label: { el: 'Πληροφορίες', en: 'About' }, path: 'pages/info.html', icon: 'infoN.png', isImg: true }
+    { 
+      label: { el: 'Αρχική', en: 'Home' }, 
+      path: 'index.html', 
+      icon: 'homeN.png' 
+    },
+    { 
+      label: { el: 'Quiz', en: 'Quiz' }, 
+      path: 'pages/quiz.html', 
+      icon: 'quizN.png' 
+    },
+    { 
+      label: { el: 'Υπολογιστής CO₂', en: 'CO₂ Calculator' }, 
+      path: 'pages/footprint.html', 
+      icon: 'co2N.png' 
+    },
+    { 
+      label: { el: 'Τεκμηρίωση', en: 'Documentation' }, 
+      path: 'pages/model.html', 
+      icon: 'bookN.png' 
+    },
+    { 
+      label: { el: 'Πληροφορίες', en: 'About' }, 
+      path: 'pages/info.html', 
+      icon: 'infoN.png' 
+    },
+    { 
+      label: { el: 'Ρυθμίσεις', en: 'Settings' }, 
+      path: 'pages/settings.html', 
+      icon: 'settingsN.png' // Βεβαιώσου ότι υπάρχει αυτό το αρχείο
+    },
+    { 
+      label: { el: 'Εγκατάσταση', en: 'Install App' }, 
+      path: 'pages/install.html', 
+      icon: 'installN.png'  // Βεβαιώσου ότι υπάρχει αυτό το αρχείο
+    }
   ];
 
   // 3. Δημιουργία Μενού (Render)
   if (navContainer) {
     navContainer.innerHTML = '';
     const lang = (typeof getLang === 'function') ? getLang() : 'el';
+    
+    // Βρίσκουμε το τρέχον αρχείο για να βάλουμε το active class
+    const currentPath = window.location.pathname.split('/').pop();
 
     menuItems.forEach(item => {
-      const btn = document.createElement('button');
-      btn.className = 'drawerLink';
+      // Δημιουργία κουμπιού με την κλάση drawerItem (για το στυλ του screenshot)
+      const btn = document.createElement('div'); 
+      btn.className = 'drawerItem';
       
-      let iconHtml = '';
-      if(item.isImg) {
-        const iconSrc = rootPath + 'assets/ui/' + item.icon;
-        iconHtml = `<img src="${iconSrc}" alt="" style="width:24px; height:24px; margin-right:12px; object-fit:contain;">`;
-      } else {
-        iconHtml = `<span style="margin-right:12px; width:24px; text-align:center; font-size:1.2rem;">${item.icon}</span>`;
+      // Έλεγχος αν είναι η ενεργή σελίδα
+      if (item.path.endsWith(currentPath)) {
+        btn.classList.add('active');
       }
 
-      btn.innerHTML = iconHtml + item.label[lang];
+      // Εικονίδιο
+      const iconSrc = rootPath + 'assets/ui/' + item.icon;
+      
+      btn.innerHTML = `
+        <div class="drawerIcon">
+          <img src="${iconSrc}" alt="" style="width:100%; height:100%; object-fit:contain;">
+        </div>
+        <div class="drawerText">${item.label[lang]}</div>
+      `;
 
+      // Event Click για πλοήγηση
       btn.onclick = () => {
         let target = rootPath + item.path;
+        // Διόρθωση path αν είμαστε ήδη μέσα στο pages/
         if (isPages && item.path.startsWith('pages/')) {
            target = item.path.replace('pages/', ''); 
         }
@@ -59,68 +96,62 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 4. Κουμπί Αλλαγής Γλώσσας
+  // 4. Κουμπί Αλλαγής Γλώσσας (Στο ίδιο στυλ)
   if (langContainer) {
     langContainer.innerHTML = '';
-    const elFlag = rootPath + 'assets/ui/lang_el.png';
-    const enFlag = rootPath + 'assets/ui/lang_en.png';
+    const lang = (typeof getLang === 'function') ? getLang() : 'el';
     
-    const langBtn = document.createElement('button');
-    langBtn.className = 'drawerLink';
-    langBtn.style.justifyContent = 'center';
-    langBtn.style.marginTop = '10px';
-    langBtn.style.borderTop = '1px solid #eee';
+    // Εικονίδιο Σημαίας ανάλογα με τη γλώσσα που θα πάμε
+    // Αν είμαστε EL δείχνουμε EN (για να το πατήσει) και το αντίστροφο, 
+    // ή δείχνουμε την τρέχουσα; Συνήθως δείχνουμε τι θα γίνει. 
+    // Στο screenshot δείχνει "English", άρα είμαστε σε Greek mode.
     
+    const targetLang = (lang === 'el') ? 'en' : 'el';
+    const flagIcon = rootPath + 'assets/ui/' + (targetLang === 'en' ? 'lang_en.png' : 'lang_el.png');
+    const labelText = (targetLang === 'en') ? 'English' : 'Ελληνικά';
+
+    const langBtn = document.createElement('div');
+    langBtn.className = 'drawerItem';
+    langBtn.style.marginTop = '10px'; // Λίγο κενό από τα πάνω
+
     langBtn.innerHTML = `
-      <img src="${elFlag}" style="width:24px; margin-right:8px;" onerror="this.style.display='none'"> 
-      / 
-      <img src="${enFlag}" style="width:24px; margin-left:8px;" onerror="this.style.display='none'">
-      <span style="margin-left:10px; font-size:0.9rem;">Change Language</span>
+      <div class="drawerIcon">
+        <img src="${flagIcon}" alt="Language" style="width:100%; height:100%; object-fit:contain;">
+      </div>
+      <div class="drawerText">${labelText}</div>
     `;
 
     langBtn.onclick = () => {
-       if (typeof setLang === 'function' && typeof getLang === 'function') {
-         const current = getLang();
-         setLang(current === 'el' ? 'en' : 'el');
+       if (typeof setLang === 'function') {
+         setLang(targetLang);
          window.location.reload();
        }
     };
     langContainer.appendChild(langBtn);
   }
 
-  // 5. Open/Close Logic (Με console logs για έλεγχο)
+  // 5. Open/Close Logic
   function openDrawer() {
-    console.log("Opening drawer...");
     drawer.classList.add('open');
     if(backdrop) {
-      backdrop.style.display = 'block'; // Force display block πρώτα
-      setTimeout(() => backdrop.classList.add('open'), 10); // Μετά opacity
+      backdrop.style.display = 'block';
+      setTimeout(() => backdrop.classList.add('open'), 10);
       backdrop.setAttribute('aria-hidden', 'false');
     }
     drawer.setAttribute('aria-hidden', 'false');
   }
 
   function closeDrawer() {
-    console.log("Closing drawer...");
     drawer.classList.remove('open');
     if(backdrop) {
       backdrop.classList.remove('open');
-      setTimeout(() => backdrop.style.display = 'none', 300); // Περιμένουμε το animation
+      setTimeout(() => backdrop.style.display = 'none', 300);
       backdrop.setAttribute('aria-hidden', 'true');
     }
     drawer.setAttribute('aria-hidden', 'true');
   }
 
-  // Σύνδεση Event Listeners
-  if (menuBtn) {
-    menuBtn.addEventListener('click', (e) => {
-      e.stopPropagation(); // Σταματάμε τυχόν conflict
-      openDrawer();
-    });
-  } else {
-    console.log("Menu button not found on this page (ok for index).");
-  }
-
+  if (menuBtn) menuBtn.addEventListener('click', (e) => { e.stopPropagation(); openDrawer(); });
   if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
   if (backdrop) backdrop.addEventListener('click', closeDrawer);
 });
