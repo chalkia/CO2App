@@ -8,7 +8,22 @@
   <meta content="#74a974" name="theme-color"/>
   <meta content="yes" name="apple-mobile-web-app-capable"/>
   <link href="../assets/icons/icon-192.png" rel="apple-touch-icon"/>
-  <link href="../styles.css" rel="stylesheet">
+  
+  <script src="../js/version.js"></script>
+
+  <script>
+    function loadAsset(type, path) {
+      var v = (typeof APP_BUILD !== 'undefined') ? APP_BUILD : Date.now();
+      if (type === 'css') {
+        document.write('<link rel="stylesheet" href="' + path + '?v=' + v + '">');
+      } else if (type === 'js') {
+        document.write('<script src="' + path + '?v=' + v + '"><\/script>');
+      }
+    }
+    
+    // Φόρτωση CSS
+    loadAsset('css', '../styles.css');
+  </script>
 </head>
 <body>
   <div class="container">
@@ -56,10 +71,20 @@
     </div>
   </div>
 
-  <script src="../js/common.js"></script>
-  <script src="../js/menu.js"></script>
-  <script src="../js/quiz.js"></script>
-  
+  <script>
+    loadAsset('js', '../js/common.js');
+    loadAsset('js', '../js/menu.js');
+    loadAsset('js', '../js/quiz.js');
+  </script>
+
+  <div id="versionDisplay" style="text-align:center; font-size:0.85rem; color:#888; margin-top:2rem; margin-bottom:1rem; opacity:0.7;"></div>
+
+  <script>
+    if (document.getElementById('versionDisplay') && typeof APP_VER !== 'undefined') {
+      document.getElementById('versionDisplay').innerText = 'v' + APP_VER;
+    }
+  </script>
+
   <div aria-hidden="true" class="drawerBackdrop" id="drawerBackdrop"></div>
   <nav aria-hidden="true" class="drawer" id="drawer">
     <div class="drawerHeader">
