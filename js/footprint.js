@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
   // 1. ΡΥΘΜΙΣΕΙΣ & ΜΕΤΑΒΛΗΤΕΣ
-  const MODEL_URL = '../assets/vendor/footprintModel_final_draft.json'; 
+const MODEL_URL = 'footprintModel.json';
   
   let modelData = null;
   
@@ -471,3 +471,4 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   init();
 });
+
