@@ -1,68 +1,117 @@
 document.addEventListener('DOMContentLoaded', async () => {
   // 1. ΡΥΘΜΙΣΕΙΣ & ΜΕΤΑΒΛΗΤΕΣ
-const MODEL_URL = 'footprintModel.json';
+  // Βεβαιώσου ότι το αρχείο footprintModel.json είναι στον ίδιο φάκελο με το HTML
+  const MODEL_URL = 'footprintModel.json'; 
   
   let modelData = null;
   
-  // Κείμενα UI (Fallback καθώς λείπουν από το JSON)
+  // Κείμενα UI - Ορισμοί για Ελληνικά και Αγγλικά
   const UI_TEXTS = {
     el: {
-      appTitle: "CO2 Footprint",
-      appSubtitle: "Υπολογισμός ανθρακικού αποτυπώματος",
-      catHousing: "Στέγαση",
-      catTransport: "Μετακίνηση",
-      catLifestyle: "Τρόπος Ζωής",
-      lblHomeType: "Τύπος Κατοικίας",
-      lblHomeCond: "Μόνωση / Κατάσταση",
+      appTitle: "Εκτίμηση Αποτυπώματος CO₂",
+      // Χρήση HTML tags για το link της τεκμηρίωσης
+      appSubtitle: "Τα αποτελέσματα είναι προσεγγιστικά. Δες την <a href='model.html' style='text-decoration:underline; color:inherit;'>Τεκμηρίωση</a> για λεπτομέρειες.",
+      catHousing: "Κατοικία",
+      catTransport: "Μεταφορές",
+      catLifestyle: "Τρόπος Ζωής - Διατροφή",
+      
+      lblHomeType: "Τύπος κατοικίας",
+      lblHomeCond: "Μόνωση / κατάσταση",
       lblHeating: "Θέρμανση",
       lblOccupants: "Άτομα στο σπίτι",
-      lblSolar: "Ηλιακός Θερμοσίφωνας",
-      lblElectricity: "Χρήση Ηλεκτρισμού",
-      lblWeeklyKm: "Χιλιόμετρα / εβδομάδα (ΙΧ)",
-      lblPublicUse: "Χρήση Δημόσιας Συγκοινωνίας",
-      lblCarType: "Τύπος Οχήματος",
-      lblAlone: "Οδηγώ μόνος/η",
-      lblPublicMode: "Μέσο Μαζικής Μεταφοράς",
-      lblFlightDom: "Πτήσεις Εσωτερικού (ετησίως)",
-      lblFlightEu: "Πτήσεις Εξωτερικού (ετησίως)",
+      lblSolar: "Ηλιακός θερμοσίφωνας",
+      lblElectricity: "Χρήση ηλεκτρικής ενέργειας (εκτός θέρμανσης)",
+      
+      lblWeeklyKm: "Διανυόμενα χιλιόμετρα (εβδομαδιαίως)",
+      lblPublicUse: "Ποσοστό χρήσης δημόσιων μέσων",
+      lblCarType: "Κύριο μέσο μετακίνησης",
+      lblAlone: "Μετακινούμαι μόνος",
+      lblPublicMode: "Είδος δημόσιας συγκοινωνίας",
+      lblFlightDom: "Πτήσεις εντός Ελλάδας (ανά έτος)",
+      lblFlightEu: "Πτήσεις εντός Ευρώπης (ανά έτος)",
+      
       lblDiet: "Διατροφή",
-      lblGoods: "Καταναλωτικές Συνήθειες",
-      lblDigital: "Ψηφιακό Αποτύπωμα",
-      lblSocial: "Κρατικές Υπηρεσίες (Μερίδιο)",
+      lblGoods: "Κατανάλωση προϊόντων (Ρούχα, ηλεκτρονικά, lifestyle)",
+      lblDigital: "Ψηφιακή κατανάλωση (internet/cloud)",
+      
+      lblSocial: "Δημόσιες υποδομές",
       lblTotal: "ΣΥΝΟΛΟ",
-      btnRecalc: "Επαναφορά",
-      btnDetails: "Αναλυτικά",
+      btnRecalc: "Υπολόγισε / Επαναφορά",
+      btnDetails: "Διαγράμματα",
       unitYear: "tCO2e / έτος",
-      condLabels: ["Χωρίς Μόνωση (Πριν το '80)", "Μέτρια (1980-2010)", "Σύγχρονη (ΚΕΝΑΚ)"]
+      
+      condLabels: ["Χωρίς Μόνωση (Πριν το '80)", "Μέτρια (1980-2010)", "Σύγχρονη (ΚΕΝΑΚ)"],
+      
+      // ΑΝΑΛΥΤΙΚΕΣ ΠΕΡΙΓΡΑΦΕΣ ΓΙΑ ΤΑ SLIDERS (Δυναμικά labels)
+      rangeLabels: {
+        elec: {
+            low: "Συντηρητική: Χωρίς σπατάλες, ελάχιστο A/C",
+            avg: "Τυπική: Κανονική χρήση, λίγο A/C (μεσημέρι)",
+            high: "Σπάταλη: Υπερβολική χρήση A/C & συσκευών"
+        },
+        goods: {
+            low: "Επαναχρησιμοποίηση, επισκευή, ελάχιστα απορρίματα.",
+            avg: "Τυπική του Δυτικού τρόπου ζωής, αλλά χωρίς ακρότητες.",
+            high: "Υπερκατανάλωση, απόρριψη χωρίς ανακύκλωση, πολυτελής ζωή."
+        },
+        digital: {
+            low: "Χαμηλή (Email, Web)",
+            avg: "Μεσαία (Social, Cloud)",
+            high: "Υψηλή (Streaming, AI)"
+        }
+      }
     },
     en: {
-      appTitle: "CO2 Footprint",
-      appSubtitle: "Carbon footprint calculator",
-      catHousing: "Housing",
+      appTitle: "Carbon Footprint Calculator",
+      appSubtitle: "Results are approximate. See <a href='model.html' style='text-decoration:underline; color:inherit;'>Documentation</a> for details.",
+      catHousing: "Home",
       catTransport: "Transport",
-      catLifestyle: "Lifestyle",
-      lblHomeType: "Home Type",
-      lblHomeCond: "Insulation / Condition",
-      lblHeating: "Heating Source",
+      catLifestyle: "Lifestyle & Diet",
+      
+      lblHomeType: "Home type",
+      lblHomeCond: "Insulation / condition",
+      lblHeating: "Heating",
       lblOccupants: "Occupants",
-      lblSolar: "Solar Water Heater",
-      lblElectricity: "Electricity Usage",
-      lblWeeklyKm: "Km / week (Car)",
-      lblPublicUse: "Public Transport Usage",
-      lblCarType: "Vehicle Type",
-      lblAlone: "Driving alone",
-      lblPublicMode: "Public Transport Mode",
-      lblFlightDom: "Domestic Flights (per year)",
-      lblFlightEu: "Intl. Flights (per year)",
+      lblSolar: "Solar water heater",
+      lblElectricity: "Electricity use (excluding heating)",
+      
+      lblWeeklyKm: "Weekly distance (km)",
+      lblPublicUse: "Share of public transport",
+      lblCarType: "Main transport mode",
+      lblAlone: "I travel alone",
+      lblPublicMode: "Public transport type",
+      lblFlightDom: "Domestic flights (year)",
+      lblFlightEu: "Intl flights (year)",
+      
       lblDiet: "Diet",
-      lblGoods: "Consumption Habits",
-      lblDigital: "Digital Footprint",
-      lblSocial: "Public Services Share",
+      lblGoods: "Goods consumption (Clothes, electronics, lifestyle)",
+      lblDigital: "Digital consumption",
+      
+      lblSocial: "Public services",
       lblTotal: "TOTAL",
-      btnRecalc: "Reset",
+      btnRecalc: "Calculate / Reset",
       btnDetails: "Dashboard",
       unitYear: "tCO2e / year",
-      condLabels: ["No Insulation (Pre-80s)", "Average (1980-2010)", "Modern (Energy Eff.)"]
+      
+      condLabels: ["No Insulation (Pre-80s)", "Average (1980-2010)", "Modern (Energy Eff.)"],
+      
+      rangeLabels: {
+        elec: {
+            low: "Conservative: No waste, minimal cooling A/C",
+            avg: "Typical: Standard use, some midday A/C",
+            high: "Wasteful: Heavy A/C & unnecessary device use"
+        },
+        goods: {
+            low: "Reuse, repair, minimal waste.",
+            avg: "Typical Western lifestyle, without extremes.",
+            high: "Overconsumption, no recycling, luxury lifestyle."
+        },
+        digital: {
+            low: "Low (Email, Web)",
+            avg: "Medium (Social, Cloud)",
+            high: "High (Streaming, AI)"
+        }
+      }
     }
   };
 
@@ -84,9 +133,10 @@ const MODEL_URL = 'footprintModel.json';
   const navs = [navHome, navTransport, navLifestyle];
   let currentCardIndex = 0;
 
-  // 2. INIT
+  // 2. INIT FUNCTION
   async function init() {
     try {
+      // Versioning για αποφυγή caching του JSON
       const v = (typeof APP_BUILD !== 'undefined') ? APP_BUILD : Date.now();
       const resp = await fetch(MODEL_URL + '?v=' + v);
       if (!resp.ok) throw new Error('Model not found at ' + MODEL_URL);
@@ -116,7 +166,10 @@ const MODEL_URL = 'footprintModel.json';
     const T = UI_TEXTS[lang] || UI_TEXTS['el'];
 
     setText('title', T.appTitle);
-    setText('subtitle', T.appSubtitle);
+    
+    // Χρήση innerHTML για να λειτουργεί το Link
+    const subEl = document.getElementById('subtitle');
+    if(subEl) subEl.innerHTML = T.appSubtitle;
     
     setText('homeTitle', T.catHousing);
     setText('trTitle', T.catTransport);
@@ -145,7 +198,7 @@ const MODEL_URL = 'footprintModel.json';
     setLabel('lblGoodsProfile', T.lblGoods);
     setLabel('lblDigitalLevel', T.lblDigital);
     
-    // Social share (σταθερή τιμή)
+    // Social share (ανάγνωση από JSON)
     if(modelData && modelData.base) {
         const socShare = modelData.base.socialShareKgCO2PerYear.value;
         setText('lblSocialShare', T.lblSocial + ': ');
@@ -158,11 +211,9 @@ const MODEL_URL = 'footprintModel.json';
 
     document.querySelectorAll('.unitYear').forEach(el => el.textContent = T.unitYear);
 
-    // Γέμισμα Dropdowns από JSON (modelData.ui)
+    // Γέμισμα Dropdowns από το JSON
     if (modelData && modelData.ui) {
       fillSelectFromUI('homeType', modelData.ui.homeType, lang);
-      // Το homeCondition είναι range στο HTML, αλλά τα labels έρχονται από εδώ αν θέλουμε
-      // fillSelectFromUI('homeCondition', modelData.ui.homeCondition, lang, 'homeCond'); 
       fillSelectFromUI('heatingType', modelData.ui.heatingType, lang);
       fillSelectFromUI('occupants', modelData.ui.occupants, lang);
       fillSelectFromUI('carType', modelData.ui.carType, lang);
@@ -206,8 +257,6 @@ const MODEL_URL = 'footprintModel.json';
     const heatType = getVal('heatingType');
     const homeType = getVal('homeType');
     
-    // Mapping Range (0-2) to JSON Keys
-    // 0=Bad(pre1980), 1=Med(post1980), 2=Good(modern)
     const hcVal = parseInt(document.getElementById('homeCond').value);
     let homeCondKey = 'pre1980';
     if(hcVal === 1) homeCondKey = 'post1980';
@@ -217,7 +266,6 @@ const MODEL_URL = 'footprintModel.json';
     const typeFactor = modelData.factors.homeType[homeType] ? modelData.factors.homeType[homeType].value : 1.0;
     const heatEF_tMWh = modelData.factors.heatingType[heatType] ? modelData.factors.heatingType[heatType].value : 0;
     
-    // (kWh * typeFactor / 1000) * tCO2_per_MWh * 1000 => kgCO2
     let kg_heat = (baseHeat * typeFactor / 1000) * heatEF_tMWh * 1000;
 
     // Ηλεκτρισμός
@@ -251,7 +299,6 @@ const MODEL_URL = 'footprintModel.json';
 
 
     // --- Transport ---
-    // Αυτοκίνητο
     const wkKm = parseFloat(getVal('weeklyKm')) || 0;
     const carType = getVal('carType');
     const alone = document.getElementById('alone').checked;
@@ -270,36 +317,31 @@ const MODEL_URL = 'footprintModel.json';
 
     // Δημόσια Συγκοινωνία
     const pubPct = parseInt(document.getElementById('publicPct').value); 
-    const pubKmWeek = pubPct; // Θεωρούμε το slider ως km/week
+    const pubKmWeek = pubPct;
     document.getElementById('publicKmVal').textContent = pubKmWeek + ' km/week';
     
     const pubType = getVal('publicType');
     const pubEF = modelData.factors.publicTransport[pubType] ? modelData.factors.publicTransport[pubType].value : 0;
     const kg_public = pubKmWeek * 52 * pubEF;
 
-    // Αεροπλάνα (ΔΙΟΡΘΩΜΕΝΗ ΛΟΓΙΚΗ)
+    // Αεροπλάνα
     const flyDom = parseFloat(getVal('flightTripsDomestic')) || 0;
     const flyEu = parseFloat(getVal('flightTripsEurope')) || 0;
     
     const distDom = modelData.constants.flightTripDistanceKmDomestic.value;
     const distEu = modelData.constants.flightTripDistanceKmEurope.value;
     
-    // Fallback σε περίπτωση που δεν έχει ενημερωθεί ακόμα το JSON
     const efDom = modelData.constants.flightKgPerKmDomestic ? 
-                  modelData.constants.flightKgPerKmDomestic.value : 
-                  (modelData.constants.flightKgPerKmPerPassenger ? modelData.constants.flightKgPerKmPerPassenger.value : 0.2);
+                  modelData.constants.flightKgPerKmDomestic.value : 0.2;
                   
     const efEu = modelData.constants.flightKgPerKmEurope ? 
-                 modelData.constants.flightKgPerKmEurope.value : 
-                 (modelData.constants.flightKgPerKmPerPassenger ? modelData.constants.flightKgPerKmPerPassenger.value : 0.2);
+                 modelData.constants.flightKgPerKmEurope.value : 0.13;
     
     const kg_fly = (flyDom * distDom * efDom) + (flyEu * distEu * efEu);
-
     const kg_transport_total = kg_car + kg_public + kg_fly;
 
 
     // --- Lifestyle ---
-    // Διατροφή
     const dietType = getVal('diet');
     const dietBase = modelData.base.dietKgCO2PerYear_unit.value;
     const dietFactor = modelData.factors.diet[dietType] ? modelData.factors.diet[dietType].value : 1.0;
@@ -308,7 +350,6 @@ const MODEL_URL = 'footprintModel.json';
     // Αγαθά
     const goodsLvl = parseInt(document.getElementById('goodsLevel').value);
     const goodsBase = modelData.base.goodsKgCO2PerYear_unit.value;
-    // Linear interp: 0->0.4, 100->2.2 (approx)
     const gFactor = 0.4 + (goodsLvl / 100) * 1.8; 
     const kg_goods = goodsBase * gFactor;
 
@@ -352,7 +393,6 @@ const MODEL_URL = 'footprintModel.json';
     updateStepKpi(totalTons);
     updateRangeLabels(hcVal, elecLvl, goodsLvl, digLvl);
     
-    // Αποθήκευση για Dashboard
     saveToStorage(kg_housing_total, kg_transport_total, kg_lifestyle_total, totalTons);
   }
 
@@ -366,18 +406,39 @@ const MODEL_URL = 'footprintModel.json';
     if(el) el.textContent = total.toFixed(1) + ' t';
   }
 
+  // --- ΕΝΗΜΕΡΩΜΕΝΗ ΣΥΝΑΡΤΗΣΗ ΜΕ ΠΟΛΛΑΠΛΕΣ ΚΑΤΗΓΟΡΙΕΣ ---
   function updateRangeLabels(hc, elec, goods, dig) {
     const lang = getLang();
     const T = UI_TEXTS[lang] || UI_TEXTS['el'];
+    const L = T.rangeLabels;
     
-    // Home Cond Labels
+    // 1. Home Condition Label
     const condLabel = document.getElementById('homeCondLabel');
     if(condLabel && T.condLabels[hc]) condLabel.textContent = T.condLabels[hc];
 
-    // Simple helpers for others
-    document.getElementById('homeUseLabel').textContent = (elec > 70 ? "High" : (elec < 30 ? "Low" : "Avg"));
-    document.getElementById('goodsLabel').textContent = (goods > 70 ? "High" : (goods < 30 ? "Eco" : "Avg"));
-    document.getElementById('digitalVal').textContent = (dig > 70 ? "High" : (dig < 30 ? "Low" : "Avg"));
+    // 2. Electricity Label (Home Use)
+    const elElec = document.getElementById('homeUseLabel');
+    if(elElec) {
+       if(elec < 30) elElec.textContent = L.elec.low;
+       else if(elec > 70) elElec.textContent = L.elec.high;
+       else elElec.textContent = L.elec.avg;
+    }
+
+    // 3. Goods Label (Αναλυτικά κείμενα)
+    const elGoods = document.getElementById('goodsLabel');
+    if(elGoods) {
+       if(goods < 30) elGoods.textContent = L.goods.low;
+       else if(goods > 70) elGoods.textContent = L.goods.high;
+       else elGoods.textContent = L.goods.avg;
+    }
+
+    // 4. Digital Label (digitalVal)
+    const elDig = document.getElementById('digitalVal');
+    if(elDig) {
+       if(dig < 30) elDig.textContent = L.digital.low;
+       else if(dig > 70) elDig.textContent = L.digital.high;
+       else elDig.textContent = L.digital.avg;
+    }
   }
   
   function getLang() {
@@ -417,7 +478,7 @@ const MODEL_URL = 'footprintModel.json';
        document.getElementById('trTitle').textContent,
        document.getElementById('lifeTitle').textContent
     ];
-    stepTitle.textContent = titles[idx];
+    if(stepTitle) stepTitle.textContent = titles[idx];
   }
 
   const inputs = document.querySelectorAll('select, input');
@@ -438,7 +499,6 @@ const MODEL_URL = 'footprintModel.json';
   });
 
   function saveToStorage(h, t, l, total) {
-    // Αποθήκευση Input states
     const data = {};
     inputs.forEach(inp => {
       if(inp.type === 'checkbox') data[inp.id] = inp.checked;
@@ -446,8 +506,6 @@ const MODEL_URL = 'footprintModel.json';
     });
     localStorage.setItem('co2_inputs', JSON.stringify(data));
 
-    // Αποθήκευση Results για Dashboard
-    // Απλοποιημένη αποθήκευση συνόλων ανά κατηγορία
     localStorage.setItem("CO2_HOME_TOTAL", h.toFixed(2));
     localStorage.setItem("CO2_TRANS_TOTAL", t.toFixed(2));
     localStorage.setItem("CO2_LIFE_TOTAL", l.toFixed(2));
@@ -471,4 +529,3 @@ const MODEL_URL = 'footprintModel.json';
 
   init();
 });
-
