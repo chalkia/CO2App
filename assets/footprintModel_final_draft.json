@@ -87,8 +87,12 @@
       "value": 0.052,
       "unit": "(weeks_per_year)/(kg_per_ton)"
     },
-    "flightKgPerKmPerPassenger": {
-      "value": 0.2,
+    "flightKgPerKmDomestic": {
+      "value": 0.20,
+      "unit": "kgCO2e_per_passenger_km"
+    },
+    "flightKgPerKmEurope": {
+      "value": 0.13,
       "unit": "kgCO2e_per_passenger_km"
     },
     "flightTripDistanceKmDomestic": {
@@ -146,7 +150,7 @@
       "vegetarian": { "value": 0.65, "unit": "dimensionless" },
       "mediterranean": { "value": 0.85, "unit": "dimensionless" },
       "standard": { "value": 1.0, "unit": "dimensionless" },
-      "high_meat": { "value": 1.14, "unit": "dimensionless" }
+      "high_meat": { "value": 1.40, "unit": "dimensionless" }
     },
     "publicTransport": {
       "bus": { "value": 0.081, "unit": "kgCO2e_per_passenger_km" },
@@ -370,4 +374,5 @@
       }
     }
   }
+
 }
