@@ -4,11 +4,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   let modelData = null;
   
-  // Επειδή το JSON δεν έχει γενικές μεταφράσεις UI, τις ορίζουμε εδώ ως fallback
+  // Κείμενα UI (Fallback καθώς λείπουν από το JSON)
   const UI_TEXTS = {
     el: {
       appTitle: "CO2 Footprint",
-      appSubtitle: "Υπολογισμός ανθρακικού αποτυπώματος (Schema v2)",
+      appSubtitle: "Υπολογισμός ανθρακικού αποτυπώματος",
       catHousing: "Στέγαση",
       catTransport: "Μετακίνηση",
       catLifestyle: "Τρόπος Ζωής",
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       lblSolar: "Ηλιακός Θερμοσίφωνας",
       lblElectricity: "Χρήση Ηλεκτρισμού",
       lblWeeklyKm: "Χιλιόμετρα / εβδομάδα (ΙΧ)",
-      lblPublicUse: "Ποσοστό Δημόσιας Συγκοινωνίας",
+      lblPublicUse: "Χρήση Δημόσιας Συγκοινωνίας",
       lblCarType: "Τύπος Οχήματος",
       lblAlone: "Οδηγώ μόνος/η",
       lblPublicMode: "Μέσο Μαζικής Μεταφοράς",
@@ -32,11 +32,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       lblTotal: "ΣΥΝΟΛΟ",
       btnRecalc: "Επαναφορά",
       btnDetails: "Αναλυτικά",
-      unitYear: "tCO2e / έτος"
+      unitYear: "tCO2e / έτος",
+      condLabels: ["Χωρίς Μόνωση (Πριν το '80)", "Μέτρια (1980-2010)", "Σύγχρονη (ΚΕΝΑΚ)"]
     },
     en: {
       appTitle: "CO2 Footprint",
-      appSubtitle: "Carbon footprint calculator (Schema v2)",
+      appSubtitle: "Carbon footprint calculator",
       catHousing: "Housing",
       catTransport: "Transport",
       catLifestyle: "Lifestyle",
@@ -60,7 +61,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       lblTotal: "TOTAL",
       btnRecalc: "Reset",
       btnDetails: "Dashboard",
-      unitYear: "tCO2e / year"
+      unitYear: "tCO2e / year",
+      condLabels: ["No Insulation (Pre-80s)", "Average (1980-2010)", "Modern (Energy Eff.)"]
     }
   };
 
@@ -85,7 +87,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 2. INIT
   async function init() {
     try {
-      // Χρήση versioning για αποφυγή cache
       const v = (typeof APP_BUILD !== 'undefined') ? APP_BUILD : Date.now();
       const resp = await fetch(MODEL_URL + '?v=' + v);
       if (!resp.ok) throw new Error('Model not found at ' + MODEL_URL);
@@ -111,10 +112,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // 3. UI POPULATION
   function populateUI() {
-    const lang = getLang(); // Συνάρτηση από common.js (αν υπάρχει) ή fallback 'el'
+    const lang = getLang();
     const T = UI_TEXTS[lang] || UI_TEXTS['el'];
 
-    // Κείμενα Εφαρμογής
     setText('title', T.appTitle);
     setText('subtitle', T.appSubtitle);
     
@@ -126,7 +126,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     setText('navTransport', T.catTransport);
     setText('navLifestyle', T.catLifestyle);
 
-    // Labels
     setLabel('lblHomeType', T.lblHomeType);
     setLabel('lblHomeCond', T.lblHomeCond);
     setLabel('lblHeating', T.lblHeating);
@@ -146,22 +145,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     setLabel('lblGoodsProfile', T.lblGoods);
     setLabel('lblDigitalLevel', T.lblDigital);
     
-    // Social share (σταθερή τιμή από JSON)
-    const socShare = modelData.base.socialShareKgCO2PerYear.value;
-    setText('lblSocialShare', T.lblSocial + ': ');
-    setText('socialShareVal', (socShare / 1000).toFixed(2) + ' t');
+    // Social share (σταθερή τιμή)
+    if(modelData && modelData.base) {
+        const socShare = modelData.base.socialShareKgCO2PerYear.value;
+        setText('lblSocialShare', T.lblSocial + ': ');
+        setText('socialShareVal', (socShare / 1000).toFixed(2) + ' t');
+    }
 
     setText('lblTotal', T.lblTotal);
     setText('btnCalc', T.btnRecalc);
     setText('btnDash', T.btnDetails);
 
-    // Units
     document.querySelectorAll('.unitYear').forEach(el => el.textContent = T.unitYear);
 
-    // Γέμισμα Dropdowns από το JSON (modelData.ui)
-    if (modelData.ui) {
+    // Γέμισμα Dropdowns από JSON (modelData.ui)
+    if (modelData && modelData.ui) {
       fillSelectFromUI('homeType', modelData.ui.homeType, lang);
-      fillSelectFromUI('homeCondition', modelData.ui.homeCondition, lang, 'homeCond'); // ID mismatch fix
+      // Το homeCondition είναι range στο HTML, αλλά τα labels έρχονται από εδώ αν θέλουμε
+      // fillSelectFromUI('homeCondition', modelData.ui.homeCondition, lang, 'homeCond'); 
       fillSelectFromUI('heatingType', modelData.ui.heatingType, lang);
       fillSelectFromUI('occupants', modelData.ui.occupants, lang);
       fillSelectFromUI('carType', modelData.ui.carType, lang);
@@ -170,7 +171,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // Βοηθητική για γέμισμα select βάσει του UI schema v2
   function fillSelectFromUI(uiKey, uiObj, lang, domIdOverride) {
     const domId = domIdOverride || uiKey;
     const el = document.getElementById(domId);
@@ -178,7 +178,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     el.innerHTML = '';
     const order = uiObj.order || [];
-    const labels = uiObj.labels[lang] || uiObj.labels['en']; // Fallback σε EN
+    const labels = uiObj.labels[lang] || uiObj.labels['en']; 
 
     order.forEach(key => {
       let opt = document.createElement('option');
@@ -198,34 +198,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     if(el) el.textContent = text;
   }
 
-  // 4. ΥΠΟΛΟΓΙΣΜΟΙ (Προσαρμοσμένοι στο Schema v2)
+  // 4. ΥΠΟΛΟΓΙΣΜΟΙ
   function calculateAll() {
     if(!modelData) return;
 
     // --- Housing ---
-    // 1. Θέρμανση
-    const heatType = getVal('heatingType'); // π.χ. 'heating_oil'
-    const homeCond = getVal('homeCond'); // π.χ. 'post1980'
-    const homeType = getVal('homeType'); // π.χ. 'apartment'
+    const heatType = getVal('heatingType');
+    const homeType = getVal('homeType');
     
-    // Βάση κατανάλωσης (kWh θερμότητας) ανάλογα με τη μόνωση
-    const baseHeat = modelData.base.heatingDemandKWhApartment.value[homeCond] || 5000;
-    
-    // Συντελεστής τύπου σπιτιού (π.χ. Μονοκατοικία vs Διαμέρισμα)
+    // Mapping Range (0-2) to JSON Keys
+    // 0=Bad(pre1980), 1=Med(post1980), 2=Good(modern)
+    const hcVal = parseInt(document.getElementById('homeCond').value);
+    let homeCondKey = 'pre1980';
+    if(hcVal === 1) homeCondKey = 'post1980';
+    if(hcVal === 2) homeCondKey = 'modern';
+
+    const baseHeat = modelData.base.heatingDemandKWhApartment.value[homeCondKey] || 5000;
     const typeFactor = modelData.factors.homeType[homeType] ? modelData.factors.homeType[homeType].value : 1.0;
-    
-    // Συντελεστής Εκπομπών καυσίμου (tCO2 per MWh heat)
-    // Προσοχή: Το JSON δίνει tCO2/MWh. Μετατροπή: (kWh * tCO2/MWh) / 1000 -> tCO2
     const heatEF_tMWh = modelData.factors.heatingType[heatType] ? modelData.factors.heatingType[heatType].value : 0;
     
-    // Υπολογισμός Θέρμανσης (σε kg για συνέπεια, άρα * 1000)
-    // Formula: (kWh_heat * typeFactor / 1000) * heatEF_tMWh * 1000 => kWh * factor * EF
+    // (kWh * typeFactor / 1000) * tCO2_per_MWh * 1000 => kgCO2
     let kg_heat = (baseHeat * typeFactor / 1000) * heatEF_tMWh * 1000;
 
-
-    // 2. Ηλεκτρισμός
-    const elecLvl = parseInt(document.getElementById('homeUseLevel').value); // 0 - 100
-    // Mapping 0->min, 50->typical, 100->max
+    // Ηλεκτρισμός
+    const elecLvl = parseInt(document.getElementById('homeUseLevel').value); // 0-100
     const eMin = modelData.base.homeOtherElectricityAnchorsKWhPerYear.value.min;
     const eTyp = modelData.base.homeOtherElectricityAnchorsKWhPerYear.value.typical;
     const eMax = modelData.base.homeOtherElectricityAnchorsKWhPerYear.value.max;
@@ -240,99 +236,89 @@ document.addEventListener('DOMContentLoaded', async () => {
     const gridCI = modelData.parameters.gridCI_kgCO2_per_kWh.value;
     let kg_elec = kwh_elec * gridCI;
 
-
-    // 3. Ζεστό Νερό (DHW)
-    const occ = parseInt(getVal('occupants')); // 1..5
+    // ΖΝΧ
+    const occ = parseInt(getVal('occupants'));
     const hasSolar = document.getElementById('solarDHW').checked;
     
     const dhwBase = modelData.base.dhwKWhPerPersonPerYear.value;
     const dhwBackup = modelData.base.dhwBackupKWhPerPersonPerYear.value;
     
-    // Αν έχει ηλιακό, καταναλώνει μόνο το backup (ρεύμα). Αν όχι, όλο (ρεύμα).
     const kwh_dhw_per_person = hasSolar ? dhwBackup : dhwBase;
     const kg_dhw = (kwh_dhw_per_person * occ) * gridCI;
 
-    // Σύνολο Στέγασης (Επιμερισμός ανά άτομο;)
-    // Σημείωση: Συνήθως τα footprint calcs επιμερίζουν τη θέρμανση/ρεύμα.
-    // Εδώ διαιρούμε με τους occupants για να βρούμε το ατομικό.
+    // Σύνολο ανά άτομο
     const kg_housing_total = (kg_heat + kg_elec + kg_dhw) / occ;
 
 
     // --- Transport ---
-    // 1. Αυτοκίνητο
+    // Αυτοκίνητο
     const wkKm = parseFloat(getVal('weeklyKm')) || 0;
     const carType = getVal('carType');
     const alone = document.getElementById('alone').checked;
     
     let carEF = 0;
-    // Ειδικός χειρισμός για ηλεκτρικό (derived) ή απλή τιμή
     const carFactorObj = modelData.factors.carType[carType];
     if (carFactorObj) {
         if (carFactorObj.type === 'derived') {
-             carEF = modelData.parameters.gridCI_kgCO2_per_kWh.value * modelData.parameters.evConsumption_kWh_per_km.value;
+             carEF = gridCI * modelData.parameters.evConsumption_kWh_per_km.value;
         } else {
              carEF = carFactorObj.value;
         }
     }
-
-    // Carpooling: Αν δεν είναι μόνος, διαιρούμε π.χ. δια 1.5 ή 2. 
-    // Το JSON δεν έχει ρητό carpool factor στο Schema v2, υποθέτουμε 2 αν δεν είναι μόνος ή standard 1.
-    // Θα χρησιμοποιήσουμε μια λογική παραδοχή: alone -> 1, όχι alone -> 0.6
     const carPoolFactor = alone ? 1.0 : 0.6; 
-    
     const kg_car = wkKm * 52 * carEF * carPoolFactor;
 
-    // 2. Δημόσια Συγκοινωνία
-    const pubPct = parseInt(document.getElementById('publicPct').value); // 0-100 scale here acts as "Usage Level" logic? 
-    // Στο HTML λέει max=200, value=0. Ας υποθέσουμε ότι είναι km/week όπως το ΙΧ; 
-    // Ή είναι ποσοστό επί των χιλιομέτρων; Το label λέει "Ποσοστό διαδρομών".
-    // Στο JS παλιά έπαιρνε 'publicKmVal' ως κείμενο. 
-    // Ας υποθέσουμε ότι το input είναι km/week για απλότητα βάσει του παλιού κώδικα (wkKm).
-    // Αν είναι range 0-200, ας το θεωρήσουμε km/week.
-    
-    const pubKmWeek = pubPct; // Χρήση του slider ως km/week
+    // Δημόσια Συγκοινωνία
+    const pubPct = parseInt(document.getElementById('publicPct').value); 
+    const pubKmWeek = pubPct; // Θεωρούμε το slider ως km/week
     document.getElementById('publicKmVal').textContent = pubKmWeek + ' km/week';
     
-    const pubType = getVal('publicType'); // bus, metro
+    const pubType = getVal('publicType');
     const pubEF = modelData.factors.publicTransport[pubType] ? modelData.factors.publicTransport[pubType].value : 0;
-    
     const kg_public = pubKmWeek * 52 * pubEF;
 
-    // 3. Αεροπλάνα
+    // Αεροπλάνα (ΔΙΟΡΘΩΜΕΝΗ ΛΟΓΙΚΗ)
     const flyDom = parseFloat(getVal('flightTripsDomestic')) || 0;
     const flyEu = parseFloat(getVal('flightTripsEurope')) || 0;
     
     const distDom = modelData.constants.flightTripDistanceKmDomestic.value;
     const distEu = modelData.constants.flightTripDistanceKmEurope.value;
-    const flightEF = modelData.constants.flightKgPerKmPerPassenger.value;
     
-    const kg_fly = (flyDom * distDom * flightEF) + (flyEu * distEu * flightEF);
+    // Fallback σε περίπτωση που δεν έχει ενημερωθεί ακόμα το JSON
+    const efDom = modelData.constants.flightKgPerKmDomestic ? 
+                  modelData.constants.flightKgPerKmDomestic.value : 
+                  (modelData.constants.flightKgPerKmPerPassenger ? modelData.constants.flightKgPerKmPerPassenger.value : 0.2);
+                  
+    const efEu = modelData.constants.flightKgPerKmEurope ? 
+                 modelData.constants.flightKgPerKmEurope.value : 
+                 (modelData.constants.flightKgPerKmPerPassenger ? modelData.constants.flightKgPerKmPerPassenger.value : 0.2);
+    
+    const kg_fly = (flyDom * distDom * efDom) + (flyEu * distEu * efEu);
 
     const kg_transport_total = kg_car + kg_public + kg_fly;
 
 
     // --- Lifestyle ---
-    // 1. Διατροφή
+    // Διατροφή
     const dietType = getVal('diet');
     const dietBase = modelData.base.dietKgCO2PerYear_unit.value;
     const dietFactor = modelData.factors.diet[dietType] ? modelData.factors.diet[dietType].value : 1.0;
     const kg_food = dietBase * dietFactor;
 
-    // 2. Αγαθά (Goods)
+    // Αγαθά
     const goodsLvl = parseInt(document.getElementById('goodsLevel').value);
     const goodsBase = modelData.base.goodsKgCO2PerYear_unit.value;
-    // Mapping slider to factor (0.4 to 2.2 based on factors.goodsLevel4 logic)
-    // Απλοποιημένη γραμμική παρεμβολή
+    // Linear interp: 0->0.4, 100->2.2 (approx)
     const gFactor = 0.4 + (goodsLvl / 100) * 1.8; 
     const kg_goods = goodsBase * gFactor;
 
-    // 3. Ψηφιακά (Digital)
+    // Ψηφιακά
     const digLvl = parseInt(document.getElementById('digitalLevel').value);
     const digBase = modelData.base.digitalKgCO2PerYear_unit.value;
-    const dFactor = 0.4 + (digLvl / 100) * 1.4; // Low 0.4, High 1.8
+    const dFactor = 0.4 + (digLvl / 100) * 1.4; 
     const kg_digital = digBase * dFactor;
 
-    // 4. Κοινωνικό (Social Share)
+    // Κοινωνικό
     const kg_social = modelData.base.socialShareKgCO2PerYear.value;
 
     const kg_lifestyle_total = kg_food + kg_goods + kg_digital + kg_social;
@@ -364,10 +350,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     updateStepKpi(totalTons);
-    updateRangeLabels(homeCond, elecLvl, goodsLvl, digLvl);
+    updateRangeLabels(hcVal, elecLvl, goodsLvl, digLvl);
     
-    // Αποθήκευση για Dashboard (προαιρετικά)
-    saveToStorage();
+    // Αποθήκευση για Dashboard
+    saveToStorage(kg_housing_total, kg_transport_total, kg_lifestyle_total, totalTons);
   }
 
   function updateKpi(id, kg) {
@@ -381,24 +367,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function updateRangeLabels(hc, elec, goods, dig) {
-    // Απλά λεκτικά για τα ranges
     const lang = getLang();
-    const isEn = lang === 'en';
+    const T = UI_TEXTS[lang] || UI_TEXTS['el'];
     
-    // Home Cond labels are in Select now, but let's check input range if used
-    // Σημείωση: Στο HTML το homeCond είναι range, αλλά στο νέο JS το διαβάζουμε ως select ID 'homeCondition' 
-    // Επειδή όμως στο HTML υπάρχει <input type="range" id="homeCond">, πρέπει να δούμε αν θα το κρατήσουμε ή θα το αλλάξουμε.
-    // Στο populateUI γέμισα ένα SELECT, αλλά το HTML έχει INPUT RANGE. 
-    // ΔΙΟΡΘΩΣΗ: Στο HTML το homeCond είναι range. Στο JSON το homeCondition είναι select.
-    // Για να μην αλλάξουμε το HTML, θα ενημερώνουμε το label βάσει του range value.
-    
+    // Home Cond Labels
     const condLabel = document.getElementById('homeCondLabel');
-    // ...logic omitted for brevity, assuming standard behavior...
+    if(condLabel && T.condLabels[hc]) condLabel.textContent = T.condLabels[hc];
+
+    // Simple helpers for others
+    document.getElementById('homeUseLabel').textContent = (elec > 70 ? "High" : (elec < 30 ? "Low" : "Avg"));
+    document.getElementById('goodsLabel').textContent = (goods > 70 ? "High" : (goods < 30 ? "Eco" : "Avg"));
+    document.getElementById('digitalVal').textContent = (dig > 70 ? "High" : (dig < 30 ? "Low" : "Avg"));
   }
   
-  // Βοηθητικό για γλώσσα
   function getLang() {
-      // Αν υπάρχει αποθηκευμένη ή browser lang
       return localStorage.getItem('appLang') || 'el';
   }
 
@@ -412,11 +394,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     btn.addEventListener('click', () => updateActiveCard(idx));
   });
 
-  stepPrev.addEventListener('click', () => {
+  if(stepPrev) stepPrev.addEventListener('click', () => {
     if(currentCardIndex > 0) updateActiveCard(currentCardIndex - 1);
   });
   
-  stepNext.addEventListener('click', () => {
+  if(stepNext) stepNext.addEventListener('click', () => {
     if(currentCardIndex < cards.length - 1) updateActiveCard(currentCardIndex + 1);
     else cardSummary.scrollIntoView({behavior: 'smooth'});
   });
@@ -430,7 +412,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       behavior: 'smooth'
     });
     
-    // Update header title based on card
     const titles = [
        document.getElementById('homeTitle').textContent,
        document.getElementById('trTitle').textContent,
@@ -452,12 +433,40 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  function saveToStorage() {
-    // ...existing storage logic...
+  document.getElementById('btnDash').addEventListener('click', () => {
+    window.location.href = 'dashboard.html';
+  });
+
+  function saveToStorage(h, t, l, total) {
+    // Αποθήκευση Input states
+    const data = {};
+    inputs.forEach(inp => {
+      if(inp.type === 'checkbox') data[inp.id] = inp.checked;
+      else data[inp.id] = inp.value;
+    });
+    localStorage.setItem('co2_inputs', JSON.stringify(data));
+
+    // Αποθήκευση Results για Dashboard
+    // Απλοποιημένη αποθήκευση συνόλων ανά κατηγορία
+    localStorage.setItem("CO2_HOME_TOTAL", h.toFixed(2));
+    localStorage.setItem("CO2_TRANS_TOTAL", t.toFixed(2));
+    localStorage.setItem("CO2_LIFE_TOTAL", l.toFixed(2));
+    localStorage.setItem("USER_TOTAL", total.toFixed(2));
   }
 
   function loadFromStorage() {
-    // ...existing load logic...
+    const raw = localStorage.getItem('co2_inputs');
+    if(!raw) return;
+    try {
+      const data = JSON.parse(raw);
+      for (const [key, val] of Object.entries(data)) {
+        const el = document.getElementById(key);
+        if(el) {
+          if(el.type === 'checkbox') el.checked = val;
+          else el.value = val;
+        }
+      }
+    } catch(e) { console.error('Load error', e); }
   }
 
   init();
