@@ -55,9 +55,16 @@ a{color:inherit}
   max-width: 980px;
   margin: 0 auto;
   display:flex;
-  align-items:stretch;
-  justify-content:center;
+  align-items:center;
+  justify-content:space-between;
   padding: 6px 4px;
+}
+.topbarTitle{
+  font-family: var(--uiFont);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.5px;
 }
 
 .iconBtn{
@@ -1179,7 +1186,7 @@ select option{
   border-radius: 14px;
 }
 @media (max-width: 760px){
-  .answerCard{
+  .answerCard:not(.insetAnswerCard){
     position: fixed;
     left: 50%;
     transform: translateX(-50%);
@@ -1190,6 +1197,62 @@ select option{
     z-index: 50;
   }
   body.answerOpen{ padding-bottom: 42vh; }
+}
+
+.quizCard{
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.answerCard.insetAnswerCard{
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  transform: none !important;
+  border-radius: 20px 20px var(--radius) var(--radius) !important;
+  background: rgba(255,255,255,.97) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 3px solid var(--accent);
+  box-shadow: 0 -8px 28px rgba(0,0,0,.18) !important;
+  padding: 16px 16px 14px !important;
+  max-height: 85%;
+  overflow-y: auto;
+  z-index: 25;
+  animation: slideUpAnswer 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUpAnswer {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.continueBtn {
+  background: var(--accent) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  padding: 8px 20px !important;
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 4px 12px rgba(47, 74, 49, 0.25) !important;
+  cursor: pointer;
+  border: none;
+  font-family: var(--uiFont);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.continueBtn:active {
+  transform: scale(0.97);
+}
+
+.optionCard.answerCorrect {
+  cursor: pointer !important;
+}
+.optionCard.locked:not(.answerCorrect) {
+  cursor: default;
 }
 
 

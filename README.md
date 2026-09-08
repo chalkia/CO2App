@@ -1,4 +1,10 @@
 # CO2App
+## v5.3 – 2026-09-08
+- Topbar Redesign: Aligned menu button to the left, added centered title "CO₂ Quiz", and added direct Home button on the right.
+- Quiz Inset Explanation Card: Explanation now appears as an inset overlay card inside the question card, dismissible with "×", and reopenable by tapping the correct (green) answer card.
+- Quiz Navigation: Removed legacy top arrow buttons; added smooth touch swipe (left/right) support and a prominent "Continue ›" action inside the explanation.
+- Version bump: APP_BUILD 55.
+
 ## v5.2 – 2026-09-08
 - Orientation Policy: Removed mandatory landscape lock so mobile phones operate smoothly in portrait orientation, while preserving wide layout polish for tablets & desktops.
 - CO2 Calculator: Fixed active category tab text contrast with high-contrast white lettering (`-webkit-text-fill-color: #ffffff`).

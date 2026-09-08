@@ -265,13 +265,7 @@ function renderQuiz(){
   } else {
     const ansCard = document.getElementById("answerCard");
     if(ansCard) ansCard.style.display = "none";
-    
-    const nextBtn = document.getElementById("btnNext");
-    if(nextBtn) nextBtn.disabled = true;
   }
-
-  const prevBtn = document.getElementById("btnPrev");
-  if(prevBtn) prevBtn.disabled = (idx === 0);
 }
 
 function showFeedback(choice, right, lang, updateScore) {
@@ -296,12 +290,11 @@ function showFeedback(choice, right, lang, updateScore) {
     if(sLabel) sLabel.textContent = (lang==="gr" ? "Σκορ: " : "Score: ") + score;
   }
 
+  // Κλειδώνουμε τις επιλογές αλλά δεν βάζουμε disabled ώστε να πιάνεται το κλικ στη σωστή απάντηση
   document.querySelectorAll(".optionCard").forEach(b => {
-    b.disabled = true;
     b.classList.add("locked");
   });
   document.querySelectorAll(".choiceBtn").forEach(b => {
-    b.disabled = true;
     b.classList.add("locked");
   });
 
@@ -310,6 +303,11 @@ function showFeedback(choice, right, lang, updateScore) {
   const titleEl = document.getElementById("answerTitle");
   const explainEl = document.getElementById("answerExplain");
   const sourceEl = document.getElementById("answerSource");
+  const btnCont = document.getElementById("btnContinue");
+
+  if(btnCont) {
+    btnCont.textContent = (lang === "gr" ? "Συνέχεια ›" : "Continue ›");
+  }
 
   if(card && titleEl && explainEl) {
       titleEl.textContent = (choice === right) 
@@ -327,18 +325,26 @@ function showFeedback(choice, right, lang, updateScore) {
       }
       card.style.display = "block";
   }
-
-  const nextBtn = document.getElementById("btnNext");
-  if(nextBtn) nextBtn.disabled = false;
 }
 
 function handleAnswer(choice) {
   if (idx >= questionsData.length) return;
-  if (answers[idx]) return;
 
   const q = questionsData[idx];
   const right = Number(q.right); 
   const lang = getQuizLang();
+
+  // Αν έχει ήδη απαντηθεί η ερώτηση:
+  // Αν ο χρήστης πατήσει πάνω στη σωστή (πράσινη) απάντηση, επανεμφανίζουμε / εναλλάσσουμε την επεξήγηση
+  if (answers[idx]) {
+    if (choice === right) {
+      const card = document.getElementById("answerCard");
+      if (card) {
+        card.style.display = (card.style.display === "none") ? "block" : "none";
+      }
+    }
+    return;
+  }
 
   answers[idx] = {
     choice: choice,
@@ -352,7 +358,6 @@ function handleAnswer(choice) {
 function showFinishScreen(lang) {
   const card = document.querySelector(".quizCard");
   const choicesRow = document.getElementById("choicesRow");
-  const navTop = document.querySelector(".quizNavTop");
   const ansCard = document.getElementById("answerCard");
 
   const totalPossible = questionsData.length * 10;
@@ -382,7 +387,6 @@ function showFinishScreen(lang) {
   }
 
   if(ansCard) ansCard.style.display = "none";
-  if(navTop) navTop.style.display = "none";
 
   localStorage.setItem(QUIZ_SCORE_KEY, score);
 }
@@ -408,32 +412,64 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  const btnNext = document.getElementById("btnNext");
-  const btnPrev = document.getElementById("btnPrev");
+  function goToNext() {
+    if (idx < questionsData.length - 1) {
+      idx++;
+      renderQuiz();
+    } else if (idx === questionsData.length - 1 && answers[idx]) {
+      idx++;
+      renderQuiz();
+    }
+  }
+
+  function goToPrev() {
+    if (idx > 0) {
+      idx--;
+      renderQuiz();
+    }
+  }
+
+  // Κουμπί Συνέχειας στην επεξήγηση
+  const btnCont = document.getElementById("btnContinue");
+  if(btnCont) {
+    btnCont.addEventListener("click", (e) => {
+      e.stopPropagation();
+      goToNext();
+    });
+  }
+
+  // Κουμπί Κλεισίματος επεξήγησης (x)
   const btnClose = document.getElementById("btnAnswerClose");
-
-  if(btnNext) {
-      btnNext.addEventListener("click", () => {
-        if (idx < questionsData.length) {
-            idx++;
-            renderQuiz();
-        }
-      });
-  }
-
-  if(btnPrev) {
-      btnPrev.addEventListener("click", () => {
-        if (idx > 0) {
-            idx--;
-            renderQuiz();
-        }
-      });
-  }
-
   if(btnClose) {
-      btnClose.addEventListener("click", () => {
-         const ac = document.getElementById("answerCard");
-         if(ac) ac.style.display = "none";
-      });
+    btnClose.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const ac = document.getElementById("answerCard");
+      if(ac) ac.style.display = "none";
+    });
+  }
+
+  // Touch Swipe Navigation στο quiz
+  let touchStartX = 0;
+  let touchStartY = 0;
+  const swipeTarget = document.getElementById("quizCard") || document.querySelector(".quizShell");
+  if(swipeTarget) {
+    swipeTarget.addEventListener("touchstart", (e) => {
+      touchStartX = e.changedTouches[0].clientX;
+      touchStartY = e.changedTouches[0].clientY;
+    }, { passive: true });
+
+    swipeTarget.addEventListener("touchend", (e) => {
+      const diffX = e.changedTouches[0].clientX - touchStartX;
+      const diffY = e.changedTouches[0].clientY - touchStartY;
+      if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY)) {
+        if (diffX < 0) {
+          // Swipe Left -> Επόμενο
+          goToNext();
+        } else {
+          // Swipe Right -> Προηγούμενο
+          goToPrev();
+        }
+      }
+    }, { passive: true });
   }
 });
