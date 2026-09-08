@@ -47,6 +47,25 @@
       </div>
 
       <div class="card quizCard">
+        <div class="quizHeaderBanner" aria-hidden="true">
+          <svg class="quizBannerSvg" viewBox="0 0 500 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="ecoBannerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#74a974" stop-opacity="0.35"/>
+                <stop offset="50%" stop-color="#4caf50" stop-opacity="0.25"/>
+                <stop offset="100%" stop-color="#2e8b57" stop-opacity="0.35"/>
+              </linearGradient>
+            </defs>
+            <path d="M0,32 C120,50 200,15 320,38 C420,54 460,20 500,28 L500,0 L0,0 Z" fill="url(#ecoBannerGrad)"/>
+            <path d="M0,18 C140,36 240,6 360,28 C430,42 470,16 500,20 L500,0 L0,0 Z" fill="url(#ecoBannerGrad)" opacity="0.6"/>
+          </svg>
+          <div class="quizBannerBadge">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" stroke="#2e8b57" stroke-width="1.8" fill="rgba(255,255,255,0.9)"/>
+              <path d="M16 11c1-2 3.5-3 5-3 0 2-1 4-3 5" stroke="#4caf50" stroke-width="2" fill="none"/>
+            </svg>
+          </div>
+        </div>
         <div class="questionText" id="question"></div>
         <div class="optionsContainer" id="optionsContainer">
           <button class="optionCard" id="optCard1" data-choice="1">

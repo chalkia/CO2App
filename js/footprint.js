@@ -393,7 +393,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateStepKpi(totalTons);
     updateRangeLabels(hcVal, elecLvl, goodsLvl, digLvl);
     
-    saveToStorage(kg_housing_total, kg_transport_total, kg_lifestyle_total, totalTons);
+    // Category Breakdown in tons for Dashboard
+    const homeVals = [
+      Number(((kg_heat / occ) / 1000).toFixed(2)),
+      Number(((kg_dhw / occ) / 1000).toFixed(2)),
+      Number(((kg_elec / occ) / 1000).toFixed(2))
+    ];
+    const transVals = [
+      Number((kg_car / 1000).toFixed(2)),
+      Number((kg_public / 1000).toFixed(2)),
+      Number(((flyDom * distDom * efDom) / 1000).toFixed(2)),
+      Number(((flyEu * distEu * efEu) / 1000).toFixed(2))
+    ];
+    const lifeVals = [
+      Number((kg_food / 1000).toFixed(2)),
+      Number((kg_goods / 1000).toFixed(2)),
+      Number((kg_digital / 1000).toFixed(2)),
+      Number((kg_social / 1000).toFixed(2))
+    ];
+
+    saveToStorage(kg_housing_total, kg_transport_total, kg_lifestyle_total, totalTons, homeVals, transVals, lifeVals, target);
   }
 
   function updateKpi(id, kg) {
@@ -552,10 +571,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   document.getElementById('btnDash').addEventListener('click', () => {
+    calculateAll();
     window.location.href = 'dashboard.html';
   });
 
-  function saveToStorage(h, t, l, total) {
+  function saveToStorage(h, t, l, total, homeVals, transVals, lifeVals, target) {
     const data = {};
     inputs.forEach(inp => {
       if(inp.type === 'checkbox') data[inp.id] = inp.checked;
@@ -567,6 +587,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     localStorage.setItem("CO2_TRANS_TOTAL", t.toFixed(2));
     localStorage.setItem("CO2_LIFE_TOTAL", l.toFixed(2));
     localStorage.setItem("USER_TOTAL", total.toFixed(2));
+
+    if (homeVals) localStorage.setItem("CO2_HOME_VALUES", JSON.stringify(homeVals));
+    if (transVals) localStorage.setItem("CO2_TRANSPORT_VALUES", JSON.stringify(transVals));
+    if (lifeVals) localStorage.setItem("CO2_LIFE_VALUES", JSON.stringify(lifeVals));
+    if (target) localStorage.setItem("EU_TARGET", String(target));
   }
 
   function loadFromStorage() {

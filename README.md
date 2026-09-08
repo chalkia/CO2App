@@ -1,4 +1,11 @@
 # CO2App
+## v5.2 – 2026-09-08
+- Orientation Policy: Removed mandatory landscape lock so mobile phones operate smoothly in portrait orientation, while preserving wide layout polish for tablets & desktops.
+- CO2 Calculator: Fixed active category tab text contrast with high-contrast white lettering (`-webkit-text-fill-color: #ffffff`).
+- Dashboard Calculations & Charts: Resolved issue where charts showed 0 by properly storing category breakdowns (`CO2_HOME_VALUES`, `CO2_TRANSPORT_VALUES`, `CO2_LIFE_VALUES`) in localStorage, with reliable fallback baselines.
+- Quiz Aesthetics: Removed broken 404 image requests and replaced with a decorative SVG eco-banner/motif matching the cloud & leaf branding.
+- Version bump: APP_BUILD 54.
+
 ## v5.1 – 2026-09-08
 - Home UI: Info button streamlined into a circular "i" button on the logo area; bottom chips row organized cleanly with exactly 3 items.
 - Quiz Modernization: Deprecated separate bottom buttons; each option paragraph transformed into a full clickable interactive card with letter badges (A, B, Γ in Greek; A, B, C in English).

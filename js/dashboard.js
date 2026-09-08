@@ -6,11 +6,24 @@
     if(!window.echarts) return;
     
     // 1. Ανάκτηση Δεδομένων
-    const homeVals = JSON.parse(localStorage.getItem("CO2_HOME_VALUES") || "[0,0,0]");
-    const transVals = JSON.parse(localStorage.getItem("CO2_TRANSPORT_VALUES") || "[0,0,0,0]");
-    const lifeVals = JSON.parse(localStorage.getItem("CO2_LIFE_VALUES") || "[0,0,0,0]");
-    const userTotal = Number(localStorage.getItem("USER_TOTAL")) || 0;
+    let homeVals = JSON.parse(localStorage.getItem("CO2_HOME_VALUES") || "null");
+    let transVals = JSON.parse(localStorage.getItem("CO2_TRANSPORT_VALUES") || "null");
+    let lifeVals = JSON.parse(localStorage.getItem("CO2_LIFE_VALUES") || "null");
+    let userTotal = Number(localStorage.getItem("USER_TOTAL")) || 0;
     const euTarget = Number(localStorage.getItem("EU_TARGET")) || 2.5;
+
+    // Fallback αν δεν υπάρχουν υπολογισμένα δεδομένα ώστε να μην είναι κενά τα γραφήματα
+    const isZeroOrEmpty = (arr) => !arr || !Array.isArray(arr) || arr.length === 0 || arr.every(v => !v || Number(v) === 0);
+    if (isZeroOrEmpty(homeVals) && isZeroOrEmpty(transVals) && isZeroOrEmpty(lifeVals) && userTotal === 0) {
+      homeVals = [1.85, 0.35, 0.78];
+      transVals = [2.20, 0.45, 0.25, 0.40];
+      lifeVals = [1.40, 1.00, 0.12, 1.20];
+      userTotal = 8.35;
+    } else {
+      homeVals = homeVals || [0, 0, 0];
+      transVals = transVals || [0, 0, 0, 0];
+      lifeVals = lifeVals || [0, 0, 0, 0];
+    }
 
     // 2. Κείμενα UI & PDF (Πλήρως Μεταφρασμένα)
     const lang = getLang();

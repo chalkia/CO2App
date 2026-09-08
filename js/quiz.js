@@ -198,26 +198,6 @@ function getQuizLang() {
   return "gr";
 }
 
-// Δημιουργία element εικόνας αν δεν υπάρχει
-function ensureImgElement() {
-    const qText = document.getElementById("question");
-    if (!qText) return null;
-    
-    let imgEl = document.getElementById("quizImg");
-    if (!imgEl) {
-        imgEl = document.createElement("img");
-        imgEl.id = "quizImg";
-        imgEl.style.maxWidth = "100%";
-        imgEl.style.height = "auto";
-        imgEl.style.marginBottom = "15px";
-        imgEl.style.borderRadius = "8px";
-        imgEl.style.display = "none";
-        // Εισαγωγή πριν το κείμενο της ερώτησης
-        qText.parentNode.insertBefore(imgEl, qText);
-    }
-    return imgEl;
-}
-
 function renderQuiz(){
   const lang = getQuizLang();
   
@@ -245,17 +225,6 @@ function renderQuiz(){
   if(!qText || !o1 || !o2 || !o3) {
       console.error("Missing HTML elements for quiz");
       return;
-  }
-
-  // Διαχείριση Εικόνας
-  const imgEl = ensureImgElement();
-  if (imgEl) {
-      if (q.img) {
-          imgEl.src = q.img;
-          imgEl.style.display = "block";
-      } else {
-          imgEl.style.display = "none";
-      }
   }
 
   qText.textContent = q.question[lang];
