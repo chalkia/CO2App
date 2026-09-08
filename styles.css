@@ -748,6 +748,14 @@ body.homeNoDrawer #drawerBackdrop{
   white-space: nowrap;
 }
 .homeChip:active{transform:translateY(1px); box-shadow:0 7px 16px rgba(0,0,0,.16);} 
+
+.homeChips.singleChip .homeChip{
+  flex: 0 1 auto !important;
+  width: auto !important;
+  min-width: 180px !important;
+  max-width: 280px !important;
+  padding: 10px 24px !important;
+} 
 .homeChipIconImg{
   width: 20px;
   height: 20px;

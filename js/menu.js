@@ -60,7 +60,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const lang = (typeof getLang === 'function') ? getLang() : 'el';
     const currentPath = window.location.pathname.split('/').pop();
 
-    menuItems.forEach(item => {
+    const isInstalled = (typeof isAppStandalone === 'function') ? isAppStandalone() : false;
+    const itemsToRender = isInstalled ? menuItems.filter(item => !item.path.includes('install')) : menuItems;
+
+    itemsToRender.forEach(item => {
       const btn = document.createElement('div');
       btn.className = 'drawerItem';
       

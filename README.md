@@ -1,4 +1,10 @@
 # CO2App
+## v5.5 – 2026-09-08
+- PWA Detection: Added automatic standalone check (`display-mode: standalone` / `navigator.standalone`).
+- Home Screen Adaptation: Hides the "Εγκατάσταση" button on home screen when running as an installed PWA, cleanly centering "Τεκμηρίωση".
+- Drawer Menu Cleanup: Automatically filters out "Εγκατάσταση" from the side drawer menu when already installed.
+- Version bump: APP_BUILD 57.
+
 ## v5.4 – 2026-09-08
 - Drawer Menu: Removed "×" button; drawer now closes smoothly via touch swipe left.
 - Home Actions: Renamed "Εγκατάσταση σε κινητό" to "Εγκατάσταση" and locked "Τεκμηρίωση" & "Εγκατάσταση" on the exact same row with equal forced width.

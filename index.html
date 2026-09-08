@@ -134,6 +134,14 @@
     document.getElementById("chipDocsText").textContent = T.docs;
     document.getElementById("chipInstallText").textContent = T.install;
 
+    // Έλεγχος αν η εφαρμογή τρέχει ως εγκατεστημένη (Standalone PWA)
+    if (typeof isAppStandalone === 'function' && isAppStandalone()) {
+      const chipInstall = document.getElementById("chipInstall");
+      if (chipInstall) chipInstall.style.setProperty('display', 'none', 'important');
+      const homeChips = document.querySelector(".homeChips");
+      if (homeChips) homeChips.classList.add("singleChip");
+    }
+
     const langMini = document.getElementById("langMiniText");
     if(langMini) langMini.textContent = (lang === "el") ? "EN" : "ΕΛ";
     const btnLang = document.getElementById("btnLangMini");

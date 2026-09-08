@@ -41,4 +41,10 @@ function applyUnitYearElements(){
     el.textContent = unit;
   });
 }
+
+function isAppStandalone(){
+  return (window.matchMedia && (window.matchMedia('(display-mode: standalone)').matches || window.matchMedia('(display-mode: fullscreen)').matches)) ||
+         (window.navigator && window.navigator.standalone === true) ||
+         (document.referrer && document.referrer.includes('android-app://'));
+}
 
