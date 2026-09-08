@@ -1184,3 +1184,242 @@ select option{
 @media (max-width: 520px){
   .rangeLabel, .rangeValue, .small, .rangeLabel4 { font-size: 1.05rem; }
 }
+
+/* =========================================================
+   Landscape Only Enforcement & Rotate Prompt
+   ========================================================= */
+#rotateOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(circle at center, #2e5546 0%, #162c22 100%);
+  color: #ffffff;
+  z-index: 999999;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.rotateCard {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 28px;
+  padding: 32px 28px;
+  max-width: 360px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.rotateIconWrapper {
+  width: 88px;
+  height: 88px;
+  background: rgba(116, 169, 116, 0.16);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  border: 1px solid rgba(116, 169, 116, 0.35);
+}
+
+.rotatePhoneSvg {
+  width: 52px;
+  height: 52px;
+  color: #ffffff;
+}
+
+.rotatePhoneSvg .phoneBody {
+  transform-origin: 32px 32px;
+  animation: rotatePhoneAnim 2.8s ease-in-out infinite;
+}
+
+.rotatePhoneSvg .arrowPath {
+  animation: pulseArrow 2.8s ease-in-out infinite;
+}
+
+@keyframes rotatePhoneAnim {
+  0%, 15% {
+    transform: rotate(0deg);
+  }
+  50%, 75% {
+    transform: rotate(-90deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes pulseArrow {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.rotateTitle {
+  font-family: var(--uiFont);
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+  color: #ffffff;
+}
+
+.rotateDesc {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* Enforce on portrait screens */
+@media screen and (orientation: portrait) {
+  #rotateOverlay {
+    display: flex !important;
+  }
+  body {
+    overflow: hidden !important;
+  }
+}
+
+@media screen and (orientation: landscape) {
+  #rotateOverlay {
+    display: none !important;
+  }
+}
+
+/* Landscape Mode Responsive Polish across App */
+@media screen and (orientation: landscape) {
+  /* Dashboard charts in landscape row */
+  .chartRow {
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+  .chartBox {
+    width: 32% !important;
+    min-width: 0 !important;
+  }
+
+  /* Home Card in landscape: Side-by-side balanced layout */
+  .homeCard {
+    display: grid !important;
+    grid-template-columns: 240px 1fr !important;
+    grid-template-rows: auto auto auto 1fr !important;
+    grid-template-areas:
+      "logo btn1"
+      "logo btn2"
+      "desc chips"
+      "ver  chips" !important;
+    gap: 8px 24px !important;
+    align-items: center !important;
+    padding: 18px 24px !important;
+  }
+  .homeLogo {
+    grid-area: logo !important;
+    width: 200px !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+  }
+  .homeLogo img {
+    max-height: 130px !important;
+    width: auto !important;
+    margin: 0 auto !important;
+  }
+  .homeDesc {
+    grid-area: desc !important;
+    font-size: 0.88rem !important;
+    text-align: center !important;
+    max-width: 100% !important;
+  }
+  #btnQuiz {
+    grid-area: btn1 !important;
+    padding: 12px 18px !important;
+  }
+  #btnFoot {
+    grid-area: btn2 !important;
+    padding: 12px 18px !important;
+  }
+  .homeChips {
+    grid-area: chips !important;
+    margin-top: 4px !important;
+    gap: 10px !important;
+    justify-content: center !important;
+  }
+  #versionDisplay {
+    grid-area: ver !important;
+    margin-top: 4px !important;
+  }
+}
+
+/* Compact Landscape adjustments (e.g. mobile phones in landscape) */
+@media screen and (orientation: landscape) and (max-height: 520px) {
+  .container {
+    padding: 8px 14px 12px !important;
+    gap: 8px !important;
+  }
+  .card {
+    padding: 12px 16px !important;
+  }
+  .homeCard {
+    padding: 10px 18px !important;
+    gap: 6px 18px !important;
+    grid-template-columns: 190px 1fr !important;
+  }
+  .homeLogo img {
+    max-height: 95px !important;
+  }
+  .homeDesc {
+    font-size: 0.80rem !important;
+    line-height: 1.25 !important;
+  }
+  .homePrimary {
+    padding: 8px 14px !important;
+    border-radius: 16px !important;
+  }
+  .homePrimaryTitle {
+    font-size: 1.05rem !important;
+  }
+  .homePrimarySub {
+    font-size: 0.82rem !important;
+    margin-top: 2px !important;
+  }
+  .homeChip {
+    padding: 6px 10px !important;
+    font-size: 0.82rem !important;
+    border-radius: 12px !important;
+  }
+  .badge {
+    padding: 4px 8px !important;
+    font-size: 0.75rem !important;
+  }
+  .quizShell {
+    padding: 10px 14px !important;
+  }
+  .questionText {
+    font-size: 1.05rem !important;
+    margin-bottom: 6px !important;
+  }
+  .optionText {
+    font-size: 0.95rem !important;
+    margin: 6px 0 !important;
+  }
+  .choiceBtn {
+    height: 44px !important;
+    font-size: 1.05rem !important;
+  }
+}
+

@@ -6,7 +6,7 @@
   "display": "standalone",
   "background_color": "#74a974",
   "theme_color": "#74a974",
-  "orientation": "portrait",
+  "orientation": "landscape",
   "description": "Υπολόγισε το αποτύπωμά σου σε CO2 από ενέργεια, μεταφορές και κατανάλωση. Εκπαιδευτικό εργαλείο με ελληνικό και αγγλικό περιβάλλον.",
   "icons": [
     {

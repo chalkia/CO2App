@@ -1,4 +1,11 @@
 # CO2App
+## v5.0 – 2026-09-08
+- Landscape Mode Enforcement: Application now operates exclusively in landscape orientation.
+- PWA manifest updated to `orientation: landscape`.
+- Integrated sleek rotate prompt overlay (CSS & SVG animation) prompting users to rotate device when held in portrait mode.
+- Mobile landscape polish: Optimized Home card to a balanced 2-column layout and improved Dashboard chart arrangement.
+- Fixed `version.js` path resolution for service worker and asset caching (APP_BUILD: 52).
+
 ## v4.0 – 2026-01-09
 - Version bump to v4.0 to reset PWA cache and stabilise updates
 - Verified and updated service worker cache name and precache list
