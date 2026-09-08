@@ -1,7 +1,10 @@
+// CO2App Service Worker - Build: 58
+const SW_BUILD = "58";
+
 // 1. Εισαγωγή της μεταβλητής έκδοσης (APP_BUILD)
 importScripts('./js/version.js');
 
-const CACHE_KEY = (typeof APP_BUILD !== 'undefined') ? APP_BUILD : 'v_init';
+const CACHE_KEY = (typeof APP_BUILD !== 'undefined') ? APP_BUILD : SW_BUILD;
 const CACHE_NAME = 'co2app-cache-' + CACHE_KEY;
 
 // 2. Precache List

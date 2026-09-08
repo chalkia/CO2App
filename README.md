@@ -1,4 +1,9 @@
 # CO2App
+## v5.6 – 2026-09-08
+- Service Worker Update Reliability: Embedded `SW_BUILD` directly into `service-worker.js` so browsers detect byte changes immediately upon new deployments.
+- Instant Refresh Prompt: Added explicit `reg.update()` in `index.html` to trigger the "Νέα έκδοση διαθέσιμη - Ανανέωση" toast without delay.
+- Version bump: APP_BUILD 58.
+
 ## v5.5 – 2026-09-08
 - PWA Detection: Added automatic standalone check (`display-mode: standalone` / `navigator.standalone`).
 - Home Screen Adaptation: Hides the "Εγκατάσταση" button on home screen when running as an installed PWA, cleanly centering "Τεκμηρίωση".

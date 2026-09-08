@@ -164,7 +164,9 @@
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
         navigator.serviceWorker.register("./service-worker.js").then(reg => {
-          
+          // Άμεσος εξαναγκασμένος έλεγχος για updates κατά το άνοιγμα
+          reg.update().catch(() => {});
+
           // 1. Έλεγχος αν υπάρχει ήδη update που περιμένει
           if (reg.waiting) {
             showUpdateNotification(reg.waiting);
