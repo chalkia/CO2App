@@ -136,14 +136,14 @@
           const reportDiv = document.createElement("div");
           reportDiv.style.position = "absolute";
           reportDiv.style.left = "-9999px";
-          // Σταθερό πλάτος A4
-          reportDiv.style.width = "700px"; 
+          reportDiv.style.width = "750px"; 
           reportDiv.style.background = "#fff";
-          reportDiv.style.color = "#000";
-          reportDiv.style.padding = "40px";
-          reportDiv.style.fontFamily = "sans-serif";
+          reportDiv.style.color = "#244237";
+          reportDiv.style.padding = "24px 32px";
+          reportDiv.style.boxSizing = "border-box";
+          reportDiv.style.fontFamily = "system-ui, -apple-system, sans-serif";
           
-          const listIt = (label, val) => `<li style="margin-bottom:4px;"><strong>${label}:</strong> ${fmt(val)} t CO₂</li>`;
+          const listIt = (label, val) => `<li style="margin-bottom:2px;"><strong>${label}:</strong> ${fmt(val)} t CO₂</li>`;
           
           const imgHome = chartInstances["pieHome"] ? chartInstances["pieHome"].getDataURL({pixelRatio: 2, backgroundColor: '#fff'}) : "";
           const imgTrans = chartInstances["pieTransport"] ? chartInstances["pieTransport"].getDataURL({pixelRatio: 2, backgroundColor: '#fff'}) : "";
@@ -151,56 +151,64 @@
 
           // Δημιουργία HTML Αναφοράς
           reportDiv.innerHTML = `
-            <h1 style="color:#2e8b57; border-bottom:2px solid #2e8b57; padding-bottom:10px;">${T.reportHeader}</h1>
-            <p style="color:#666; margin-bottom:30px;">${T.reportDate} ${new Date().toLocaleDateString()}</p>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #2e8b57; padding-bottom:8px; margin-bottom:14px;">
+              <h1 style="color:#2e8b57; margin:0; font-size:22px; font-weight:700;">${T.reportHeader}</h1>
+              <span style="color:#666; font-size:12px;">${T.reportDate} ${new Date().toLocaleDateString()}</span>
+            </div>
             
-            <div style="background:#f0f9eb; padding:15px; border-radius:8px; margin-bottom:30px;">
-              <h2 style="margin-top:0;">${T.totalSection}</h2>
-              <p style="font-size:1.2em;">
-                ${T.pdfUser}: <strong>${fmt(userTotal)}</strong> t CO₂/yr <br>
+            <div style="background:#f0f9eb; padding:10px 16px; border-radius:10px; margin-bottom:14px; border:1px solid rgba(46,139,87,0.2);">
+              <h2 style="margin:0 0 4px 0; font-size:15px; color:#2e8b57;">${T.totalSection}</h2>
+              <div style="font-size:13.5px; line-height:1.4;">
+                ${T.pdfUser}: <strong>${fmt(userTotal)}</strong> t CO₂/yr &nbsp;|&nbsp; 
                 ${T.pdfTarget}: <strong>${fmt(euTarget)}</strong> t CO₂/yr
-              </p>
+              </div>
             </div>
 
-            <h3 style="color:#4a6fa5; border-bottom:1px solid #ccc; margin-top:30px;">1. ${T.homeTitle}</h3>
-            <div style="display:flex; align-items:center; justify-content:space-between;">
-              <ul style="list-style:none; padding:0; line-height:1.6;">
-                ${listIt(T.chartLabels.home[0], homeVals[0])}
-                ${listIt(T.chartLabels.home[1], homeVals[1])}
-                ${listIt(T.chartLabels.home[2], homeVals[2])}
-                <br>
-                <li><strong>${T.totalKw}: ${fmt(homeVals.reduce((a,b)=>a+b,0))} t</strong></li>
-              </ul>
-              <img src="${imgHome}" style="width:250px; height:auto;" />
+            <!-- Section 1: Home -->
+            <div style="margin-bottom:12px; padding-bottom:8px; border-bottom:1px dashed #e2e8e4;">
+              <h3 style="color:#2f4a31; margin:0 0 6px 0; font-size:15px;">1. ${T.homeTitle}</h3>
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:16px;">
+                <ul style="list-style:none; padding:0; margin:0; line-height:1.4; font-size:12.5px; flex:1;">
+                  ${listIt(T.chartLabels.home[0], homeVals[0])}
+                  ${listIt(T.chartLabels.home[1], homeVals[1])}
+                  ${listIt(T.chartLabels.home[2], homeVals[2])}
+                  <li style="margin-top:4px;"><strong>${T.totalKw}: ${fmt(homeVals.reduce((a,b)=>a+b,0))} t</strong></li>
+                </ul>
+                <img src="${imgHome}" style="width:190px; height:115px; object-fit:contain;" />
+              </div>
             </div>
 
-            <h3 style="color:#4a6fa5; border-bottom:1px solid #ccc; margin-top:20px;">2. ${T.transTitle}</h3>
-            <div style="display:flex; align-items:center; justify-content:space-between;">
-              <ul style="list-style:none; padding:0; line-height:1.6;">
-                ${listIt(T.chartLabels.trans[0], transVals[0])}
-                ${listIt(T.chartLabels.trans[1], transVals[1])}
-                ${listIt(T.chartLabels.trans[2], transVals[2])}
-                ${listIt(T.chartLabels.trans[3], transVals[3])}
-                <br>
-                <li><strong>${T.totalKw}: ${fmt(transVals.reduce((a,b)=>a+b,0))} t</strong></li>
-              </ul>
-              <img src="${imgTrans}" style="width:250px; height:auto;" />
+            <!-- Section 2: Transport -->
+            <div style="margin-bottom:12px; padding-bottom:8px; border-bottom:1px dashed #e2e8e4;">
+              <h3 style="color:#2f4a31; margin:0 0 6px 0; font-size:15px;">2. ${T.transTitle}</h3>
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:16px;">
+                <ul style="list-style:none; padding:0; margin:0; line-height:1.4; font-size:12.5px; flex:1;">
+                  ${listIt(T.chartLabels.trans[0], transVals[0])}
+                  ${listIt(T.chartLabels.trans[1], transVals[1])}
+                  ${listIt(T.chartLabels.trans[2], transVals[2])}
+                  ${listIt(T.chartLabels.trans[3], transVals[3])}
+                  <li style="margin-top:4px;"><strong>${T.totalKw}: ${fmt(transVals.reduce((a,b)=>a+b,0))} t</strong></li>
+                </ul>
+                <img src="${imgTrans}" style="width:190px; height:115px; object-fit:contain;" />
+              </div>
             </div>
 
-            <h3 style="color:#4a6fa5; border-bottom:1px solid #ccc; margin-top:20px;">3. ${T.lifeTitle}</h3>
-            <div style="display:flex; align-items:center; justify-content:space-between;">
-              <ul style="list-style:none; padding:0; line-height:1.6;">
-                ${listIt(T.chartLabels.life[0], lifeVals[0])}
-                ${listIt(T.chartLabels.life[1], lifeVals[1])}
-                ${listIt(T.chartLabels.life[2], lifeVals[2])}
-                ${listIt(T.chartLabels.life[3], lifeVals[3])}
-                <br>
-                <li><strong>${T.totalKw}: ${fmt(lifeVals.reduce((a,b)=>a+b,0))} t</strong></li>
-              </ul>
-              <img src="${imgLife}" style="width:250px; height:auto;" />
+            <!-- Section 3: Lifestyle -->
+            <div style="margin-bottom:8px;">
+              <h3 style="color:#2f4a31; margin:0 0 6px 0; font-size:15px;">3. ${T.lifeTitle}</h3>
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:16px;">
+                <ul style="list-style:none; padding:0; margin:0; line-height:1.4; font-size:12.5px; flex:1;">
+                  ${listIt(T.chartLabels.life[0], lifeVals[0])}
+                  ${listIt(T.chartLabels.life[1], lifeVals[1])}
+                  ${listIt(T.chartLabels.life[2], lifeVals[2])}
+                  ${listIt(T.chartLabels.life[3], lifeVals[3])}
+                  <li style="margin-top:4px;"><strong>${T.totalKw}: ${fmt(lifeVals.reduce((a,b)=>a+b,0))} t</strong></li>
+                </ul>
+                <img src="${imgLife}" style="width:190px; height:115px; object-fit:contain;" />
+              </div>
             </div>
             
-            <div style="margin-top:40px; text-align:center; font-size:0.8em; color:#999;">
+            <div style="margin-top:10px; text-align:center; font-size:11px; color:#888; border-top:1px solid #eee; padding-top:6px;">
               Generated by CO2App
             </div>
           `;
@@ -211,28 +219,28 @@
           const canvas = await html2canvas(reportDiv, { scale: 2 });
           document.body.removeChild(reportDiv); 
 
-          // 2. Δημιουργία PDF
+          // 2. Δημιουργία PDF A4
           const { jsPDF } = window.jspdf;
           const pdf = new jsPDF('p', 'mm', 'a4');
           
-          const imgWidth = 210; 
-          const pageHeight = 297; 
-          const imgHeight = (canvas.height * imgWidth) / canvas.width;
-          let heightLeft = imgHeight;
-          let position = 0;
+          const pageWidth = 210;
+          const pageHeight = 297;
+          const margin = 10; // 10mm margins
+          const contentWidth = pageWidth - (margin * 2); // 190mm
+          const contentHeight = pageHeight - (margin * 2); // 277mm
 
+          const renderedHeight = (canvas.height * contentWidth) / canvas.width;
           const imgData = canvas.toDataURL('image/png');
 
-          // Πρώτη σελίδα
-          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
-
-          // Προσθήκη επόμενων σελίδων (αν υπάρχει σημαντικό υπόλοιπο > 1mm)
-          while (heightLeft >= 1) {
-            position = heightLeft - imgHeight;
-            pdf.addPage();
-            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
+          // Αν χωράει πλήρως στην 1η σελίδα
+          if (renderedHeight <= contentHeight) {
+            pdf.addImage(imgData, 'PNG', margin, margin, contentWidth, renderedHeight);
+          } else {
+            // Κλιμάκωση για ασφαλή προσαρμογή σε 1 σελίδα χωρίς κόψιμο διαγραμμάτων
+            const scale = contentHeight / renderedHeight;
+            const scaledWidth = contentWidth * scale;
+            const posX = margin + ((contentWidth - scaledWidth) / 2);
+            pdf.addImage(imgData, 'PNG', posX, margin, scaledWidth, contentHeight);
           }
 
           // --- ΔΙΑΜΟΙΡΑΣΜΟΣ (SHARE) ---

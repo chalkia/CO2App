@@ -1,4 +1,11 @@
 # CO2App
+## v5.1 – 2026-09-08
+- Home UI: Info button streamlined into a circular "i" button on the logo area; bottom chips row organized cleanly with exactly 3 items.
+- Quiz Modernization: Deprecated separate bottom buttons; each option paragraph transformed into a full clickable interactive card with letter badges (A, B, Γ in Greek; A, B, C in English).
+- Footprint Calculator: Displays single category at a time with smooth touch swipe/swap gestures; top category tabs fully active and responsive.
+- PDF Export Quality: Optimized executive single-page A4 layout and scaling preventing any charts from being sliced across page breaks.
+- Version bump: APP_BUILD 53.
+
 ## v5.0 – 2026-09-08
 - Landscape Mode Enforcement: Application now operates exclusively in landscape orientation.
 - PWA manifest updated to `orientation: landscape`.

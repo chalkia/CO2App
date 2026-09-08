@@ -263,6 +263,14 @@ function renderQuiz(){
   o2.textContent = q.a2[lang];
   o3.textContent = q.a3[lang];
 
+  // Ενημέρωση ετικετών A, B, Γ (Ελληνικά) / A, B, C (Αγγλικά)
+  const b1 = document.getElementById("badge1");
+  const b2 = document.getElementById("badge2");
+  const b3 = document.getElementById("badge3");
+  if (b1) b1.textContent = "A";
+  if (b2) b2.textContent = "B";
+  if (b3) b3.textContent = (lang === "gr" ? "Γ" : "C");
+
   if (hasAnswered) {
       hintEl.textContent = "";
   } else {
@@ -270,6 +278,10 @@ function renderQuiz(){
   }
 
   // Reset Styles
+  document.querySelectorAll(".optionCard").forEach(o => {
+    o.classList.remove("answerCorrect", "answerWrong", "answerChosen", "locked");
+    o.disabled = false;
+  });
   document.querySelectorAll(".optionText").forEach(o => 
     o.classList.remove("answerCorrect", "answerWrong", "answerChosen")
   );
@@ -296,12 +308,17 @@ function renderQuiz(){
 function showFeedback(choice, right, lang, updateScore) {
   const elChoice = document.getElementById("opt" + choice);
   const elRight = document.getElementById("opt" + right);
+  const cardChoice = document.getElementById("optCard" + choice);
+  const cardRight = document.getElementById("optCard" + right);
   
   if(elChoice) elChoice.classList.add("answerChosen");
   if(elRight) elRight.classList.add("answerCorrect");
+  if(cardChoice) cardChoice.classList.add("answerChosen");
+  if(cardRight) cardRight.classList.add("answerCorrect");
   
-  if (choice !== right && elChoice) {
-    elChoice.classList.add("answerWrong");
+  if (choice !== right) {
+    if(elChoice) elChoice.classList.add("answerWrong");
+    if(cardChoice) cardChoice.classList.add("answerWrong");
   }
 
   if (updateScore && choice === right) {
@@ -310,6 +327,10 @@ function showFeedback(choice, right, lang, updateScore) {
     if(sLabel) sLabel.textContent = (lang==="gr" ? "Σκορ: " : "Score: ") + score;
   }
 
+  document.querySelectorAll(".optionCard").forEach(b => {
+    b.disabled = true;
+    b.classList.add("locked");
+  });
   document.querySelectorAll(".choiceBtn").forEach(b => {
     b.disabled = true;
     b.classList.add("locked");
@@ -409,6 +430,12 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".choiceBtn[data-choice]").forEach(b => {
     b.addEventListener("click", () => {
         handleAnswer(Number(b.dataset.choice));
+    });
+  });
+
+  document.querySelectorAll(".optionCard[data-choice]").forEach(card => {
+    card.addEventListener("click", () => {
+        handleAnswer(Number(card.dataset.choice));
     });
   });
 

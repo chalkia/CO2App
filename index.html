@@ -32,8 +32,11 @@
     </div>
     
     <div class="card homeCard centerCard">
-      <div class="homeLogo">
-        <img alt="CO2app" height="260" id="appLogo" src="./assets/logo.png" style="width:min(70vw,260px);max-width:260px;height:auto;display:block;margin:0 auto;" width="260"/>
+      <div class="homeLogoWrap">
+        <button class="infoBtnRound" id="btnAboutMini" aria-label="About" title="Info">i</button>
+        <div class="homeLogo">
+          <img alt="CO2app" height="260" id="appLogo" src="./assets/logo.png" style="width:min(70vw,260px);max-width:260px;height:auto;display:block;margin:0 auto;" width="260"/>
+        </div>
       </div>
       <div class="homeDesc" id="homeDesc"></div>
       
@@ -65,10 +68,6 @@
         <button class="homeChip" id="chipLang">
           <span class="homeChipIcon">🌐</span>
           <span id="chipLangText"></span>
-        </button>
-        <button class="homeChip" id="chipAbout">
-          <span class="homeChipIcon">i</span>
-          <span id="chipAboutText"></span>
         </button>
       </div>
 
@@ -138,15 +137,14 @@
     document.getElementById("chipDocsText").textContent = T.docs;
     document.getElementById("chipInstallText").textContent = T.install;
     document.getElementById("chipLangText").textContent = T.lang;
-    document.getElementById("chipAboutText").textContent = T.about;
-
     // Πλοήγηση
     document.getElementById("btnQuiz").addEventListener("click", ()=>go("./pages/quiz.html"));
     document.getElementById("btnFoot").addEventListener("click", ()=>go("./pages/footprint.html"));
 
     document.getElementById("chipDocs").addEventListener("click", ()=>go("./pages/model.html"));
     document.getElementById("chipInstall").addEventListener("click", ()=>go("./pages/install.html"));
-    document.getElementById("chipAbout").addEventListener("click", ()=>go("./pages/info.html"));
+    const btnAbout = document.getElementById("btnAboutMini");
+    if(btnAbout) btnAbout.addEventListener("click", ()=>go("./pages/info.html"));
     
     document.getElementById("chipLang").addEventListener("click", ()=>{
       const next = (lang === "el") ? "en" : "el";

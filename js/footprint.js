@@ -464,19 +464,76 @@ document.addEventListener('DOMContentLoaded', async () => {
     else cardSummary.scrollIntoView({behavior: 'smooth'});
   });
 
+  const carouselEl = document.getElementById('cardsCarousel');
+  let touchStartX = 0;
+  let touchStartY = 0;
+
+  if (carouselEl) {
+    carouselEl.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+      touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+
+    carouselEl.addEventListener('touchend', (e) => {
+      const touchEndX = e.changedTouches[0].screenX;
+      const touchEndY = e.changedTouches[0].screenY;
+      const diffX = touchEndX - touchStartX;
+      const diffY = touchEndY - touchStartY;
+      
+      // Swap detection: horizontal distance > 40px and greater than vertical
+      if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 40) {
+        if (diffX < 0) {
+          // Swiped left -> next card
+          if (currentCardIndex < cards.length - 1) {
+            updateActiveCard(currentCardIndex + 1);
+          }
+        } else {
+          // Swiped right -> prev card
+          if (currentCardIndex > 0) {
+            updateActiveCard(currentCardIndex - 1);
+          }
+        }
+      }
+    }, { passive: true });
+
+    let scrollDebounce;
+    carouselEl.addEventListener('scroll', () => {
+      clearTimeout(scrollDebounce);
+      scrollDebounce = setTimeout(() => {
+        const w = carouselEl.offsetWidth;
+        if (w > 0) {
+          const newIdx = Math.round(carouselEl.scrollLeft / w);
+          if (newIdx >= 0 && newIdx < cards.length && newIdx !== currentCardIndex) {
+            currentCardIndex = newIdx;
+            navs.forEach((n, i) => n.classList.toggle('active', i === newIdx));
+            const titles = [
+               document.getElementById('homeTitle') ? document.getElementById('homeTitle').textContent : '',
+               document.getElementById('trTitle') ? document.getElementById('trTitle').textContent : '',
+               document.getElementById('lifeTitle') ? document.getElementById('lifeTitle').textContent : ''
+            ];
+            if(stepTitle) stepTitle.textContent = titles[newIdx];
+          }
+        }
+      }, 60);
+    }, { passive: true });
+  }
+
   function updateActiveCard(idx) {
     currentCardIndex = idx;
     navs.forEach((n, i) => n.classList.toggle('active', i === idx));
-    const w = document.getElementById('cardsCarousel').offsetWidth;
-    document.getElementById('cardsCarousel').scrollTo({
-      left: w * idx,
-      behavior: 'smooth'
-    });
+    const cEl = document.getElementById('cardsCarousel');
+    if (cEl) {
+      const w = cEl.offsetWidth;
+      cEl.scrollTo({
+        left: w * idx,
+        behavior: 'smooth'
+      });
+    }
     
     const titles = [
-       document.getElementById('homeTitle').textContent,
-       document.getElementById('trTitle').textContent,
-       document.getElementById('lifeTitle').textContent
+       document.getElementById('homeTitle') ? document.getElementById('homeTitle').textContent : '',
+       document.getElementById('trTitle') ? document.getElementById('trTitle').textContent : '',
+       document.getElementById('lifeTitle') ? document.getElementById('lifeTitle').textContent : ''
     ];
     if(stepTitle) stepTitle.textContent = titles[idx];
   }
