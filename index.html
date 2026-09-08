@@ -37,6 +37,9 @@
         <div class="homeLogo">
           <img alt="CO2app" height="260" id="appLogo" src="./assets/logo.png" style="width:min(70vw,260px);max-width:260px;height:auto;display:block;margin:0 auto;" width="260"/>
         </div>
+        <button class="infoBtnRound langBtnRound" id="btnLangMini" aria-label="Change Language" title="Language">
+          <span id="langMiniText">EN</span>
+        </button>
       </div>
       <div class="homeDesc" id="homeDesc"></div>
       
@@ -58,16 +61,12 @@
       
       <div class="homeChips">
         <button class="homeChip" id="chipDocs">
-          <img alt="Docs" class="homeChipIconImg" height="22" src="./assets/ui/bookN.png" style="width:22px;height:22px;display:block;" width="22"/>
+          <img alt="Docs" class="homeChipIconImg" height="20" src="./assets/ui/bookN.png" style="width:20px;height:20px;display:block;" width="20"/>
           <span id="chipDocsText"></span>
         </button>
         <button class="homeChip" id="chipInstall">
-          <span class="homeChipIcon">📱</span>
+          <span class="homeChipIcon" style="font-size:1.1rem;line-height:1;">📱</span>
           <span id="chipInstallText"></span>
-        </button>
-        <button class="homeChip" id="chipLang">
-          <span class="homeChipIcon">🌐</span>
-          <span id="chipLangText"></span>
         </button>
       </div>
 
@@ -106,9 +105,8 @@
         footSub: "Κάνε μια εκτίμηση για τη δική σου συμβολή στην αύξηση του CO₂ στην ατμόσφαιρα.",
         footBadge: "4 κατηγορίες",
         docs: "Τεκμηρίωση",
-        lang: "Αλλαγή γλώσσας",
         about: "Πληροφορίες",
-        install: "Εγκατάσταση σε κινητό"
+        install: "Εγκατάσταση"
       },
       en: {
         desc: "An educational app about CO₂ and climate, featuring a knowledge quiz and a carbon footprint calculator.",
@@ -119,9 +117,8 @@
         footSub: "Estimate your own contribution to the rise of CO₂ in the atmosphere.",
         footBadge: "4 categories",
         docs: "Documentation",
-        lang: "Switch language",
         about: "About",
-        install: "Install on phone"
+        install: "Install"
       }
     }[lang];
 
@@ -136,7 +133,16 @@
 
     document.getElementById("chipDocsText").textContent = T.docs;
     document.getElementById("chipInstallText").textContent = T.install;
-    document.getElementById("chipLangText").textContent = T.lang;
+
+    const langMini = document.getElementById("langMiniText");
+    if(langMini) langMini.textContent = (lang === "el") ? "EN" : "ΕΛ";
+    const btnLang = document.getElementById("btnLangMini");
+    if(btnLang) btnLang.addEventListener("click", () => {
+      const next = (lang === "el") ? "en" : "el";
+      setLang(next);
+      location.reload();
+    });
+
     // Πλοήγηση
     document.getElementById("btnQuiz").addEventListener("click", ()=>go("./pages/quiz.html"));
     document.getElementById("btnFoot").addEventListener("click", ()=>go("./pages/footprint.html"));
@@ -145,12 +151,6 @@
     document.getElementById("chipInstall").addEventListener("click", ()=>go("./pages/install.html"));
     const btnAbout = document.getElementById("btnAboutMini");
     if(btnAbout) btnAbout.addEventListener("click", ()=>go("./pages/info.html"));
-    
-    document.getElementById("chipLang").addEventListener("click", ()=>{
-      const next = (lang === "el") ? "en" : "el";
-      setLang(next);
-      location.reload();
-    });
 
     // --- SERVICE WORKER UPDATE LOGIC ---
     if ("serviceWorker" in navigator) {

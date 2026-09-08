@@ -1,4 +1,10 @@
 # CO2App
+## v5.4 – 2026-09-08
+- Drawer Menu: Removed "×" button; drawer now closes smoothly via touch swipe left.
+- Home Actions: Renamed "Εγκατάσταση σε κινητό" to "Εγκατάσταση" and locked "Τεκμηρίωση" & "Εγκατάσταση" on the exact same row with equal forced width.
+- Language Switcher: Relocated language button to the right of the logo as a sleek circular button symmetrical to the "i" button.
+- Version bump: APP_BUILD 56.
+
 ## v5.3 – 2026-09-08
 - Topbar Redesign: Aligned menu button to the left, added centered title "CO₂ Quiz", and added direct Home button on the right.
 - Quiz Inset Explanation Card: Explanation now appears as an inset overlay card inside the question card, dismissible with "×", and reopenable by tapping the correct (green) answer card.

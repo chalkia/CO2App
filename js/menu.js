@@ -145,4 +145,20 @@ document.addEventListener('DOMContentLoaded', () => {
   if (menuBtn) menuBtn.addEventListener('click', (e) => { e.stopPropagation(); openDrawer(); });
   if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
   if (backdrop) backdrop.addEventListener('click', closeDrawer);
+
+  // Swipe Left κλείσιμο του Drawer
+  let drawerTouchStartX = 0;
+  let drawerTouchStartY = 0;
+  drawer.addEventListener('touchstart', (e) => {
+    drawerTouchStartX = e.changedTouches[0].clientX;
+    drawerTouchStartY = e.changedTouches[0].clientY;
+  }, { passive: true });
+
+  drawer.addEventListener('touchend', (e) => {
+    const diffX = e.changedTouches[0].clientX - drawerTouchStartX;
+    const diffY = e.changedTouches[0].clientY - drawerTouchStartY;
+    if (diffX < -35 && Math.abs(diffX) > Math.abs(diffY)) {
+      closeDrawer();
+    }
+  }, { passive: true });
 });

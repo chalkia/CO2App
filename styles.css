@@ -465,9 +465,12 @@ select, input[type="number"], input[type="range"]{
 
 .drawerHeader{
   display:flex;
-  align-items:stretch;
+  align-items:center;
   justify-content:center;
   gap: 10px;
+}
+#drawerClose{
+  display: none !important;
 }
 
 .drawerTitle{
@@ -652,6 +655,12 @@ body.homeNoDrawer #drawerBackdrop{
 .infoBtnRound:active{
   transform: scale(0.95);
 }
+.langBtnRound{
+  left: auto !important;
+  right: 4px !important;
+  font-size: 0.82rem !important;
+  letter-spacing: 0.5px;
+}
 .homeLogo{
   width: min(320px, 78vw);
   margin: 4px auto 0;
@@ -706,23 +715,37 @@ body.homeNoDrawer #drawerBackdrop{
 
 .homeChips{
   width:100%;
-  display:flex;
+  display:flex !important;
+  flex-direction:row !important;
+  flex-wrap:nowrap !important;
   gap:10px;
   justify-content:center;
-  flex-wrap:wrap;
+  align-items:center;
   margin-top: 4px;
 }
 .homeChip{
+  flex: 1 1 0 !important;
+  width: 50% !important;
+  min-width: 0 !important;
   display:inline-flex;
-  align-items:stretch;
+  align-items:center;
+  justify-content:center;
   gap:8px;
   border: 1px solid rgba(0,0,0,.12);
   background: rgba(255,255,255,.75);
   border-radius: 16px;
-  padding: 10px 12px;
+  padding: 10px 8px;
   font-weight: 700;
-  cursor: default;
+  cursor: pointer;
   box-shadow: 0 10px 22px rgba(0,0,0,.14);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.homeChip span{
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .homeChip:active{transform:translateY(1px); box-shadow:0 7px 16px rgba(0,0,0,.16);} 
 .homeChipIconImg{
